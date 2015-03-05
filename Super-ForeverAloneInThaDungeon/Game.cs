@@ -644,6 +644,15 @@ namespace Super_ForeverAloneInThaDungeon
             msg("GAME OVER: R.I.P. " + ((Player)tiles[playerPos.X, playerPos.Y]).name + '!');
             draw();
             Console.ReadKey();
+
+            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+
+            // display and update highscores
+            Highscores.Load();
+            Highscores.Add(p.name, (int)-currentFloor, (int)p.level, (int)p.money);
+            Highscores.Display();
+            Console.ReadKey();
+
             Environment.Exit(0);
         }
         #endregion

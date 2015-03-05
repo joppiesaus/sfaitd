@@ -35,6 +35,10 @@ namespace Super_ForeverAloneInThaDungeon
 
         public const ushort SFLAG_NEEDS_CHECK = ushort.MaxValue - 1; // I'm pretty sure that the score wont be that long
 
+        public static readonly string EXE_DIR = AppDomain.CurrentDomain.BaseDirectory;
+        public const string HIGHSCORES_FILE_NAME = "SuperForeverAloneInThaDungeon.com";
+
+
         public const ConsoleColor invItemBorderColor = ConsoleColor.DarkGreen;
         public const ConsoleColor invSelItemBorderColor = ConsoleColor.Yellow;
 
