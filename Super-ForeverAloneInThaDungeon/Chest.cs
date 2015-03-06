@@ -13,14 +13,7 @@ namespace Super_ForeverAloneInThaDungeon
             this.color = ConsoleColor.DarkYellow;
             this.walkable = true;
 
-            if (cont == null)
-            {
-                this.contents = GenerateRandomLoot(ref ran, ran.Next(ran.Next(0, 2), 4));
-            }
-            else
-            {
-                this.contents = cont;
-            }
+            this.contents = cont == null ? GenerateRandomLoot(ref ran, ran.Next(ran.Next(0, 2), 4)) : cont;
         }
 
 

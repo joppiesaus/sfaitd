@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chest.cs" />
+    <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Creature.cs" />
     <Compile Include="DungeonGenerator.cs" />
