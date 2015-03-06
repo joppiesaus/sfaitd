@@ -109,7 +109,6 @@ namespace Super_ForeverAloneInThaDungeon
                     switch (key)
                     {
                         case ConsoleKey.Escape: Environment.Exit(0); break;
-                        case ConsoleKey.OemPeriod: ReadCommand(); doNotCallDraw = true; break;
                         case ConsoleKey.R: return;
                         case ConsoleKey.LeftArrow: toAdd.X--; break;
                         case ConsoleKey.RightArrow: toAdd.X++; break;
