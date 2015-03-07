@@ -61,7 +61,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
 
-        // TODO: Make effecienter
+        // TODO: Make drawing effecienter
         public void run()
         {
             while (true)
@@ -270,13 +270,15 @@ namespace Super_ForeverAloneInThaDungeon
                                 drawInventory();
                                 break;
 
-                            case ConsoleKey.Tab: state = State.Default; /*Console.Clear();*/ reDrawDungeon(); continue;
+                            case ConsoleKey.OemPeriod: ReadCommand(); break;
+                            case ConsoleKey.Tab: state = State.Default; reDrawDungeon(); continue;
                             case ConsoleKey.Escape: Environment.Exit(0); break;
                         }
                     else
                         switch (key)
                         {
-                            case ConsoleKey.Tab: state = State.Default; /*Console.Clear();*/ reDrawDungeon(); continue;
+                            case ConsoleKey.OemPeriod: ReadCommand(); break;
+                            case ConsoleKey.Tab: state = State.Default; reDrawDungeon(); continue;
                             case ConsoleKey.Escape: Environment.Exit(0); break;
                         }
                 }
