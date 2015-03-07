@@ -58,13 +58,11 @@ namespace Super_ForeverAloneInThaDungeon
             invDItems = new InventoryDisplayItem[Constants.invCapacity];
 
             ran = new Random();
-
-            game();
         }
 
 
         // TODO: Make effecienter
-        void game()
+        public void run()
         {
             while (true)
             {
