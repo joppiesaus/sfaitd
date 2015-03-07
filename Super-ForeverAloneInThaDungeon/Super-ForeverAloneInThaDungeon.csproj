@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chest.cs" />
+    <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Creature.cs" />
     <Compile Include="DungeonGenerator.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Pickupable.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Point.cs" />
+    <Compile Include="PopupWindow.cs" />
     <Compile Include="Room.cs" />
     <Compile Include="Scroll.cs" />
     <Compile Include="Program.cs" />

@@ -13,8 +13,8 @@ namespace Super_ForeverAloneInThaDungeon
         Point invPrevPoint = new Point();
         int invLowestY = 0;
 
-        InventoryDisplayItem[] invDItems;
-        InventoryDisplayItem invDescription = new InventoryDisplayItem(new Point(), new Point());
+        DisplayItem[] invDItems;
+        DisplayItem invDescription = new DisplayItem(new Point(), new Point());
 
         // I feel sooo redundant. It's not that easy you know. I could just have an array of "chars", but drawing one char is wayyy much slower than 10.
         void drawInventory(int fromIndex = 0 /*from what item it should start drawing from*/)
@@ -61,24 +61,24 @@ namespace Super_ForeverAloneInThaDungeon
                 // If the description was shown and it's the last item, it should be removed!
                 if (invDidDescDraw)
                 {
-                    makeBlackSpace(invDescription);
+                    MakeBlackSpace(invDescription);
                 }
                 WriteCenter("Your inventory is empty");
             }
         }
 
-        void makeBlackSpace(InventoryDisplayItem item)
+        public static void MakeBlackSpace(DisplayItem item)
         {
-            Console.CursorTop = item.begin.Y;
+            Console.CursorTop = item.pos.Y;
 
             // writing an array of characters is wayyy faster than one character.
-            char[] blank = new char[item.end.X - item.begin.X];
+            char[] blank = new char[item.width];
             for (int i = 0; i < blank.Length; i++)
                 blank[i] = ' ';
 
-            for (int y = 0; y < item.end.Y - item.begin.Y; y++)
+            for (int y = 0; y < item.height; y++)
             {
-                Console.CursorLeft = item.begin.X;
+                Console.CursorLeft = item.pos.X;
                 Console.Write(blank);
                 Console.CursorTop++;
             }
@@ -97,7 +97,7 @@ namespace Super_ForeverAloneInThaDungeon
             Point begin = new Point(invPrevPoint.X, invPrevPoint.Y);
             drawInvItem(item, clr, invPrevPoint);
 
-            invDItems[i] = new InventoryDisplayItem(begin, new Point(Console.CursorLeft, Console.CursorTop + 1));
+            invDItems[i] = new DisplayItem(begin, new Point(Console.CursorLeft, Console.CursorTop + 1));
 
             invPrevPoint.X += width + 1;
             if (Console.CursorTop > invLowestY) invLowestY = Console.CursorTop;
@@ -178,17 +178,17 @@ namespace Super_ForeverAloneInThaDungeon
             // if this needs to change, make sure the background changes too
             if (invDidDescDraw)
             {
-                makeBlackSpace(invDescription);
+                MakeBlackSpace(invDescription);
             }
 
             InventoryItem item = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem];
             int itemInnerWidth = item.image.GetLength(1);
 
-            bool lefty = invDItems[invSelItem].begin.X + Constants.invDescriptionWidth >= tiles.GetLength(0);
+            bool lefty = invDItems[invSelItem].pos.X + Constants.invDescriptionWidth >= tiles.GetLength(0);
 
-            int originX = lefty ? invDItems[invSelItem].begin.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].begin.X;
+            int originX = lefty ? invDItems[invSelItem].pos.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].pos.X;
 
-            Point begin = new Point(originX, invDItems[invSelItem].end.Y - 1);
+            Point begin = new Point(originX, invDItems[invSelItem].EndY - 1);
 
             // used to display the horizontal stuff(upper bar and lower bar)
             char[] bar = new char[Constants.invDescriptionWidth];
@@ -365,21 +365,21 @@ namespace Super_ForeverAloneInThaDungeon
             // draw lower bar
             Console.Write(bar);
 
-            int endY = invDescription.end.Y;
+            int endY = invDescription.EndY;
 
-            invDescription = new InventoryDisplayItem(begin, new Point(Console.CursorLeft, Console.CursorTop + 1));
+            invDescription = new DisplayItem(begin, new Point(Console.CursorLeft, Console.CursorTop + 1));
 
             // if description border had decreased, draw the collided inventory items again
-            if (invDidDescDraw && (endY > invDescription.end.Y || invDescription.end.Y - endY > 1))
+            if (invDidDescDraw && (endY > invDescription.EndY || invDescription.EndY - endY > 1))
             {
                 Player p = ((Player)tiles[playerPos.X, playerPos.Y]);
                 bool needed = false;
                 for (int i = 0; i < p.nInvItems; i++)
                 {
-                    if (invDItems[i].end.Y > invDescription.end.Y && inv_collides(invDescription, invDItems[i]))
+                    if (invDItems[i].EndY > invDescription.EndY && inv_collides(invDescription, invDItems[i]))
                     {
                         needed = true;
-                        drawInvItem(p.inventory[i], Constants.invItemBorderColor/*can never be selected item, no need to check*/, invDItems[i].begin);
+                        drawInvItem(p.inventory[i], Constants.invItemBorderColor/*can never be selected item, no need to check*/, invDItems[i].pos);
                     }
                 }
                 if (needed)
@@ -412,7 +412,7 @@ namespace Super_ForeverAloneInThaDungeon
                 // destroy item
                 for (int i = invSelItem; i < idiCount; i++)
                 {
-                    makeBlackSpace(invDItems[i]);
+                    MakeBlackSpace(invDItems[i]);
                 }
                 p.removeInventoryItem(invSelItem);
 
@@ -436,14 +436,14 @@ namespace Super_ForeverAloneInThaDungeon
             invSelItem = to;
 
             invDidDescDraw = false;
-            makeBlackSpace(invDescription);
+            MakeBlackSpace(invDescription);
             inv_handleCollision(invDescription);
-            drawInvItem(p.inventory[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].begin);
+            drawInvItem(p.inventory[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].pos);
             inv_drawDescription();
             inv_drawDescription();
         }
 
-        void inv_handleCollision(InventoryDisplayItem item)
+        void inv_handleCollision(DisplayItem item)
         {
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
 
@@ -451,15 +451,15 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 if (inv_collides(item, invDItems[i]))
                 {
-                    drawInvItem(p.inventory[i], i == invSelItem ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, invDItems[i].begin);
+                    drawInvItem(p.inventory[i], i == invSelItem ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, invDItems[i].pos);
                 }
             }
         }
 
-        bool inv_collides(InventoryDisplayItem a, InventoryDisplayItem b)
+        bool inv_collides(DisplayItem a, DisplayItem b)
         {
-            return (a.begin.X + Constants.invDescriptionWidth > b.begin.X && a.begin.X < b.begin.X + Constants.invDescriptionWidth &&
-                    a.begin.Y + (a.end.Y - a.begin.Y) > b.begin.Y && a.begin.Y < b.begin.Y + (b.end.Y - b.begin.Y));
+            return (a.pos.X + Constants.invDescriptionWidth > b.pos.X && a.pos.X < b.pos.X + Constants.invDescriptionWidth &&
+                    a.pos.Y + a.height > b.pos.Y && a.pos.Y < b.pos.Y + b.height);
         }
     }
 }

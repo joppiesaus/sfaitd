@@ -55,7 +55,7 @@ namespace Super_ForeverAloneInThaDungeon
             scores = new ushort[size.X, size.Y]; // !ALSO UNSAFE!
 
             // inventory stuff
-            invDItems = new InventoryDisplayItem[Constants.invCapacity];
+            invDItems = new DisplayItem[Constants.invCapacity];
 
             ran = new Random();
         }
@@ -106,6 +106,7 @@ namespace Super_ForeverAloneInThaDungeon
                     bool doNotCallDraw = false;
                     switch (key)
                     {
+                        case ConsoleKey.OemPeriod: ReadCommand(); doNotCallDraw = true; break;
                         case ConsoleKey.Escape: Environment.Exit(0); break;
                         case ConsoleKey.R: return;
                         case ConsoleKey.LeftArrow: toAdd.X--; break;
@@ -617,7 +618,29 @@ namespace Super_ForeverAloneInThaDungeon
         }
         #endregion
 
+        #region popups
+        void wipeDisplayItem(DisplayItem d)
+        {
+            for (int y = d.pos.Y; y < d.EndY; y++)
+                for (int x = d.pos.X; x < d.EndX; x++)
+                    tiles[x, y].needsToBeDrawn = true;
 
+            char[] buffer = new char[d.width];
+            for (short i = 0; i < d.width; i++)
+            {
+                buffer[i] = ' ';
+            }
+
+            Console.CursorTop = d.pos.Y;
+            Console.CursorLeft = d.pos.X;
+            for (int y = d.pos.Y; y < d.EndY; y++)
+            {
+                Console.CursorLeft = d.pos.X;
+                Console.Write(buffer);
+                Console.CursorTop++;
+            }
+        }
+        #endregion
 
         #region "constant" messages methods
         public static void msg(string s)

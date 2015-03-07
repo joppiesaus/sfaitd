@@ -18,17 +18,6 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        class InventoryDisplayItem
-        {
-            public readonly Point begin, end;
-
-            public InventoryDisplayItem(Point b, Point e)
-            {
-                this.begin = b;
-                this.end = e;
-            }
-        }
-
         class LineWriter
         {
             // POD + constructor
