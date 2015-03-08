@@ -47,7 +47,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
     public class HitPenalty : SpellEffect
     {
         public override string Name { get { return "Hard to hit"; } }
-        public override string HelpDescription { get { return "When applied, the target creature has value divided by 10 percentage points less chance of getting hit"; } }
+        public override string HelpDescription { get { return "When applied, the target creature has Value divided by 10 percentage points less chance of getting hit"; } }
 
         public HitPenalty(int val) : base(val) { }
 
@@ -67,7 +67,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
     public class MaxHealthBoost : SpellEffect
     {
         public override string Name { get { return "Enhanced Body"; } }
-        public override string HelpDescription { get { return "Player's max health is increased by the value"; } }
+        public override string HelpDescription { get { return "Player's max health is increased by the Value"; } }
 
         public MaxHealthBoost(int val) : base(val) { }
 
@@ -82,7 +82,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
     class Heal : SpellEffect
     {
         public override string Name { get { return "Heal"; } }
-        public override string HelpDescription { get { return "Players's health is increased by the value"; } }
+        public override string HelpDescription { get { return "Players's health is increased by the Value"; } }
 
         public Heal(int val) : base(val) { }
 
@@ -97,7 +97,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
     class StrengthBoost : SpellEffect
     {
         public override string Name { get { return "Bear Strength"; } }
-        public override string HelpDescription { get { return "Creature's strength is increased by the value"; } }
+        public override string HelpDescription { get { return "Creature's strength is increased by the Value"; } }
 
         public StrengthBoost(int val) : base(val) { }
 

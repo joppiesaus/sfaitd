@@ -1,4 +1,5 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -44,13 +45,13 @@ namespace Super_ForeverAloneInThaDungeon
 
         public Creature()
         {
-            walkable = true;
+            Walkable = true;
         }
 
         // Include if (t is Pickupable) when you need to do multiple checks!
         public void onTileEncounter(ref Tile t)
         {
-            if (t.tiletype == TileType.Money)
+            if (t.Type == TileType.Money)
             {
                 money += ((Money)t).money;
                 t = new Tile(((Pickupable)t).replaceTile);
@@ -70,8 +71,8 @@ namespace Super_ForeverAloneInThaDungeon
             if (health <= 0)
             {
                 t = new Money(this.money);
-                ((Pickupable)t).replaceTile = lastTile.tiletype;
-                t.needsToBeDrawn = true;
+                ((Pickupable)t).replaceTile = lastTile.Type;
+                t.NeedsRefresh = true;
                 return true;
             }
             return false;
@@ -128,9 +129,9 @@ namespace Super_ForeverAloneInThaDungeon
         {
             health = maxHealth = ran.Next(6, 10) + lvl;
             money = ran.Next(1, 5); 
-            tiletype = TileType.Snake;
-            drawChar = 'S';
-            color = ConsoleColor.DarkGreen;
+            Type = TileType.Snake;
+            RepresentationInLight = 'S';
+            Color = ConsoleColor.DarkGreen;
             damage = new Point(2 + lvl, 4 + lvl);
             searchRange = 5;
 
@@ -158,9 +159,9 @@ namespace Super_ForeverAloneInThaDungeon
             money = ran.Next(2, 7);
             health = maxHealth = ran.Next(8, 13) + lvl;
             searchRange = (ushort)(6 + lvl / 3);
-            tiletype = TileType.Goblin;
-            drawChar = Constants.chars[3];
-            color = ConsoleColor.DarkRed;
+            Type = TileType.Goblin;
+            RepresentationInLight = Constants.chars[3];
+            Color = ConsoleColor.DarkRed;
             damage = new Point(2 + lvl, 4 + lvl + ran.Next(0, lvl));
             
             if (lvl <= 8)

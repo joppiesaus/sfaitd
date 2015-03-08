@@ -12,6 +12,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryAction[] actions;
 
+        
         public InventoryItem() { }
         public InventoryItem(string name, string description, char[,] image, ConsoleColor color,
             IIAI[] addInfo = null, InventoryAction[] invActions = null)
@@ -51,7 +52,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// </summary>
         /// <param name="p">Player</param>
         /// <returns>If the item needs to be destroyed</returns>
-        public abstract bool Act(ref Player p, int itemIndex);
+        public abstract bool Act(Player p, int itemIndex);
     }
 
     public class InventoryActionDrop : InventoryAction
@@ -61,7 +62,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryActionDrop() : base() { }
 
-        public override bool Act(ref Player p, int itemIndex)
+        public override bool Act( Player p, int itemIndex)
         {
             return true;
         }
@@ -74,7 +75,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryActionCast() : base() { }
 
-        public override bool Act(ref Player p, int itemIndex)
+        public override bool Act(Player p, int itemIndex)
         {
             SpellEffect[] effects = ((EffectItem)p.inventory[itemIndex]).effects;
 
@@ -96,7 +97,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryActionYield() : base() { }
 
-        public override bool Act(ref Player p, int itemIndex)
+        public override bool Act(Player p, int itemIndex)
         {
             if (((WeaponItem)p.inventory[itemIndex]).weapon is Throwable)
             {

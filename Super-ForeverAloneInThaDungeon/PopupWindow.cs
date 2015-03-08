@@ -1,18 +1,19 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class PopupWindow
+    public class PopupWindow
     {
         public DisplayItem item;
 
         public PopupWindow(short width, string text, ConsoleColor borderColor = ConsoleColor.Yellow, ConsoleColor textColor = ConsoleColor.White, byte addLines = 0)
         {
-            string[] lines = Constants.generateReadableString(text, width - 4);
+            string[] lines = Constants.GenerateReadableString(text, width - 4);
             this.item = new DisplayItem(new Point(), width, (short)(lines.Length + ++addLines + 3));
 
             item.CenterScreen();
-            Game.MakeBlackSpace(item);
+            //_drawer.MakeBlackSpace(item);
             
 
             // construct bars
@@ -23,18 +24,18 @@ namespace Super_ForeverAloneInThaDungeon
             bar[--width] = Constants.rupWall;
 
             // draw upper bar
-            Console.SetCursorPosition(item.Position.X, item.Position.Y);
+            Console.SetCursorPosition(item.Origin.X, item.Origin.Y);
             Console.ForegroundColor = borderColor;
             Console.Write(bar);
 
-            Console.CursorLeft = item.Position.X;
+            Console.CursorLeft = item.Origin.X;
             Console.CursorTop++;
 
             // extra line
             Console.Write(Constants.yWall);
             Console.CursorLeft = item.EndX - 1;
             Console.Write(Constants.yWall);
-            Console.CursorLeft = item.Position.X;
+            Console.CursorLeft = item.Origin.X;
             Console.CursorTop++;
 
             // draw lines
@@ -53,7 +54,7 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.CursorTop++;
             }
 
-            Console.CursorLeft = item.Position.X;
+            Console.CursorLeft = item.Origin.X;
 
             // draw additional empty lines
             for (byte i = 0; i < addLines; i++)
@@ -61,7 +62,7 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.Write(Constants.yWall);
                 Console.CursorLeft = item.EndX - 1;
                 Console.Write(Constants.yWall);
-                Console.CursorLeft = item.Position.X;
+                Console.CursorLeft = item.Origin.X;
                 Console.CursorTop++;
             }
 
@@ -78,7 +79,7 @@ namespace Super_ForeverAloneInThaDungeon
             : base(width, enterMessage, borderColor, textColor, 2)
         {
             Console.CursorTop -= 2;
-            Console.CursorLeft = item.Position.X + 2;
+            Console.CursorLeft = item.Origin.X + 2;
         }
     }
 }

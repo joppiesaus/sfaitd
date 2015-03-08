@@ -151,11 +151,10 @@ namespace Super_ForeverAloneInThaDungeon
             else return ran.Next(0, 2) == 1 ? "did a critical hit on you" : "injured you";
         }
 
-        // makes a string break into pieces
-        public static string[] generateReadableString(string input, int lineLength)
+        public static string[] GenerateReadableString(string input, int lineLength)
         {
             string[] sInput = input.Split(' ');
-            string[] lines = new string[sInput.Length/*input.Length / lineLength + 4*/];
+            string[] lines = new string[sInput.Length];
 
             string currentLine = "";
             int a = 0;

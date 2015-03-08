@@ -9,7 +9,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public Pickupable()
         {
-            walkable = true;
+            Walkable = true;
         }
 
         public virtual InventoryItem getInvItem(ref Random ran)
@@ -24,11 +24,11 @@ namespace Super_ForeverAloneInThaDungeon
 
         public Money(int value)
         {
-            walkable = true;
-            tiletype = TileType.Money;
+            Walkable = true;
+            Type = TileType.Money;
             money = (short)value;
-            drawChar = '*';
-            color = ConsoleColor.Yellow;
+            RepresentationInLight = '*';
+            Color = ConsoleColor.Yellow;
         }
     }
 }

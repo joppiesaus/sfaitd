@@ -1,60 +1,72 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using Microsoft.SqlServer.Server;
+using System.Text;
+using System.Threading;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    // Refractor count: 22
-    partial class Game
+    public class InventoryHandler
     {
-        int invSelItem;
-        int invActionSel;
+        public int SelectedItemIndex { get; set; }
+        public int SelectedActionIndex { get; set; }
 
         bool invDidDescDraw = false;
 
         Point invPrevPoint = new Point();
         int invLowestY = 0;
 
-        DisplayItem[] invDItems;
-        DisplayItem invDescription = new DisplayItem(new Point(), new Point());
+        private readonly DisplayItem[] _items;
+        private DisplayItem _itemDescription = new DisplayItem(new Point(), new Point());
 
-        // I feel sooo redundant. It's not that easy you know. I could just have an array of "chars", but drawing one char is wayyy much slower than 10.
-        void drawInventory(int fromIndex = 0 /*from what item it should start drawing from*/)
+        public InventoryItem SelectedItem { get { return _player.inventory[SelectedItemIndex]; } }
+
+        private readonly Player _player;
+        private readonly Drawer _drawer;
+        private readonly int _mapWidth;
+
+        public InventoryHandler(Player player, Drawer drawer, int width)
         {
-            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
+            _player = player;
+            _drawer = drawer;
+            _mapWidth = width;
 
-            if (p.nInvItems > 0)
+            _items = new DisplayItem[Constants.invCapacity];
+        }
+
+        public void DrawInventory(int fromIndex = 0)
+        {
+            if (_player.ItemCount > 0)
             {
                 invLowestY = 0;
 
                 if (fromIndex == 0)
                 {
-                    for (int i = 0; i < invSelItem; i++)
-                        inv_drawProcess(p.inventory[i], i, Constants.invItemBorderColor);
-                    inv_drawProcess(p.inventory[invSelItem], invSelItem, Constants.invSelItemBorderColor);
-                    for (int i = invSelItem + 1; i < p.nInvItems; i++)
-                        inv_drawProcess(p.inventory[i], i, Constants.invItemBorderColor);
+                    for (int i = 0; i < SelectedItemIndex; i++)
+                        inv_drawProcess(_player.inventory[i], i, Constants.invItemBorderColor);
+                    inv_drawProcess(_player.inventory[SelectedItemIndex], SelectedItemIndex, Constants.invSelItemBorderColor);
+                    for (int i = SelectedItemIndex + 1; i < _player.ItemCount; i++)
+                        inv_drawProcess(_player.inventory[i], i, Constants.invItemBorderColor);
                 }
                 else
                 {
-                    if (fromIndex <= invSelItem)
+                    if (fromIndex <= SelectedItemIndex)
                     {
-                        for (int i = 0; i < invSelItem; i++)
-                            inv_drawProcess(p.inventory[i], i, Constants.invItemBorderColor);
-                        inv_drawProcess(p.inventory[invSelItem], invSelItem, Constants.invSelItemBorderColor);
-                        for (int i = invSelItem + 1; i < p.nInvItems; i++)
-                            inv_drawProcess(p.inventory[i], i, Constants.invItemBorderColor);
+                        for (int i = 0; i < SelectedItemIndex; i++)
+                            inv_drawProcess(_player.inventory[i], i, Constants.invItemBorderColor);
+                        inv_drawProcess(_player.inventory[SelectedItemIndex], SelectedItemIndex, Constants.invSelItemBorderColor);
+                        for (int i = SelectedItemIndex + 1; i < _player.ItemCount; i++)
+                            inv_drawProcess(_player.inventory[i], i, Constants.invItemBorderColor);
                     }
                     else
                     {
-                        for (int i = fromIndex; i < p.nInvItems; i++)
-                            inv_drawProcess(p.inventory[i], i, Constants.invItemBorderColor);
+                        for (int i = fromIndex; i < _player.ItemCount; i++)
+                            inv_drawProcess(_player.inventory[i], i, Constants.invItemBorderColor);
                     }
                 }
 
                 // Draw two times. Very redundant, but used for the background.
-                inv_drawDescription();
-                inv_drawDescription();
+                DrawDescription();
+                DrawDescription();
 
                 invPrevPoint = new Point();
             }
@@ -63,134 +75,104 @@ namespace Super_ForeverAloneInThaDungeon
                 // If the description was shown and it's the last item, it should be removed!
                 if (invDidDescDraw)
                 {
-                    MakeBlackSpace(invDescription);
+                    MakeBlackSpace(_itemDescription);
                 }
                 _drawer.WriteCenter("Your inventory is empty");
             }
         }
 
-        public static void MakeBlackSpace(DisplayItem item)
+        public void MakeBlackSpace(DisplayItem item)
         {
-            Console.CursorTop = item.Position.Y;
-
-            // writing an array of characters is wayyy faster than one character.
-            char[] blank = new char[item.Width];
-            for (int i = 0; i < blank.Length; i++)
-                blank[i] = ' ';
-
-            for (int y = 0; y < item.Height; y++)
-            {
-                Console.CursorLeft = item.Position.X;
-                Console.Write(blank);
-                Console.CursorTop++;
-            }
+            _drawer.DrawRectangle(item.Origin, new Size(item.Width, item.Height), ConsoleColor.Black);
         }
 
-        void inv_drawProcess(InventoryItem item, int i, ConsoleColor clr)
+        public void inv_drawProcess(InventoryItem item, int i, ConsoleColor color)
         {
-            int width = item.image.GetLength(1) + 2;
+            int graphicItemWidth = item.image.GetLength(1) + 2;
 
-            if (invPrevPoint.X + width >= Console.BufferWidth)
+            if (invPrevPoint.X + graphicItemWidth >= Console.BufferWidth)
             {
                 invPrevPoint.X = 0;
                 invPrevPoint.Y = invLowestY + 1;
             }
             
             Point begin = new Point(invPrevPoint.X, invPrevPoint.Y);
-            drawInvItem(item, clr, invPrevPoint);
 
-            invDItems[i] = new DisplayItem(begin, new Point(Console.CursorLeft, Console.CursorTop + 1));
+            DrawItem(item, color, invPrevPoint);
 
-            invPrevPoint.X += width + 1;
-            if (Console.CursorTop > invLowestY) invLowestY = Console.CursorTop;
+            // TODO : find other way to get the dimension
+            int graphicItemHeight = Constants.GenerateReadableString(item.name, item.image.GetLength(1)).Length + item.image.GetLength(0) + 1;
+
+            _items[i] = new DisplayItem(begin, begin.AddX(graphicItemWidth).AddY(graphicItemHeight));
+
+            invPrevPoint.X += graphicItemWidth + 1;
+            if (_items[i].EndY > invLowestY) invLowestY = _items[i].EndY;
         }
 
-        void drawInvItem(InventoryItem item, ConsoleColor borderColor, Point origin)
+        public void DrawItem(InventoryItem item, ConsoleColor borderColor, Point origin)
         {
             int innerWidth = item.image.GetLength(1);
 
-            // generate lower and upper bar
-            string up = Constants.lupWall.ToString();
-            string down = Constants.ldownWall.ToString();
+            StringBuilder topBar = new StringBuilder(Constants.lupWall.ToString());
+            StringBuilder bottomBar = new StringBuilder(Constants.ldownWall.ToString());
 
             for (int i = 0; i < innerWidth; i++)
             {
-                up += Constants.xWall;
-                down += Constants.xWall;
+                topBar.Append(Constants.xWall);
+                bottomBar.Append(Constants.xWall);
             }
 
-            up += Constants.rupWall.ToString();
-            down += Constants.rdownWall.ToString();
+            topBar.Append(Constants.rupWall.ToString());
+            bottomBar.Append(Constants.rdownWall.ToString());
 
-            // write upper bar
-            Console.ForegroundColor = borderColor;
-            Console.CursorLeft = origin.X;
-            Console.CursorTop = origin.Y;
-            Console.Write(up);
-            Console.CursorLeft = origin.X;
-            Console.CursorTop++;
+            _drawer.Write(topBar.ToString(), borderColor, origin); // 1
 
-            string[] title = Constants.generateReadableString(item.name, innerWidth);
             
-            // draw title
+
+            string[] title = Constants.GenerateReadableString(item.name, innerWidth);
+            
             for (int y = 0; y < title.Length; y++)
             {
-                Console.ForegroundColor = borderColor;
-                Console.Write(Constants.yWall);
+                _drawer.Draw(Constants.yWall, borderColor, new Point(origin.X, origin.Y + y + 1));
 
-                Console.ForegroundColor = ConsoleColor.White;
+                int x = origin.X + innerWidth / 2 - title[y].Length / 2 + 1;
+                _drawer.Write(title[y], ConsoleColor.White, new Point(x, origin.Y + y));
 
-                string t = title[y];
-                Console.CursorLeft = origin.X + innerWidth / 2 - t.Length / 2 + 1;
-                Console.Write(t);
-
-                Console.CursorLeft = origin.X + innerWidth + 1;
-                Console.ForegroundColor = borderColor;
-                Console.Write(Constants.yWall);
-                Console.CursorTop++;
-                Console.CursorLeft = origin.X;
+                _drawer.Draw(Constants.yWall, borderColor, new Point(origin.X + innerWidth + 1, origin.Y + y + 1));
             }
 
-            // draw image
             for (int y = 0; y < item.image.GetLength(0); y++)
             {
-                Console.ForegroundColor = borderColor;
-                Console.Write(Constants.yWall);
+                _drawer.Draw(Constants.yWall, borderColor, new Point(origin.X, origin.Y + title.Length + y));
 
+                // TODO : Use string builder
                 string line = "";
-
                 for (int x = 0; x < innerWidth; x++)
                     line += item.image[y, x];
 
-                Console.ForegroundColor = item.color;
-                Console.Write(line);
+                _drawer.Write(line, item.color, new Point(origin.X + 1, origin.Y + title.Length + y));
 
-                Console.ForegroundColor = borderColor;
-                Console.Write(Constants.yWall);
-                Console.CursorLeft = origin.X;
-                Console.CursorTop++;
+                _drawer.Draw(Constants.yWall, borderColor, new Point(origin.X + 1 + innerWidth, origin.Y + title.Length + y));
             }
-
+            
             // draw lower bar
-            Console.Write(down);
+            int endLineIndex = origin.Y + title.Length + item.image.GetLength(0);
+            _drawer.Write(bottomBar.ToString(), borderColor, new Point(origin.X, endLineIndex));
         }
 
-        void inv_drawDescription()
+        public void DrawDescription()
         {
-            // if this needs to change, make sure the background changes too
-            if (invDidDescDraw)
-            {
-                MakeBlackSpace(invDescription);
-            }
-
-            InventoryItem item = ((Player)map[_playerPosition.X, _playerPosition.Y]).inventory[invSelItem];
+            
+            MakeBlackSpace(_itemDescription);
+            
+            InventoryItem item = _player.inventory[SelectedItemIndex];
             int itemInnerWidth = item.image.GetLength(1);
 
-            bool lefty = invDItems[invSelItem].Position.X + Constants.invDescriptionWidth >= map.GetLength(0);
+            bool lefty = _items[SelectedItemIndex].Origin.X + Constants.invDescriptionWidth >= _mapWidth;
 
-            int originX = lefty ? invDItems[invSelItem].Position.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].Position.X;
+            int originX = lefty ? _items[SelectedItemIndex].Origin.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : _items[SelectedItemIndex].Origin.X;
 
-            Point begin = new Point(originX, invDItems[invSelItem].EndY - 1);
+            Point descriptionBlockOrigin = new Point(originX, _items[SelectedItemIndex].EndY - 1);
 
             // used to display the horizontal stuff(upper bar and lower bar)
             char[] bar = new char[Constants.invDescriptionWidth];
@@ -220,47 +202,43 @@ namespace Super_ForeverAloneInThaDungeon
                 bar[Constants.invDescriptionWidth - 1] = Constants.rupWall;
             }
 
-            // draw the upper bar
-            Console.CursorLeft = originX;
-            Console.CursorTop = begin.Y;
-            Console.ForegroundColor = Constants.invSelItemBorderColor;
+            int cursorLeft = descriptionBlockOrigin.X;
+            int cursorTop = descriptionBlockOrigin.Y;
 
-            Console.Write(bar);
+            _drawer.Write(bar, Constants.invSelItemBorderColor, descriptionBlockOrigin);
 
-            Console.CursorTop++;
-            Console.CursorLeft = originX;
+            cursorTop++;
 
-            // draw the description
-            string[] description = Constants.generateReadableString(item.description, Constants.invDescriptionWidth - 4);
+            string[] description = Constants.GenerateReadableString(item.description, Constants.invDescriptionWidth - 4);
             for (int y = 0; y < description.Length; y++)
             {
-                Console.Write(Constants.yWall);
-                Console.CursorLeft++;
-                Console.ForegroundColor = ConsoleColor.Gray;
 
-                Console.Write(description[y]);
+                _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
 
-                Console.ForegroundColor = Constants.invSelItemBorderColor;
-                Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
-                Console.Write(Constants.yWall);
+                cursorLeft += 1;
+                
 
-                Console.CursorTop++;
-                Console.CursorLeft = originX;
+
+                _drawer.Write(description[y], ConsoleColor.Gray, new Point(cursorLeft, cursorTop));
+
+                cursorLeft = originX + Constants.invDescriptionWidth - 1;
+                _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+
+
+                cursorTop++;
+                cursorLeft = originX;
             }
 
-            // extra line(wow what an effort)
-            Console.Write(Constants.yWall);
-            Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
-            Console.Write(Constants.yWall);
-            Console.CursorTop++;
-            Console.CursorLeft = originX;
+            _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+            cursorLeft = originX + Constants.invDescriptionWidth - 1;
+            _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+            cursorTop++;
+            cursorLeft = originX;
 
-            // draw additional info
             if (item.extraInfo != null)
             {
                 int valLoc = 0;
 
-                // calculate the max distance so everything looks neat
                 for (int i = 0; i < item.extraInfo.Length; i++)
                     if (item.extraInfo[i].label.Length > valLoc) valLoc = item.extraInfo[i].label.Length;
 
@@ -268,51 +246,46 @@ namespace Super_ForeverAloneInThaDungeon
 
                 for (int i = 0; i < item.extraInfo.Length; i++)
                 {
-                    Console.Write(Constants.yWall);
-                    Console.CursorLeft++;
-                    Console.ForegroundColor = item.extraInfo[i].lColor;
+                    _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+                    cursorLeft++;
+                    _drawer.Write(item.extraInfo[i].label + ':', item.extraInfo[i].lColor, new Point(cursorLeft, cursorTop));
 
-                    Console.Write(item.extraInfo[i].label + ':');
-                    Console.CursorLeft = valLoc;
-                    Console.ForegroundColor = item.extraInfo[i].vColor;
-                    Console.Write(item.extraInfo[i].value);
+                    cursorLeft = valLoc;
+                    _drawer.Write(item.extraInfo[i].value, item.extraInfo[i].vColor, new Point(cursorLeft, cursorTop));
 
-                    Console.ForegroundColor = Constants.invSelItemBorderColor;
-                    Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
-                    Console.Write(Constants.yWall);
+                    cursorLeft = originX + Constants.invDescriptionWidth - 1;
+                    _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
 
-                    Console.CursorTop++;
-                    Console.CursorLeft = originX;
+                    cursorTop++;
+                    cursorLeft = originX;
                 }
 
-                // ... and an extra line
-                Console.Write(Constants.yWall);
-                Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
-                Console.Write(Constants.yWall);
-                Console.CursorTop++;
-                Console.CursorLeft = originX;
+
+                _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+                cursorLeft = originX + Constants.invDescriptionWidth - 1;
+                _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+                cursorTop++;
+                cursorLeft = originX;
             }
 
             for (int i = 0; i < item.actions.Length; i++)
             {
-                Console.Write(Constants.yWall);
+                _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+                cursorLeft++;
 
-                // Draw the description of the action when needed
-                if (i == invActionSel)
+                if (i == SelectedActionIndex)
                 {
-                    // draw cursor on selected item
-                    Console.CursorLeft++;
-                    Console.ForegroundColor = ConsoleColor.DarkRed; // TODO: Not sure. Blue? Background color?
-                    Console.Write(Constants.chars[4]);
-                    Console.CursorLeft += 2;
 
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.Write(item.actions[i].Action);
+                    cursorLeft++;
+                    _drawer.Draw(Constants.chars[4], ConsoleColor.DarkRed, new Point(cursorLeft, cursorTop));
+                    cursorLeft += 3;
 
-                    Console.CursorLeft += 2;
+                    _drawer.Write(item.actions[i].Action,ConsoleColor.Magenta, new Point(cursorLeft, cursorTop));
+                    cursorLeft += item.actions[i].Action.Length;
+                    cursorLeft += 2;
 
-                    int x = Console.CursorLeft;
-                    string[] desc = Constants.generateReadableString(
+                    int x = cursorLeft;
+                    string[] desc = Constants.GenerateReadableString(
                         item.actions[i].Description,
                         Constants.invDescriptionWidth - (x - originX) - 2
                     );
@@ -323,160 +296,171 @@ namespace Super_ForeverAloneInThaDungeon
 
                         for (int y = 0; y < desc.Length - 1; y++)
                         {
-                            Console.CursorLeft = x;
-                            Console.ForegroundColor = ConsoleColor.Gray; // FOR COLOR CHANGE CHECK
+                            cursorLeft = x;
 
-                            Console.Write(desc[y]);
+                            _drawer.Write(desc[y], ConsoleColor.Gray, new Point(cursorLeft, cursorTop));
 
-                            Console.ForegroundColor = Constants.invSelItemBorderColor;
-                            Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
-                            Console.Write(Constants.yWall);
+                            cursorLeft = originX + Constants.invDescriptionWidth - 1;
 
-                            Console.CursorLeft = originX;
-                            Console.CursorTop++;
+                            _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
 
-                            Console.Write(Constants.yWall);
+                            cursorLeft = originX;
+                            cursorTop++;
+
+                            _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
                         }
                     }
 
-                    Console.CursorLeft = x;
-                    Console.ForegroundColor = ConsoleColor.Gray; // THIS OUT TOO
 
-                    // one line doesn't count
-                    Console.Write(desc[desc.Length - 1]);
+                    cursorLeft = x;
+
+                    _drawer.Write(desc[desc.Length - 1], ConsoleColor.Gray, new Point(cursorLeft, cursorTop));
                 }
                 else
                 {
-                    Console.CursorLeft += 4;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(item.actions[i].Action);
+                    cursorLeft += 4;
+                    _drawer.Write(item.actions[i].Action, ConsoleColor.Red, new Point(cursorLeft, cursorTop));
                 }
 
-                Console.ForegroundColor = Constants.invSelItemBorderColor;
-                Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
-                Console.Write(Constants.yWall);
-                Console.CursorLeft = originX;
-                Console.CursorTop++;
+                cursorLeft = originX + Constants.invDescriptionWidth - 1;
+                _drawer.Draw(Constants.yWall, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
+                cursorLeft = originX;
+                cursorTop++;
             }
 
-            // construct lower bar
             bar[0] = Constants.ldownWall;
             bar[Constants.invDescriptionWidth - 1] = Constants.rdownWall;
             bar[thatStupidCharacterThatBreaksEverything] = Constants.xWall;
 
-            // draw lower bar
-            Console.Write(bar);
+            _drawer.Write(bar, Constants.invSelItemBorderColor, new Point(cursorLeft, cursorTop));
 
-            int endY = invDescription.EndY;
+            int previousEndY = _itemDescription.EndY;
 
-            invDescription = new DisplayItem(begin, new Point(Console.CursorLeft, Console.CursorTop + 1));
+            _itemDescription = new DisplayItem(descriptionBlockOrigin, new Point(Constants.invDescriptionWidth, cursorTop + 1));
 
-            // if description border had decreased, draw the collided inventory items again
-            if (invDidDescDraw && (endY > invDescription.EndY || invDescription.EndY - endY > 1))
+            // if description border had decreased, draw the collided inventory _items again
+            if (invDidDescDraw && (previousEndY > _itemDescription.EndY || _itemDescription.EndY - previousEndY > 1))
             {
-                Player p = ((Player)map[_playerPosition.X, _playerPosition.Y]);
                 bool needed = false;
-                for (int i = 0; i < p.nInvItems; i++)
+                for (int i = 0; i < _player.ItemCount; i++)
                 {
-                    if (invDItems[i].EndY > invDescription.EndY && inv_collides(invDescription, invDItems[i]))
+                    if (_items[i].EndY > _itemDescription.EndY && inv_collides(_itemDescription, _items[i]))
                     {
                         needed = true;
-                        drawInvItem(p.inventory[i], Constants.invItemBorderColor/*can never be selected item, no need to check*/, invDItems[i].Position);
+                        DrawItem(_player.inventory[i], Constants.invItemBorderColor, _items[i].Origin);
                     }
                 }
                 if (needed)
                 {
-                    // ... and itself again
-                    inv_drawDescription();
+                    DrawDescription();
                     return;
                 }
             }
 
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.CursorLeft = 0;
-            Console.CursorTop = Console.BufferHeight - 1;
-
             invDidDescDraw = true;
         }
 
-        void doSelectedInventoryAction()
+        public void PreviousAction()
         {
-            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
+            if (--SelectedActionIndex < 0)
+            {
+                SelectedActionIndex = SelectedItem.actions.Length - 1;
+            }
+
+            DrawDescription();
+        }
+
+        public void NextAction()
+        {
+            if (++SelectedActionIndex >= SelectedItem.actions.Length)
+            {
+                SelectedActionIndex = 0;
+            }
+
+            DrawDescription();
+        }
+
+        public void DoSelectedInventoryAction()
+        {
 
             // if an item gets added while the other is being removed,
-            // it will crash because invDItems doesn't get updated while the inventory does.
-            int idiCount = p.nInvItems;
+            // it will crash because _items doesn't get updated while the inventory does.
+            int idiCount = _player.ItemCount;
 
             // Do the action, check if needs to be destroyed
             // It seems kindof redundant passing in the arguments you use to call the function itself
-            if (p.inventory[invSelItem].actions[invActionSel].Act(ref p, invSelItem))
+            if (_player.inventory[SelectedItemIndex].actions[SelectedActionIndex].Act(_player, SelectedItemIndex))
             {
                 // destroy item
-                for (int i = invSelItem; i < idiCount; i++)
+                for (int i = SelectedItemIndex; i < idiCount; i++)
                 {
-                    MakeBlackSpace(invDItems[i]);
+                    MakeBlackSpace(_items[i]);
                 }
-                p.removeInventoryItem(invSelItem);
+                _player.removeInventoryItem(SelectedItemIndex);
 
-                // == seems unsafe, but if you mess arround with it it'll crash <i>anyway</i>
-                if (invSelItem == p.nInvItems && invSelItem != 0)
-                    invSelItem--;
+                if (SelectedItemIndex == _player.ItemCount && SelectedItemIndex != 0)
+                    SelectedItemIndex--;
 
-                drawInventory(invSelItem);
+                DrawInventory();
             }
 
-            _drawer.DrawInfoBar(map, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
-                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
         }
 
-        void inv_changeSelectedItem(int to)
+        public void NextItem()
         {
-            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
+            if (SelectedItemIndex >= _player.ItemCount - 1) return;
+            ++SelectedItemIndex;
+            ChangeItemSelection();
 
-            if (to < 0) to = p.nInvItems - 1;
-            else if (to >= p.nInvItems) to = 0;
-
-            invSelItem = to;
-
-            invDidDescDraw = false;
-            MakeBlackSpace(invDescription);
-            inv_handleCollision(invDescription);
-            drawInvItem(p.inventory[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].Position);
-            inv_drawDescription();
-            inv_drawDescription();
         }
 
-        void inv_wipePopup(DisplayItem item)
+        public void PreviousItem()
+        {
+            if (SelectedItemIndex == 0) return;
+            --SelectedItemIndex;
+            ChangeItemSelection();
+        }
+
+        private void ChangeItemSelection()
+        {
+            invDidDescDraw = false;
+            MakeBlackSpace(_itemDescription);
+            inv_handleCollision(_itemDescription);
+            DrawItem(_player.inventory[SelectedItemIndex], Constants.invSelItemBorderColor, _items[SelectedItemIndex].Origin);
+            DrawDescription();
+            DrawDescription();
+        }
+
+        public void inv_wipePopup(DisplayItem item)
         {
             MakeBlackSpace(item);
             inv_handleCollision(item);
-            if (inv_collides(item, invDescription))
+            if (inv_collides(item, _itemDescription))
             {
-                inv_drawDescription();
+                DrawDescription();
             }
         }
 
-        void inv_handleCollision(DisplayItem item)
+        public void inv_handleCollision(DisplayItem item)
         {
-            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
-            for (int i = 0; i < p.nInvItems; i++)
+            for (int i = 0; i < _player.ItemCount; i++)
             {
-                if (inv_collides(item, invDItems[i]))
+                if (inv_collides(item, _items[i]))
                 {
-                    drawInvItem(p.inventory[i], i == invSelItem ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, invDItems[i].Position);
+                    DrawItem(_player.inventory[i], i == SelectedItemIndex ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, _items[i].Origin);
                 }
             }
         }
 
-        bool inv_collides(DisplayItem a, DisplayItem b)
+        public bool inv_collides(DisplayItem a, DisplayItem b)
         {
 
             // Constants.invDescriptionWidth is left out, because a's width needs to be called sometimes.
             // Labda's don't work as default parameters, so everything becomes a mess.
             // So that optimization cancels out.
-            return (a.Position.X + a.Width/*Constants.invDescriptionWidth*/ > b.Position.X && a.Position.X < b.Position.X + b.Width  &&
-                    a.Position.Y + a.Height > b.Position.Y && a.Position.Y < b.Position.Y + b.Height);
+            return (a.Origin.X + a.Width/*Constants.invDescriptionWidth*/ > b.Origin.X && a.Origin.X < b.Origin.X + b.Width  &&
+                    a.Origin.Y + a.Height > b.Origin.Y && a.Origin.Y < b.Origin.Y + b.Height);
         }
     }
 }

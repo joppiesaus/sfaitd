@@ -1,10 +1,11 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
     public class Player : Creature
     {
-        public int nInvItems = 0;
+        public int ItemCount { get; set; }
 
         public InventoryItem[] inventory = new InventoryItem[Constants.invCapacity];
 
@@ -35,11 +36,11 @@ namespace Super_ForeverAloneInThaDungeon
         {
             health = maxHealth = 12;
 
-            tiletype = TileType.Player;
+            Type = TileType.Player;
             lastTile = new Tile(TileType.Up);
-            drawChar = '☺';
-            color = ConsoleColor.Magenta;
-            damage = new Point(3, 0); // x is the strength
+            RepresentationInLight = '☺';
+            Color = ConsoleColor.Magenta;
+            damage = new Point(3, 0); // StartPosition is the strength
 
             hitLikelyness = 400;
 
@@ -48,20 +49,20 @@ namespace Super_ForeverAloneInThaDungeon
 
         public bool addInventoryItem(InventoryItem item)
         {
-            if (nInvItems >= inventory.Length) return false;
-            inventory[nInvItems++] = item;
+            if (ItemCount >= inventory.Length) return false;
+            inventory[ItemCount++] = item;
             return true;
         }
 
         public void removeInventoryItem(int n)
         {
             // order matters here
-            nInvItems--;
-            for (; n < nInvItems;)
+            ItemCount--;
+            for (; n < ItemCount;)
             {
                 inventory[n] = inventory[++n];
             }
-            inventory[nInvItems] = null;
+            inventory[ItemCount] = null;
         }
 
         // unused
@@ -74,7 +75,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryItem lastInventoryItem()
         {
-            return inventory[nInvItems - 1];
+            return inventory[ItemCount - 1];
         }
 
         public void onMove()

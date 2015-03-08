@@ -1,13 +1,14 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    
     public enum TileType
     {
         None,
         Air,
-        Wall,
+        VerticalWall,
+        HorizontalWall,
         Money,
         Player,
         Corridor,
@@ -23,102 +24,97 @@ namespace Super_ForeverAloneInThaDungeon
 
     public class Tile
     {
-        public char drawChar;
-        public bool walkable = false;
-        public bool lighten = false;
-        public bool discovered = false;
-        public bool needsToBeDrawn = true;
-        public ConsoleColor color;
-        public TileType tiletype;
+        public char RepresentationInLight { get; set; }
 
-        public char notLightenChar = '.';
+        public bool Walkable { get; set; }
+        public bool Lighten { get; set; }
+        public bool Discovered { get; set; }
+        public bool NeedsRefresh { get; set; }
 
-        public Tile() { }
-        public Tile(TileType tp/* = TileType.None*/)
+        protected ConsoleColor Color { get; set; }
+        public TileType Type { get; set; }
+
+        public const char DefaultTileInInFogCharacter = '.';
+        public char ReprensentationInDark = DefaultTileInInFogCharacter;
+
+        public ConsoleColor CurrentColor
         {
-            setTile(tp);
+            get { return Lighten ? Color : ConsoleColor.DarkGray; }
         }
 
-        public void setTile(TileType tp)
+        public char CurrentRepresentation
         {
-            needsToBeDrawn = true;
-            tiletype = tp;
+            get { return Lighten ? RepresentationInLight : ReprensentationInDark; }
+        }
 
-            switch (tp)
+        public Tile()
+        {
+            NeedsRefresh = true;
+        }
+
+        public Tile(TileType type)
+        {
+            SetTileType(type);
+        }
+
+        public void SetTileType(TileType type)
+        {
+            NeedsRefresh = true;
+            Type = type;
+
+            switch (type)
             {
                 default:
-                    drawChar = ' ';
+                    RepresentationInLight = ' ';
                     break;
                 case TileType.None:
-                    drawChar = notLightenChar = ' ';
+                    RepresentationInLight = ReprensentationInDark = ' ';
                     break;
                 case TileType.Air:
-                    walkable = true;
-                    drawChar = '.';
-                    notLightenChar = '.';
-                    color = ConsoleColor.Gray; break;
-                case TileType.Wall:
-                    //drawChar = '#';
-                    color = ConsoleColor.Gray; break;
+                    Walkable = true;
+                    RepresentationInLight = '.';
+                    ReprensentationInDark = '.';
+                    Color = ConsoleColor.Gray; 
+                    break;
+                case TileType.VerticalWall:
+                    ReprensentationInDark = RepresentationInLight = Constants.yWall;
+                    Color = ConsoleColor.Gray; 
+                    break;
+                case TileType.HorizontalWall:
+                    ReprensentationInDark = RepresentationInLight = Constants.xWall;
+                    Color = ConsoleColor.Gray; 
+                    break;
                 case TileType.Corridor:
-                    drawChar = notLightenChar = '#';
-                    color = ConsoleColor.White;
-                    walkable = true; break;
+                    RepresentationInLight = ReprensentationInDark = '#';
+                    Color = ConsoleColor.White;
+                    Walkable = true; 
+                    break;
                 case TileType.Up:
-                    drawChar = Constants.chars[1];
-                    color = ConsoleColor.DarkCyan;
-                    walkable = true; break;
+                    RepresentationInLight = Constants.chars[1];
+                    Color = ConsoleColor.DarkCyan;
+                    Walkable = true; 
+                    break;
                 case TileType.Down:
-                    drawChar = Constants.chars[2];
-                    color = ConsoleColor.Green;
-                    walkable = true; break;
+                    RepresentationInLight = Constants.chars[2];
+                    Color = ConsoleColor.Green;
+                    Walkable = true; 
+                    break;
             }
         }
 
-        public virtual void Draw()
+        public void Draw(Drawer drawer, int x, int y)
         {
-            if (discovered)
-                if (lighten)
-                {
-                    Console.ForegroundColor = color;
-                    Console.Write(drawChar);
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write(notLightenChar);
-                }
+            if (!NeedsRefresh) return;
+            if (!Discovered) return;
+            
+            drawer.Draw(CurrentRepresentation, CurrentColor, new Point(x, y));
+
+            NeedsRefresh = false;
         }
 
         public override string ToString()
         {
-            return drawChar.ToString();
-        }
-    }
-
-
-
-    class Wall : Tile
-    {
-        public Wall(char c)
-            : base(TileType.Wall)
-        {
-            this.drawChar = c;
-        }
-
-        public override void Draw()
-        {
-            if (discovered)
-                if (lighten)
-                {
-                    Console.ForegroundColor = color;
-                    Console.Write(drawChar);
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write(drawChar);
-                }
+            return RepresentationInLight.ToString();
         }
     }
 }

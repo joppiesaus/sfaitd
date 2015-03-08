@@ -1,4 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Threading;
+using Super_ForeverAloneInThaDungeon.Display;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -14,27 +20,12 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 for (int y = 0; y < map.GetLength(1); y++)
                 {
-                    if (map[x, y].needsToBeDrawn)
-                    {
-                        Console.SetCursorPosition(x, y);
-                        map[x, y].Draw();
-                        map[x, y].needsToBeDrawn = false;
-                    }
+                    map[x, y].Draw(this, x, y);
                 }
             }
 
-            if (drawOnceAfterInit)
-            {
-                Console.BackgroundColor = ConsoleColor.DarkBlue;
-                Console.CursorLeft = 0;
-                Console.CursorTop++;
-
-                DrawOnce(Console.WindowWidth*2);
-            }
-
-            DrawInfoBar(map, playerPosition, floor, room, message);
+            DrawInfoBar((Player)map[playerPosition.X, playerPosition.Y], floor, room, message, map.GetLength(1));
         }
-
 
         public void ReDrawDungeon(Tile[,] map, Point playerPosition, uint floor, Room room, string message)
         {
@@ -44,76 +35,78 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 for (int y = 0; y < map.GetLength(1); y++)
                 {
-                    map[x, y].needsToBeDrawn = true;
+                    map[x, y].NeedsRefresh = true;
                 }
             }
 
             Draw(map, true, playerPosition, floor, room, message);
         }
 
-        public void DrawMessages(string location, string message)
+        public void DrawMessages(string location, string message, int position)
         {
-
             string[] msgs = message.Split('\n');
 
             for (int i = 1; i < msgs.Length - 1; i++)
             {
-                _secondeInfoLine.Draw(new string[] {msgs[i] + "--Press space--", location});
-
-                Console.BackgroundColor = ConsoleColor.Black;
-                while (true)
-                {
-                    ConsoleKey key = Console.ReadKey().Key;
-                    if (key == ConsoleKey.Spacebar || key == ConsoleKey.Escape) break;
-                }
-                Console.CursorLeft = 0;
-                Console.CursorTop--;
-                Console.Write(' ');
-                Console.CursorLeft = 0;
-                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                _secondeInfoLine.Draw(position, new string[] { msgs[i] + "--Press space--", location });
+                // TODO : Handle multiple messages
             }
 
-            _secondeInfoLine.Draw(new string[] {msgs[msgs.Length - 1], location});
+            _secondeInfoLine.Draw(position, new string[] { msgs[msgs.Length - 1], location });
         }
 
-        public void DrawInfoBar(Tile[,] map, Point playerPosition, uint floor, Room room, string defaultMessage)
+        public void DrawInfoBar(Player player, uint floor, Room room, string defaultMessage, int infoBarPosition)
         {
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            Console.ForegroundColor = ConsoleColor.White;
-
-            Console.SetCursorPosition(0, map.GetLength(1));
-
-            Player p = (Player)map[playerPosition.X, playerPosition.Y];
-
-            _firstInfoLine.Draw(new string[]
+            _firstInfoLine.Draw(infoBarPosition, new string[]
             {
-                "Health: " + p.health + '(' + p.maxHealth + ')',
-                "xp: " + p.xp + '/' + p.reqXp + "(lvl " + p.level + ')',
-                p.meleeWeapon == null
-                    ? "str: " + p.damage.X
-                    : "str: " + p.damage.X + '+' + p.meleeWeapon.damage.X + '-' + p.meleeWeapon.damage.Y,
+                "Health: " + player.health + '(' + player.maxHealth + ')',
+                "xp: " + player.xp + '/' + player.reqXp + "(lvl " + player.level + ')',
+                player.meleeWeapon == null
+                    ? "str: " + player.damage.X
+                    : "str: " + player.damage.X + '+' + player.meleeWeapon.damage.X + '-' + player.meleeWeapon.damage.Y,
                 "Floor: -" + floor,
-                "Money: " + p.money
+                "Money: " + player.money
             });
 
             string location = "";
 
-            if (p.lastTile.tiletype != TileType.Air) location = p.lastTile.tiletype.ToString();
+            if (player.lastTile.Type != TileType.Air) location = player.lastTile.Type.ToString();
             else
             {
                 location = room == null ? "O_o What the hell did you do this game?" : room.name;
             }
 
-            DrawMessages(location, defaultMessage);
+            DrawMessages(location, defaultMessage, infoBarPosition + 1);
 
-            Console.BackgroundColor = ConsoleColor.Black;
         }
 
-        public void DrawOnce(int amount)
+
+        public void Draw(char representation, ConsoleColor color, Point position)
         {
-            Point orgin = new Point(Console.CursorLeft, Console.CursorTop);
-            for (int i = 0; i < amount; i++) Console.Write(' ');
-            Console.SetCursorPosition(orgin.X, orgin.Y);
+            Screen.Write(new Symbol(representation, color, position));
+        }
+
+        public void Write(IEnumerable<char> line, ConsoleColor color, Point position)
+        {
+            Screen.Write(line, color, ConsoleColor.Black, position);
+        }
+
+        public void Write(IEnumerable<char> line, ConsoleColor foreground, ConsoleColor background, int position)
+        {
+            Screen.Write(line, foreground, background, new Point(0, position));
+        }
+
+        public void Write(IEnumerable<char> line, ConsoleColor foreground, ConsoleColor background, Point position)
+        {
+            Screen.Write(line, foreground, background, position);
+        }
+
+        public void DrawRectangle(Point origin, Size size, ConsoleColor color)
+        {
+            for (int lineIndex = 0; lineIndex < size.Height; lineIndex ++)
+            {
+                Screen.Write(Enumerable.Repeat(' ', size.Width), color, color, origin.AddY(lineIndex));                
+            }
         }
 
         /// <summary>

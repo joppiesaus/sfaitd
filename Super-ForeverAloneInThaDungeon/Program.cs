@@ -1,4 +1,5 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -11,7 +12,7 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 try
                 {
-                    g = new Game(new Point(120, 47));
+                    g = new Game(new Size(120, 47));
                     break;
                 }
                 catch

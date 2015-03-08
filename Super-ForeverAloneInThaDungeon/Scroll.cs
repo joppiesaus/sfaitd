@@ -49,9 +49,9 @@ namespace Super_ForeverAloneInThaDungeon
 
         public Scroll(SpellEffect[] fx)
         {
-            this.drawChar = Constants.chars[0];
-            this.tiletype = TileType.Scroll;
-            this.color = ConsoleColor.Magenta;
+            this.RepresentationInLight = Constants.chars[0];
+            this.Type = TileType.Scroll;
+            this.Color = ConsoleColor.Magenta;
 
             this.effects = fx;
         }
@@ -93,10 +93,10 @@ namespace Super_ForeverAloneInThaDungeon
                 xOff++;
             }
 
-            /*return new InventoryItem(scrollName, "This scroll can do magical stuff", img, color, new IIAI[] { new IIAI("Effects", "???", ConsoleColor.Magenta) },
+            /*return new InventoryItem(scrollName, "This scroll can do magical stuff", img, ForegroundColor, new IIAI[] { new IIAI("Effects", "???", ConsoleColor.Magenta) },
                 new InventoryAction[] { new InventoryActionCast(), new InventoryActionDrop() });*/
             return new EffectItem(scrollName, "",
-                img, color, effects);
+                img, Color, effects);
         }
 
         

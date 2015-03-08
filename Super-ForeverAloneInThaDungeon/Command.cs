@@ -1,4 +1,5 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -47,7 +48,7 @@ namespace Super_ForeverAloneInThaDungeon
                         _informationMessages = string.Empty;
                             break;
                         case State.Inventory:
-                            drawInventory();
+                            _inventoryHandler.DrawInventory();
                             break;
                     }
                     Message("Redrawed succesfully");
@@ -91,7 +92,7 @@ namespace Super_ForeverAloneInThaDungeon
                         _informationMessages = string.Empty;
                     break;
                 case State.Inventory:
-                    inv_wipePopup(dispItem);
+                    _inventoryHandler.inv_wipePopup(dispItem);
                     break;
             }
 

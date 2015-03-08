@@ -64,9 +64,11 @@
     <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Creature.cs" />
+    <Compile Include="Display\Symbol.cs" />
     <Compile Include="Drawer.cs" />
     <Compile Include="DungeonGenerator.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Graphics\Size.cs" />
     <Compile Include="Highscores.cs" />
     <Compile Include="InventoryHandler.cs" />
     <Compile Include="InventoryItem.cs" />
@@ -74,9 +76,10 @@
     <Compile Include="InventoryItemAdditionalInfo.cs" />
     <Compile Include="Pickupable.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="Point.cs" />
+    <Compile Include="Graphics\Point.cs" />
     <Compile Include="PopupWindow.cs" />
     <Compile Include="Room.cs" />
+    <Compile Include="Display\Screen.cs" />
     <Compile Include="Scroll.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

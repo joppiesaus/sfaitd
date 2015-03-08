@@ -1,4 +1,5 @@
 ﻿using System;
+using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -117,7 +118,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             if (!isInScreen(r.where) || !isInScreen(r.end)) return false;
             for (int x = r.where.X; x <= r.end.X; x++) for (int y = r.where.Y; y <= r.end.Y; y++)
-                    if (map[x, y].tiletype != noneTile) return false;
+                    if (map[x, y].Type != noneTile) return false;
             return true;
         }
 
@@ -135,7 +136,7 @@ namespace Super_ForeverAloneInThaDungeon
             while (!isValidMove(_playerPosition))
                 _playerPosition = new Point(_random.Next(where.X, end.X + 1), _random.Next(where.Y, end.Y + 1));
 
-            p.needsToBeDrawn = true;
+            p.NeedsRefresh = true;
             p.lastTile = new Tile(TileType.Up);
             map[_playerPosition.X, _playerPosition.Y] = p;
         }
@@ -196,22 +197,22 @@ namespace Super_ForeverAloneInThaDungeon
             // horizontal
             for (int i = where.X; i <= end.X; i++)
             {
-                map[i, where.Y] = new Wall(Constants.xWall);
-                map[i, end.Y] = new Wall(Constants.xWall);
+                map[i, where.Y] = new Tile(TileType.HorizontalWall);
+                map[i, end.Y] = new Tile(TileType.HorizontalWall);
             }
 
             // vertical
             for (int i = where.Y; i <= end.Y; i++)
             {
-                map[where.X, i] = new Wall(Constants.yWall);
-                map[end.X, i] = new Wall(Constants.yWall);
+                map[where.X, i] = new Tile(TileType.VerticalWall);
+                map[end.X, i] = new Tile(TileType.VerticalWall);
             }
 
             // corners
-            map[where.X, where.Y].drawChar = Constants.lupWall;
-            map[where.X, end.Y].drawChar = Constants.ldownWall;
-            map[end.X, where.Y].drawChar = Constants.rupWall;
-            map[end.X, end.Y].drawChar = Constants.rdownWall;
+            map[where.X, where.Y].RepresentationInLight = Constants.lupWall;
+            map[where.X, end.Y].RepresentationInLight = Constants.ldownWall;
+            map[end.X, where.Y].RepresentationInLight = Constants.rupWall;
+            map[end.X, end.Y].RepresentationInLight = Constants.rdownWall;
 
             // you could stuff this in the "corners", but for the sake of readiabilty I didn't.
             where.X++;
@@ -249,7 +250,7 @@ namespace Super_ForeverAloneInThaDungeon
                             }
                         }
                         else if (_random.Next(0, 500) == 0) map[x, y] = new Snake(ref _random);
-                        else map[x, y].setTile(TileType.Air);
+                        else map[x, y].SetTileType(TileType.Air);
                     }
             }
             else if (_random.Next(0, 150) == 0)
@@ -260,7 +261,7 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         if (_random.Next(0, 25) == 0) map[x, y] = new Snake(ref _random, _random.Next(0, 3));
                         else if (_random.Next(0, 25) == 0) map[x, y] = new Goblin(ref _random, _random.Next(0, 2));
-                        else map[x, y].setTile(TileType.Air);
+                        else map[x, y].SetTileType(TileType.Air);
                     }
             }
             else
@@ -274,7 +275,7 @@ namespace Super_ForeverAloneInThaDungeon
                         else if (_random.Next(0, 800) < 2) map[x, y] = new Snake(ref _random);
                         else if (_random.Next(0, 1000) < 2) map[x, y] = new Goblin(ref _random);
                         else if (_random.Next(0, 1250) == 0) map[x, y] = new Chest(ref _random);
-                        else map[x, y].setTile(TileType.Air);
+                        else map[x, y].SetTileType(TileType.Air);
                     }
             }
         }
@@ -336,7 +337,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             // Skip first one because that one is usually a wall, that needs to be replaced.
             for (int i = 1; i < howMany; i++)
-                if (map[points[i].X, points[i].Y].tiletype != noneTile) return null;
+                if (map[points[i].X, points[i].Y].Type != noneTile) return null;
 
             return points;
         }

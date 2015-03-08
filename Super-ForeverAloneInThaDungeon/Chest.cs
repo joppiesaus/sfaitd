@@ -8,10 +8,10 @@ namespace Super_ForeverAloneInThaDungeon
 
         public Chest(ref Random ran, InventoryItem[] cont = null)
         {
-            this.tiletype = TileType.Chest;
-            this.drawChar = Constants.chars[5];
-            this.color = ConsoleColor.DarkYellow;
-            this.walkable = true;
+            this.Type = TileType.Chest;
+            this.RepresentationInLight = Constants.chars[5];
+            this.Color = ConsoleColor.DarkYellow;
+            this.Walkable = true;
 
             this.contents = cont == null ? GenerateRandomLoot(ref ran, ran.Next(ran.Next(0, 2), 4)) : cont;
         }
