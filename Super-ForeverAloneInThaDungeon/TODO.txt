@@ -1,18 +1,16 @@
 ﻿next:
-UPDATE BUGGGG
-* FIX STUPID BUG WHEN CREATURE DIES
-* FIX NONETILE BUG
-* CHECK IF CREATURES ARE DISPLAYED CORRECTLY
+* very first inventory screen, weird hole.
+* fix issue #1
 
-and then I can rest in peace and
-
-* higher hit likelyness
-* hit likelyness dependent on creatures
 * item selection system(player types c((c)ast), player gets screenfull of scrolls and selects one)
 * Enchanting!
 * Different AI's
 * Effects that last a few moves
+* improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
 
+BUGS:
+* creatures can step out of lighting causing "ghosts"
+* #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
 
 IDEAS:
 x Locked doors
@@ -24,15 +22,6 @@ x you must go down until you've found x, then you must go up and then YOU WIN!!!
 x frozen
 x mental stuff
 
- /*
-     * BUGS:
-     * x Goblins do weird stuff
-     * x pathfinding is buggy when there are more than one options, so pick the option that makes the mob go to the player.
-     * x Goblins have wrong image
-     * x Creatures drop nonetile
-     * x Sometimes things dont refresh properly
-     */
-
 DONE:
 * ADD BRAND NEW INVENTORY SYSTEM!
 * messages in inventory
@@ -43,3 +32,5 @@ DONE:
 * multiple types of rooms
 * FIX STUPID BUG CREATURES DON'T MOVE CORRECTLY
 * highscores!
+* higher hit likelyness
+* hit likelyness dependent on creatures

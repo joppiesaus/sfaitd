@@ -139,10 +139,8 @@ namespace Super_ForeverAloneInThaDungeon
                         Point toCheck = new Point(playerPos.X + toAdd.X, playerPos.Y + toAdd.Y);
                         if (isValidMove(toCheck) || hack)
                         {
-                            Point old = playerPos;
+                            Point old = playerPos;                      // Tile that will appear(old tile under player)
                             Tile preCopy = tiles[toCheck.X, toCheck.Y]; // Tile where the player will move to
-                            preCopy.needsToBeDrawn = true;
-                            tiles[old.X, old.Y].needsToBeDrawn = true; //  Tile that will appear(old tile under player)
 
                             Player p = (Player)tiles[old.X, old.Y];
 
@@ -157,7 +155,7 @@ namespace Super_ForeverAloneInThaDungeon
                             {
                                 // I knew I'd know the English grammar!
                                 int money = ((Money)preCopy).money;
-                                string s = money != 1 ? "s" : "";
+                                string s = money == 1 ? "" : "s";
                                 p.money += money;
                                 msg("You found " + money + " coin" + s + '!');
                                 preCopy = new Tile(((Pickupable)preCopy).replaceTile);
@@ -220,14 +218,17 @@ namespace Super_ForeverAloneInThaDungeon
 
                             if (!abort)
                             {
-                                tiles[toCheck.X, toCheck.Y] = tiles[old.X, old.Y];
-                                Creature c = (Creature)tiles[toCheck.X, toCheck.Y];
-                                tiles[old.X, old.Y] = c.lastTile;
+                                tiles[toCheck.X, toCheck.Y].needsToBeDrawn = true;
+                                preCopy.needsToBeDrawn = true;
+                                tiles[old.X, old.Y].needsToBeDrawn = true;
 
-                                c.lastTile = preCopy;
+                                tiles[toCheck.X, toCheck.Y] = tiles[old.X, old.Y];
+                                Player plyr = (Player)tiles[toCheck.X, toCheck.Y];
+                                tiles[old.X, old.Y] = plyr.lastTile;
+
+                                plyr.lastTile = preCopy;
                                 playerPos = toCheck;
 
-                                Player plyr = (Player)tiles[toCheck.X, toCheck.Y];
                                 onPlayerMove(ref plyr);
                             }
                         }

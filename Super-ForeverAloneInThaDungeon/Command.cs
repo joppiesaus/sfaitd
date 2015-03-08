@@ -71,6 +71,17 @@ namespace Super_ForeverAloneInThaDungeon
                         }
                     }
                     break;
+
+                // TEMPORARY HACK!
+                /*case "KILL":
+                    Tile player = tiles[playerPos.X, playerPos.Y];
+
+                    for (int x = 0; x < tiles.GetLength(0); x++)
+                        for (int y = 0; y < tiles.GetLength(1); y++)
+                            if (tiles[x, y] is Creature) tiles[x, y] = ((Creature)tiles[x, y]).lastTile;
+
+                    tiles[playerPos.X, playerPos.Y] = player;
+                    break;*/
             }
 
             
@@ -82,6 +93,7 @@ namespace Super_ForeverAloneInThaDungeon
                     break;
                 case State.Inventory:
                     inv_wipePopup(dispItem);
+                    drawInfoBar();
                     break;
             }
         }
