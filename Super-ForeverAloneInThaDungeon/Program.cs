@@ -29,7 +29,7 @@ namespace Super_ForeverAloneInThaDungeon
                     if (Console.ReadKey().Key == ConsoleKey.Escape) return;
                 }
             }
-            g.run();
+            g.Run();
         }
     }
 }

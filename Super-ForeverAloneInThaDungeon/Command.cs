@@ -2,7 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    partial class Game
+    public partial class Game
     {
         void ReadCommand()
         {
@@ -33,12 +33,14 @@ namespace Super_ForeverAloneInThaDungeon
                     Environment.Exit(0);
                     break;
                 case "SUICIDE":
-                    onPlayerDead();
+                    OnPlayerDeath();
                     break;
             }
 
             wipeDisplayItem(dispItem);
-            draw();
+            _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
+            _informationMessages = string.Empty;
         }
     }
 }

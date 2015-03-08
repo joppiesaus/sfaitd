@@ -64,9 +64,9 @@
     <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Creature.cs" />
+    <Compile Include="Drawer.cs" />
     <Compile Include="DungeonGenerator.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="GameDrawer.cs" />
     <Compile Include="Highscores.cs" />
     <Compile Include="InventoryHandler.cs" />
     <Compile Include="InventoryItem.cs" />

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using Microsoft.SqlServer.Server;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -19,7 +21,7 @@ namespace Super_ForeverAloneInThaDungeon
         // I feel sooo redundant. It's not that easy you know. I could just have an array of "chars", but drawing one char is wayyy much slower than 10.
         void drawInventory(int fromIndex = 0 /*from what item it should start drawing from*/)
         {
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
             if (p.nInvItems > 0)
             {
@@ -63,22 +65,22 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     MakeBlackSpace(invDescription);
                 }
-                WriteCenter("Your inventory is empty");
+                _drawer.WriteCenter("Your inventory is empty");
             }
         }
 
         public static void MakeBlackSpace(DisplayItem item)
         {
-            Console.CursorTop = item.pos.Y;
+            Console.CursorTop = item.Position.Y;
 
             // writing an array of characters is wayyy faster than one character.
-            char[] blank = new char[item.width];
+            char[] blank = new char[item.Width];
             for (int i = 0; i < blank.Length; i++)
                 blank[i] = ' ';
 
-            for (int y = 0; y < item.height; y++)
+            for (int y = 0; y < item.Height; y++)
             {
-                Console.CursorLeft = item.pos.X;
+                Console.CursorLeft = item.Position.X;
                 Console.Write(blank);
                 Console.CursorTop++;
             }
@@ -181,12 +183,12 @@ namespace Super_ForeverAloneInThaDungeon
                 MakeBlackSpace(invDescription);
             }
 
-            InventoryItem item = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem];
+            InventoryItem item = ((Player)map[_playerPosition.X, _playerPosition.Y]).inventory[invSelItem];
             int itemInnerWidth = item.image.GetLength(1);
 
-            bool lefty = invDItems[invSelItem].pos.X + Constants.invDescriptionWidth >= tiles.GetLength(0);
+            bool lefty = invDItems[invSelItem].Position.X + Constants.invDescriptionWidth >= map.GetLength(0);
 
-            int originX = lefty ? invDItems[invSelItem].pos.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].pos.X;
+            int originX = lefty ? invDItems[invSelItem].Position.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].Position.X;
 
             Point begin = new Point(originX, invDItems[invSelItem].EndY - 1);
 
@@ -372,14 +374,14 @@ namespace Super_ForeverAloneInThaDungeon
             // if description border had decreased, draw the collided inventory items again
             if (invDidDescDraw && (endY > invDescription.EndY || invDescription.EndY - endY > 1))
             {
-                Player p = ((Player)tiles[playerPos.X, playerPos.Y]);
+                Player p = ((Player)map[_playerPosition.X, _playerPosition.Y]);
                 bool needed = false;
                 for (int i = 0; i < p.nInvItems; i++)
                 {
                     if (invDItems[i].EndY > invDescription.EndY && inv_collides(invDescription, invDItems[i]))
                     {
                         needed = true;
-                        drawInvItem(p.inventory[i], Constants.invItemBorderColor/*can never be selected item, no need to check*/, invDItems[i].pos);
+                        drawInvItem(p.inventory[i], Constants.invItemBorderColor/*can never be selected item, no need to check*/, invDItems[i].Position);
                     }
                 }
                 if (needed)
@@ -399,7 +401,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         void doSelectedInventoryAction()
         {
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
             // if an item gets added while the other is being removed,
             // it will crash because invDItems doesn't get updated while the inventory does.
@@ -423,12 +425,13 @@ namespace Super_ForeverAloneInThaDungeon
                 drawInventory(invSelItem);
             }
 
-            drawInfoBar();
+            _drawer.DrawInfoBar(map, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
         }
 
         void inv_changeSelectedItem(int to)
         {
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
             if (to < 0) to = p.nInvItems - 1;
             else if (to >= p.nInvItems) to = 0;
@@ -438,28 +441,28 @@ namespace Super_ForeverAloneInThaDungeon
             invDidDescDraw = false;
             MakeBlackSpace(invDescription);
             inv_handleCollision(invDescription);
-            drawInvItem(p.inventory[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].pos);
+            drawInvItem(p.inventory[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].Position);
             inv_drawDescription();
             inv_drawDescription();
         }
 
         void inv_handleCollision(DisplayItem item)
         {
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
             for (int i = 0; i < p.nInvItems; i++)
             {
                 if (inv_collides(item, invDItems[i]))
                 {
-                    drawInvItem(p.inventory[i], i == invSelItem ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, invDItems[i].pos);
+                    drawInvItem(p.inventory[i], i == invSelItem ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, invDItems[i].Position);
                 }
             }
         }
 
         bool inv_collides(DisplayItem a, DisplayItem b)
         {
-            return (a.pos.X + Constants.invDescriptionWidth > b.pos.X && a.pos.X < b.pos.X + Constants.invDescriptionWidth &&
-                    a.pos.Y + a.height > b.pos.Y && a.pos.Y < b.pos.Y + b.height);
+            return (a.Position.X + Constants.invDescriptionWidth > b.Position.X && a.Position.X < b.Position.X + Constants.invDescriptionWidth &&
+                    a.Position.Y + a.Height > b.Position.Y && a.Position.Y < b.Position.Y + b.Height);
         }
     }
 }

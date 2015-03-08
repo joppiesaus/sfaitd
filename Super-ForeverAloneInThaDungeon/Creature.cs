@@ -4,14 +4,14 @@ namespace Super_ForeverAloneInThaDungeon
 {
     // mix of FOLLOW, FRIENDLY, ETC
     // TODO: implement
-    enum CreatureAIMode
+    public enum CreatureAIMode
     {
         Friendly,
         Neutral,
         Angry
     }
 
-    class Creature : Tile
+    public class Creature : Tile
     {
         public bool processed = false;
 

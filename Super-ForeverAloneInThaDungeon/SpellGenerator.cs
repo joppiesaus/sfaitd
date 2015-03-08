@@ -7,7 +7,7 @@ namespace Super_ForeverAloneInThaDungeon
     static class SpellGenerator
     {
         /// <summary>
-        /// Does the same as GenerateRandomSpellEffects, but chooses the number of effects himself.
+        /// Does the Same as GenerateRandomSpellEffects, but chooses the number of effects himself.
         /// </summary>
         public static SpellEffect[] GenerateMultiple(ref Random ran)
         {

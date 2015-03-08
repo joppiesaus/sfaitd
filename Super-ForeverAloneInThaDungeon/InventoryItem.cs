@@ -3,7 +3,7 @@ using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class InventoryItem
+    public class InventoryItem
     {
         public string name, description;
         public IIAI[] extraInfo;
@@ -34,7 +34,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-    abstract class InventoryAction
+    public abstract class InventoryAction
     {
         public abstract string Action { get; }
         public abstract string Description { get; }
@@ -54,7 +54,7 @@ namespace Super_ForeverAloneInThaDungeon
         public abstract bool Act(ref Player p, int itemIndex);
     }
 
-    class InventoryActionDrop : InventoryAction
+    public class InventoryActionDrop : InventoryAction
     {
         public override string Action { get { return "Drop"; } }
         public override string Description { get { return "Drop this item"; } }
@@ -109,7 +109,7 @@ namespace Super_ForeverAloneInThaDungeon
                 p.mWeaponItem = (WeaponItem)p.inventory[itemIndex];
             }
 
-            Game.msg("now holding " + p.inventory[itemIndex].name + '!');
+            Game.Message("now holding " + p.inventory[itemIndex].name + '!');
             return true;
         }
     }
@@ -130,7 +130,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             p.health += health;
 
-            Game.msg("you healed yourself " + health);
+            Game.Message("you healed yourself " + health);
             return true;
         }
     }*/

@@ -9,9 +9,9 @@ namespace Super_ForeverAloneInThaDungeon
             int cSpawnTries = 100, int bSpawnTries = 100, byte corrMinLength = 5, byte corrMaxLength = 15,
             byte cbMinLength = 5, byte cbMaxLength = 10)
         {
-            Point spawnRoomGenPoint = new Point(tiles.GetLength(0) / 2 + ran.Next(-10, 5), tiles.GetLength(1) / 2 + ran.Next(-10, 5));
-            Room spawnRoom = new Room(spawnRoomGenPoint, new Point(spawnRoomGenPoint.X + ran.Next(4, 12), spawnRoomGenPoint.Y + ran.Next(4, 8)));
-            spawnRoom.appendName(ref ran);
+            Point spawnRoomGenPoint = new Point(map.GetLength(0) / 2 + _random.Next(-10, 5), map.GetLength(1) / 2 + _random.Next(-10, 5));
+            Room spawnRoom = new Room(spawnRoomGenPoint, new Point(spawnRoomGenPoint.X + _random.Next(4, 12), spawnRoomGenPoint.Y + _random.Next(4, 8)));
+            spawnRoom.appendName(ref _random);
             generateRoom(spawnRoom);
 
             Room[] dungeons = new Room[howManyRooms + 1];
@@ -27,18 +27,18 @@ namespace Super_ForeverAloneInThaDungeon
                 byte dir = 0;
 
                 bool fail = true;
-                for (int t = 0; t < cSpawnTries; t++) // cSpawnTries: how many tries to generate a corridor on a random wall
+                for (int t = 0; t < cSpawnTries; t++) // cSpawnTries: how many tries to generate a corridor on a _random wall
                 {
-                    r = dungeons[ran.Next(0, a)]; // 0,a --> owl eyes?
-                    dir = (byte)ran.Next(0, 4);
+                    r = dungeons[_random.Next(0, a)]; // 0,a --> owl eyes?
+                    dir = (byte)_random.Next(0, 4);
                     cWhere = getRandomWallPoint(r, dir);
 
-                    corrP = getCorridorPoints(cWhere, dir, ran.Next(corrMinLength, corrMaxLength)); // corrMinLength, corrMaxLength: Length of corridor
+                    corrP = getCorridorPoints(cWhere, dir, _random.Next(corrMinLength, corrMaxLength)); // corrMinLength, corrMaxLength: Length of corridor
 
                     if (corrP == null) continue;
                     cEnd = corrP.Length - 1;
 
-                    if (!corrP[cEnd].same(-1, -1))
+                    if (!corrP[cEnd].Same(-1, -1))
                     {
                         fail = false;
                         break;
@@ -55,7 +55,7 @@ namespace Super_ForeverAloneInThaDungeon
                 int highestIndex = 0;
                 for (int t = 0; t < bSpawnTries; t++) // bSpawnTries: How many tries to attach a room on a corridor
                 {
-                    int cIndex = ran.Next(0, corrP.Length);
+                    int cIndex = _random.Next(0, corrP.Length);
                     Point connPoint = corrP[cIndex];
 
 
@@ -66,16 +66,16 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         nDir = getOppositeDirection(dir);
                     }
-                    else nDir = nDirArr[ran.Next(0, nDirArr.Length)];
+                    else nDir = nDirArr[_random.Next(0, nDirArr.Length)];
 
 
                     // cbMinLength, cbMaxLength: Length of connection between room and corridor
-                    Point[] cPoints = getCorridorPoints(connPoint, getOppositeDirection(nDir), ran.Next(cbMinLength, cbMaxLength));
+                    Point[] cPoints = getCorridorPoints(connPoint, getOppositeDirection(nDir), _random.Next(cbMinLength, cbMaxLength));
                     if (cPoints == null) continue;
 
-                    // new Point(ran.Next(4, 19), ran.Next(5, 15))
+                    // new Point(_random.Next(4, 19), _random.Next(5, 15))
                     // size: size of room
-                    Room toBuild = generateRoom(cPoints[cPoints.Length - 1], new Point(ran.Next(size.where.X, size.where.Y), ran.Next(size.end.X, size.end.Y)), nDir, true, true);
+                    Room toBuild = generateRoom(cPoints[cPoints.Length - 1], new Point(_random.Next(size.where.X, size.where.Y), _random.Next(size.end.X, size.end.Y)), nDir, true, true);
 
                     if (toBuild != null)
                     {
@@ -100,24 +100,24 @@ namespace Super_ForeverAloneInThaDungeon
             if (a != dungeons.Length) Array.Resize(ref dungeons, a);
 
             // Add exit
-            Point p = getRandomPointInRoom(dungeons[ran.Next(0, dungeons.Length)]);
-            tiles[p.X, p.Y] = new Tile(TileType.Down);
+            Point p = getRandomPointInRoom(dungeons[_random.Next(0, dungeons.Length)]);
+            map[p.X, p.Y] = new Tile(TileType.Down);
 
             return dungeons;
         }
 
         void setDungeonToEmpty()
         {
-            for (int a = 0; a < tiles.GetLength(0); a++)
-                for (int b = 0; b < tiles.GetLength(1); b++)
-                    tiles[a, b] = new Tile(noneTile);
+            for (int a = 0; a < map.GetLength(0); a++)
+                for (int b = 0; b < map.GetLength(1); b++)
+                    map[a, b] = new Tile(noneTile);
         }
 
         bool canRoomBePlaced(Room r)
         {
             if (!isInScreen(r.where) || !isInScreen(r.end)) return false;
             for (int x = r.where.X; x <= r.end.X; x++) for (int y = r.where.Y; y <= r.end.Y; y++)
-                    if (tiles[x, y].tiletype != noneTile) return false;
+                    if (map[x, y].tiletype != noneTile) return false;
             return true;
         }
 
@@ -131,13 +131,13 @@ namespace Super_ForeverAloneInThaDungeon
             end.X--;
             end.Y--;
 
-            playerPos = new Point(-1, -1);
-            while (!isValidMove(playerPos))
-                playerPos = new Point(ran.Next(where.X, end.X + 1), ran.Next(where.Y, end.Y + 1));
+            _playerPosition = new Point(-1, -1);
+            while (!isValidMove(_playerPosition))
+                _playerPosition = new Point(_random.Next(where.X, end.X + 1), _random.Next(where.Y, end.Y + 1));
 
             p.needsToBeDrawn = true;
             p.lastTile = new Tile(TileType.Up);
-            tiles[playerPos.X, playerPos.Y] = p;
+            map[_playerPosition.X, _playerPosition.Y] = p;
         }
 
         // *scottisch accent* for moar info, gowto doubleudoubleudoubleudotfunction1dotnlslashpslashsfaitdslashinfoslashSARBdotPNG
@@ -149,25 +149,25 @@ namespace Super_ForeverAloneInThaDungeon
             switch (dir)
             {
                 default:
-                    int mSize = ran.Next(1, size.X);
+                    int mSize = _random.Next(1, size.X);
                     r = new Room(
                         new Point(p.X - mSize, p.Y),
                         new Point(p.X + size.X - mSize, p.Y + size.Y));
                     break;
                 case 1:
-                    mSize = ran.Next(1, size.X);
+                    mSize = _random.Next(1, size.X);
                     r = new Room(
                         new Point(p.X - mSize, p.Y - size.Y),
                         new Point(p.X + size.X - mSize, p.Y));
                     break;
                 case 2:
-                    mSize = ran.Next(1, size.Y);
+                    mSize = _random.Next(1, size.Y);
                     r = new Room(
                         new Point(p.X, p.Y - mSize),
                         new Point(p.X + size.X, p.Y + size.Y - mSize));
                     break;
                 case 3:
-                    mSize = ran.Next(1, size.Y);
+                    mSize = _random.Next(1, size.Y);
                     r = new Room(
                         new Point(p.X - size.X, p.Y - mSize),
                         new Point(p.X, p.Y + size.Y - mSize));
@@ -181,10 +181,10 @@ namespace Super_ForeverAloneInThaDungeon
             }
             else generateRoom(r);
 
-            if (doorAtP) tiles[p.X, p.Y] = new Tile(TileType.Corridor);
+            if (doorAtP) map[p.X, p.Y] = new Tile(TileType.Corridor);
 
 
-            r.appendName(ref ran);
+            r.appendName(ref _random);
             return r;
         }
 
@@ -196,22 +196,22 @@ namespace Super_ForeverAloneInThaDungeon
             // horizontal
             for (int i = where.X; i <= end.X; i++)
             {
-                tiles[i, where.Y] = new Wall(Constants.xWall);
-                tiles[i, end.Y] = new Wall(Constants.xWall);
+                map[i, where.Y] = new Wall(Constants.xWall);
+                map[i, end.Y] = new Wall(Constants.xWall);
             }
 
             // vertical
             for (int i = where.Y; i <= end.Y; i++)
             {
-                tiles[where.X, i] = new Wall(Constants.yWall);
-                tiles[end.X, i] = new Wall(Constants.yWall);
+                map[where.X, i] = new Wall(Constants.yWall);
+                map[end.X, i] = new Wall(Constants.yWall);
             }
 
             // corners
-            tiles[where.X, where.Y].drawChar = Constants.lupWall;
-            tiles[where.X, end.Y].drawChar = Constants.ldownWall;
-            tiles[end.X, where.Y].drawChar = Constants.rupWall;
-            tiles[end.X, end.Y].drawChar = Constants.rdownWall;
+            map[where.X, where.Y].drawChar = Constants.lupWall;
+            map[where.X, end.Y].drawChar = Constants.ldownWall;
+            map[end.X, where.Y].drawChar = Constants.rupWall;
+            map[end.X, end.Y].drawChar = Constants.rdownWall;
 
             // you could stuff this in the "corners", but for the sake of readiabilty I didn't.
             where.X++;
@@ -222,45 +222,45 @@ namespace Super_ForeverAloneInThaDungeon
 
             // fill in rooms
             // (needs to be better in future)
-            if (ran.Next(0, 50) == 0)
+            if (_random.Next(0, 50) == 0)
             {
                 // treasure room
                 for (int x = where.X; x <= end.X; x++)
                     for (int y = where.Y; y <= end.Y; y++)
                     {
-                        if (ran.Next(0, 20) == 0) tiles[x, y] = new Money(ran.Next(1, 7));
-                        else if (ran.Next(0, 33) == 0)
+                        if (_random.Next(0, 20) == 0) map[x, y] = new Money(_random.Next(1, 7));
+                        else if (_random.Next(0, 33) == 0)
                         {
-                            switch (ran.Next(0, 5))
+                            switch (_random.Next(0, 5))
                             {
                                 case 0:
                                 case 1:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateRandomSpellEffects(ref ran, ran.Next(2, 6)));
+                                    map[x, y] = new Scroll(SpellGenerator.GenerateRandomSpellEffects(ref _random, _random.Next(2, 6)));
                                     break;
                                 case 2:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleUncommon(ref ran, ran.Next(1, 5)));
+                                    map[x, y] = new Scroll(SpellGenerator.GenerateMultipleUncommon(ref _random, _random.Next(1, 5)));
                                     break;
                                 case 3:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleRare(ref ran, ran.Next(1, 4)));
+                                    map[x, y] = new Scroll(SpellGenerator.GenerateMultipleRare(ref _random, _random.Next(1, 4)));
                                     break;
                                 case 4:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleCommon(ref ran, ran.Next(3, 8)));
+                                    map[x, y] = new Scroll(SpellGenerator.GenerateMultipleCommon(ref _random, _random.Next(3, 8)));
                                     break;
                             }
                         }
-                        else if (ran.Next(0, 500) == 0) tiles[x, y] = new Snake(ref ran);
-                        else tiles[x, y].setTile(TileType.Air);
+                        else if (_random.Next(0, 500) == 0) map[x, y] = new Snake(ref _random);
+                        else map[x, y].setTile(TileType.Air);
                     }
             }
-            else if (ran.Next(0, 150) == 0)
+            else if (_random.Next(0, 150) == 0)
             {
                 // enemy room
                 for (int x = where.X; x <= end.X; x++)
                     for (int y = where.Y; y <= end.Y; y++)
                     {
-                        if (ran.Next(0, 25) == 0) tiles[x, y] = new Snake(ref ran, ran.Next(0, 3));
-                        else if (ran.Next(0, 25) == 0) tiles[x, y] = new Goblin(ref ran, ran.Next(0, 2));
-                        else tiles[x, y].setTile(TileType.Air);
+                        if (_random.Next(0, 25) == 0) map[x, y] = new Snake(ref _random, _random.Next(0, 3));
+                        else if (_random.Next(0, 25) == 0) map[x, y] = new Goblin(ref _random, _random.Next(0, 2));
+                        else map[x, y].setTile(TileType.Air);
                     }
             }
             else
@@ -269,19 +269,19 @@ namespace Super_ForeverAloneInThaDungeon
                 for (int x = where.X; x <= end.X; x++)
                     for (int y = where.Y; y <= end.Y; y++)
                     {
-                        if (ran.Next(0, 40) == 0) tiles[x, y] = new Money(ran.Next(1, 6));
-                        else if (ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple(ref ran));
-                        else if (ran.Next(0, 800) < 2) tiles[x, y] = new Snake(ref ran);
-                        else if (ran.Next(0, 1000) < 2) tiles[x, y] = new Goblin(ref ran);
-                        else if (ran.Next(0, 1250) == 0) tiles[x, y] = new Chest(ref ran);
-                        else tiles[x, y].setTile(TileType.Air);
+                        if (_random.Next(0, 40) == 0) map[x, y] = new Money(_random.Next(1, 6));
+                        else if (_random.Next(0, 909) == 0) map[x, y] = new Scroll(SpellGenerator.GenerateMultiple(ref _random));
+                        else if (_random.Next(0, 800) < 2) map[x, y] = new Snake(ref _random);
+                        else if (_random.Next(0, 1000) < 2) map[x, y] = new Goblin(ref _random);
+                        else if (_random.Next(0, 1250) == 0) map[x, y] = new Chest(ref _random);
+                        else map[x, y].setTile(TileType.Air);
                     }
             }
         }
 
         Point getRandomPointInRoom(Room r)
         {
-            return new Point(ran.Next(++r.where.X, r.end.X), ran.Next(++r.where.Y, r.end.Y));
+            return new Point(_random.Next(++r.where.X, r.end.X), _random.Next(++r.where.Y, r.end.Y));
         }
 
         byte getOppositeDirection(byte dir)
@@ -336,7 +336,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             // Skip first one because that one is usually a wall, that needs to be replaced.
             for (int i = 1; i < howMany; i++)
-                if (tiles[points[i].X, points[i].Y].tiletype != noneTile) return null;
+                if (map[points[i].X, points[i].Y].tiletype != noneTile) return null;
 
             return points;
         }
@@ -344,7 +344,7 @@ namespace Super_ForeverAloneInThaDungeon
         void generateCorridor(Point[] p, int max, TileType t = TileType.Corridor)
         {
             for (int i = 0; i < max; i++)
-                tiles[p[i].X, p[i].Y] = new Tile(t);
+                map[p[i].X, p[i].Y] = new Tile(t);
         }
 
         Room getDungeonAt(Point p)
@@ -366,10 +366,10 @@ namespace Super_ForeverAloneInThaDungeon
         {
             switch (direction)
             {
-                default: return new Point(ran.Next(r.where.X + 1, r.end.X), r.where.Y); // Return up
-                case 1: return new Point(ran.Next(r.where.X + 1, r.end.X), r.end.Y); // Down,
-                case 2: return new Point(r.where.X, ran.Next(r.where.Y + 1, r.end.Y)); // Left...
-                case 3: return new Point(r.end.X, ran.Next(r.where.Y + 1, r.end.Y)); // Right!
+                default: return new Point(_random.Next(r.where.X + 1, r.end.X), r.where.Y); // Return up
+                case 1: return new Point(_random.Next(r.where.X + 1, r.end.X), r.end.Y); // Down,
+                case 2: return new Point(r.where.X, _random.Next(r.where.Y + 1, r.end.Y)); // Left...
+                case 3: return new Point(r.end.X, _random.Next(r.where.Y + 1, r.end.Y)); // Right!
             }
         }
     }

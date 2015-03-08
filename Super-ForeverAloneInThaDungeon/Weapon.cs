@@ -2,7 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class WeaponItem : InventoryItem
+    public class WeaponItem : InventoryItem
     {
         public Weapon weapon;
 
@@ -25,7 +25,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-    class Weapon
+    public class Weapon
     {
         public Point damage;
         public string name;
@@ -35,13 +35,14 @@ namespace Super_ForeverAloneInThaDungeon
             return name;
         }
     }
-    class Throwable : Weapon
+
+    public class Throwable : Weapon
     {
         public ushort hitChance;
         public byte range;
     }
 
-    class Dagger : Weapon
+    public class Dagger : Weapon
     {
         public Dagger()
         {
@@ -49,7 +50,8 @@ namespace Super_ForeverAloneInThaDungeon
             name = "Dagger";
         }
     }
-    class Spear : Throwable
+
+    public class Spear : Throwable
     {
         public Spear()
         {

@@ -2,8 +2,8 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    // why did I decide combining polymorthism with enums
-    enum TileType
+    
+    public enum TileType
     {
         None,
         Air,
@@ -21,7 +21,7 @@ namespace Super_ForeverAloneInThaDungeon
         Down
     }
 
-    class Tile
+    public class Tile
     {
         public char drawChar;
         public bool walkable = false;

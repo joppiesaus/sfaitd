@@ -2,7 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class Room
+    public class Room
     {
         public string name = "";
         public Point where, end;

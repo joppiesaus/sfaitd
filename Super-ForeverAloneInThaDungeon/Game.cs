@@ -2,8 +2,6 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    // I question myself: Have I ever been this depressed while coding?
-    // I've a lot to learn.
     partial class Game
     {
         enum State
@@ -11,36 +9,34 @@ namespace Super_ForeverAloneInThaDungeon
             Default, Inventory, Combat, Pause, Throwing
         }
 
+        
+
         const TileType noneTile = TileType.None; // use ONLY for dungeon generation(educational :p) exception purposes.
 
         bool hack = false; // you can walk everywhere if true
         bool hackLighting = false;
         bool disableFight = false;
-        bool drawOnceAfterInit = false; // That's for the blue bar-thinggy underneath.
+        bool drawOnceAfterInit = false; // That'content for the blue bar-thinggy underneath.
 
         uint currentFloor = 0;
 
         // Environment
         Room[] rooms;
-        Tile[,] tiles; // Ode to the mighty comma!
+        Tile[,] map; // Ode to the mighty comma!
         ushort[,] scores; // For enemys searching the player
 
-        // Div
-        Random ran;
-        State state = State.Default;
+        private Random _random;
+        private State _state = State.Default;
 
-        LineWriter infoLine1 = new LineWriter(new ushort[] { 0, 20, 40, 60, 0xfaef });
-        LineWriter infoLine2 = new LineWriter(new ushort[] { 0, 0xdead });
-
-        // Player
-        Point playerPos = new Point(-1, -1);
-
-        static string currentMessage = "";
+        private Point _playerPosition = new Point(-1, -1);
+        // TODO : remove static
+        private static string _informationMessages = string.Empty;
+        private readonly Drawer _drawer = new Drawer();
 
         
 
         /// <summary>
-        /// Gets or sets your mother's car windscreenwiper.
+        /// Gets or sets your mother'content car windscreenwiper.
         /// </summary>
         /// <param name="size">Default: 120, 50. Product of size can never be larger than 65536, because that can lead to breadth-first search problems</param>
         public Game(Point size)
@@ -51,54 +47,52 @@ namespace Super_ForeverAloneInThaDungeon
             Console.SetWindowSize(size.X, size.Y + 3);
             Console.BufferHeight = Console.WindowHeight;
 
-            tiles = new Tile[size.X, size.Y]; // !UNSAFE!
+            map = new Tile[size.X, size.Y]; // !UNSAFE!
             scores = new ushort[size.X, size.Y]; // !ALSO UNSAFE!
 
             // inventory stuff
             invDItems = new DisplayItem[Constants.invCapacity];
 
-            ran = new Random();
+            _random = new Random();
         }
 
 
         // TODO: Make effecienter
-        public void run()
+        public void Run()
         {
             while (true)
             {
                 Player p;
-                if (playerPos.same(-1, -1)) p = new Player();
-                else p = (Player)tiles[playerPos.X, playerPos.Y];
+                if (_playerPosition.Same(-1, -1)) p = new Player();
+                else p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
                 setDungeonToEmpty();
 
                 // tweak this
                 rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
 
-                spawnPlayerInRoom(rooms[ran.Next(0, rooms.Length)], p);
+                spawnPlayerInRoom(rooms[_random.Next(0, rooms.Length)], p);
 
-                onPlayerMove(ref p); // make sure everything inits properly
+                OnPlayerMove(ref p); // make sure everything inits properly
 
-                msg("Welcome, " + p.name + "!"); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
+                Message("Welcome, " + p.name + "!"); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
                 if (disableFight) p.walkable = false;
 
 
                 currentFloor++;
+                _drawer.ReDrawDungeon(map, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
 
-
-                // Make sure the dungeon starts nice and clean
-                reDrawDungeon();
-
-                gameLoop();
+                GameLoop();
             }
         }
 
-        void gameLoop()
+        void GameLoop()
         {
             while (true)
             {
-                #region default state
-                if (state == State.Default)
+                #region default _state
+                if (_state == State.Default)
                 {
                     ConsoleKey key = Console.ReadKey().Key;
 
@@ -113,21 +107,21 @@ namespace Super_ForeverAloneInThaDungeon
                         case ConsoleKey.RightArrow: toAdd.X++; break;
                         case ConsoleKey.UpArrow: toAdd.Y--; break;
                         case ConsoleKey.DownArrow: toAdd.Y++; break;
-                        case ConsoleKey.Tab: state = State.Inventory; drawInventory(); continue;
-                        case ConsoleKey.F1: hack = hack.invert(); break; //                                                 HACK TOGGLE HACK TOGGLE HACK
+                        case ConsoleKey.Tab: _state = State.Inventory; drawInventory(); continue;
+                        case ConsoleKey.F1: hack = !hack; break; //                                                 HACK TOGGLE HACK TOGGLE HACK
                         case ConsoleKey.F2: hackLighting = true;
-                            for (int x = 0; x < tiles.GetLength(0); x++)
-                                for (int y = 0; y < tiles.GetLength(1); y++)
-                                    if (tiles[x, y].tiletype != TileType.None)
+                            for (int x = 0; x < map.GetLength(0); x++)
+                                for (int y = 0; y < map.GetLength(1); y++)
+                                    if (map[x, y].tiletype != TileType.None)
                                     {
-                                        tiles[x, y].discovered = true;
-                                        tiles[x, y].lighten = true;
-                                        tiles[x, y].needsToBeDrawn = true;
+                                        map[x, y].discovered = true;
+                                        map[x, y].lighten = true;
+                                        map[x, y].needsToBeDrawn = true;
                                     } break; ////////////////////////////////
                         default:
-                            if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).rangedWeapon != null)
+                            if (key == ConsoleKey.S && ((Player)map[_playerPosition.X, _playerPosition.Y]).rangedWeapon != null)
                             {
-                                state = State.Throwing;
+                                _state = State.Throwing;
                                 continue;
                             }
                             doNotCallDraw = true;
@@ -136,42 +130,42 @@ namespace Super_ForeverAloneInThaDungeon
 
                     if (toAdd.X != 0 || toAdd.Y != 0)
                     {
-                        Point toCheck = new Point(playerPos.X + toAdd.X, playerPos.Y + toAdd.Y);
+                        Point toCheck = new Point(_playerPosition.X + toAdd.X, _playerPosition.Y + toAdd.Y);
                         if (isValidMove(toCheck) || hack)
                         {
-                            Point old = playerPos;
-                            Tile preCopy = tiles[toCheck.X, toCheck.Y]; // Tile where the player will move to
+                            Point old = _playerPosition;
+                            Tile preCopy = map[toCheck.X, toCheck.Y]; // Tile where the player will move to
                             preCopy.needsToBeDrawn = true;
-                            tiles[old.X, old.Y].needsToBeDrawn = true; //  Tile that will appear(old tile under player)
+                            map[old.X, old.Y].needsToBeDrawn = true; //  Tile that will appear(old tile under player)
 
-                            Player p = (Player)tiles[old.X, old.Y];
+                            Player p = (Player)map[old.X, old.Y];
 
                             bool abort = false;
 
                             if (preCopy is Creature)
                             {
-                                attackCreature(ref tiles[toCheck.X, toCheck.Y]);
+                                attackCreature(ref map[toCheck.X, toCheck.Y]);
                                 abort = true;
                             }
                             else if (preCopy.tiletype == TileType.Money)
                             {
                                 // I knew I'd know the English grammar!
                                 int money = ((Money)preCopy).money;
-                                string s = money != 1 ? "s" : "";
+                                string s = money != 1 ? "content" : "";
                                 p.money += money;
-                                msg("You found " + money + " coin" + s + '!');
+                                Message("You found " + money + " coin" + s + '!');
                                 preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                             }
                             // TODO: Make available for other items
                             else if (preCopy is Pickupable)
                             {
                                 // assuming all other pickupables are handled!
-                                if (p.addInventoryItem(((Pickupable)preCopy).getInvItem(ref ran)))
+                                if (p.addInventoryItem(((Pickupable)preCopy).getInvItem(ref _random)))
                                 {
-                                    msg("You found " + p.lastInventoryItem().name);
+                                    Message("You found " + p.lastInventoryItem().name);
                                     preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                                 }
-                                else msg(Constants.invFullMsg);
+                                else Message(Constants.invFullMsg);
                             }
                             else if (preCopy is Chest)
                             {
@@ -182,22 +176,22 @@ namespace Super_ForeverAloneInThaDungeon
 
                                 int count = c.contents.Length;
 
-                                msg("You explore the chest");
+                                Message("You explore the chest");
                                 if (count > 0)
                                     for (int i = 0; i < c.contents.Length; i++)
                                     {
                                         if (p.addInventoryItem(c.contents[i]))
                                         {
-                                            msg("You found " + c.contents[i].name);
+                                            Message("You found " + c.contents[i].name);
                                             count--;
                                         }
                                         else
                                         {
-                                            msg("There's more, but you can't carry more");
+                                            Message("There'content more, but you can't carry more");
                                         }
                                     }
                                 else
-                                    msg("The chest is empty");
+                                    Message("The chest is empty");
 
                                 if (count == 0)
                                     c.contents = new InventoryItem[0];
@@ -220,15 +214,15 @@ namespace Super_ForeverAloneInThaDungeon
 
                             if (!abort)
                             {
-                                tiles[toCheck.X, toCheck.Y] = tiles[old.X, old.Y];
-                                Creature c = (Creature)tiles[toCheck.X, toCheck.Y];
-                                tiles[old.X, old.Y] = c.lastTile;
+                                map[toCheck.X, toCheck.Y] = map[old.X, old.Y];
+                                Creature c = (Creature)map[toCheck.X, toCheck.Y];
+                                map[old.X, old.Y] = c.lastTile;
 
                                 c.lastTile = preCopy;
-                                playerPos = toCheck;
+                                _playerPosition = toCheck;
 
-                                Player plyr = (Player)tiles[toCheck.X, toCheck.Y];
-                                onPlayerMove(ref plyr);
+                                Player plyr = (Player)map[toCheck.X, toCheck.Y];
+                                OnPlayerMove(ref plyr);
                             }
                         }
                     }
@@ -236,17 +230,19 @@ namespace Super_ForeverAloneInThaDungeon
                     if (!doNotCallDraw)
                     {
                         processMonsters();
-                        draw();
+                        _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
+                        _informationMessages = string.Empty;
                     }
                 }
                 #endregion
-                #region inventory state
-                else if (state == State.Inventory)
+                #region inventory _state
+                else if (_state == State.Inventory)
                 {
                     //drawInventory();
                     ConsoleKey key = Console.ReadKey().Key;
 
-                    if (((Player)tiles[playerPos.X, playerPos.Y]).nInvItems > 0)
+                    if (((Player)map[_playerPosition.X, _playerPosition.Y]).nInvItems > 0)
                         switch (key)
                         {
                             case ConsoleKey.LeftArrow:
@@ -257,11 +253,11 @@ namespace Super_ForeverAloneInThaDungeon
                                 break;
                             case ConsoleKey.UpArrow:
                                 if (--invActionSel < 0)
-                                    invActionSel = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem].actions.Length - 1;
+                                    invActionSel = ((Player)map[_playerPosition.X, _playerPosition.Y]).inventory[invSelItem].actions.Length - 1;
                                 inv_drawDescription();
                                 break;
                             case ConsoleKey.DownArrow:
-                                if (++invActionSel >= ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem].actions.Length)
+                                if (++invActionSel >= ((Player)map[_playerPosition.X, _playerPosition.Y]).inventory[invSelItem].actions.Length)
                                     invActionSel = 0;
                                 inv_drawDescription();
                                 break;
@@ -270,23 +266,36 @@ namespace Super_ForeverAloneInThaDungeon
                                 drawInventory();
                                 break;
 
-                            case ConsoleKey.Tab: state = State.Default; /*Console.Clear();*/ reDrawDungeon(); continue;
-                            case ConsoleKey.Escape: Environment.Exit(0); break;
+                            case ConsoleKey.Tab: 
+                                _state = State.Default;
+                                _drawer.ReDrawDungeon(map, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages); 
+                                continue;
+
+                            case ConsoleKey.Escape: 
+                                Environment.Exit(0); 
+                                break;
                         }
                     else
                         switch (key)
                         {
-                            case ConsoleKey.Tab: state = State.Default; /*Console.Clear();*/ reDrawDungeon(); continue;
+                            case ConsoleKey.Tab: 
+                                _state = State.Default;
+                                _drawer.ReDrawDungeon(map, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages); 
+                                continue;
                             case ConsoleKey.Escape: Environment.Exit(0); break;
                         }
                 }
                 #endregion
-                #region Throwing state
-                else if (state == State.Throwing)
+                #region Throwing _state
+                else if (_state == State.Throwing)
                 {
-                    msg("Which direction?");
-                    draw();
-                    Player p = (Player)tiles[playerPos.X, playerPos.Y];
+                    Message("Which direction?");
+                    _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
+                    _informationMessages = string.Empty;
+                    Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
                     Throwable t = p.rangedWeapon;
 
                     switch (Console.ReadKey().Key)
@@ -298,8 +307,10 @@ namespace Super_ForeverAloneInThaDungeon
                         case ConsoleKey.RightArrow: handleThrowable(1, 0, p.rangedWeapon, ref p); break;
                     }
 
-                    draw();
-                    state = State.Default;
+                    _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
+                    _informationMessages = string.Empty;
+                    _state = State.Default;
                 }
                 #endregion
             }
@@ -310,64 +321,64 @@ namespace Super_ForeverAloneInThaDungeon
         // player attacks creature
         void attackCreature(ref Tile creature)
         {
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
             Creature c = (Creature)creature;
 
             int pdmg = 
-                ran.Next(0, 1001) <= p.hitLikelyness - c.HitPenalty ? (
-                    p.meleeWeapon == null ? p.damage.X : p.damage.X + ran.Next(p.meleeWeapon.damage.X, p.meleeWeapon.damage.Y + 1)
+                _random.Next(0, 1001) <= p.hitLikelyness - c.HitPenalty ? (
+                    p.meleeWeapon == null ? p.damage.X : p.damage.X + _random.Next(p.meleeWeapon.damage.X, p.meleeWeapon.damage.Y + 1)
                 )
                 : 0
             ;
 
-            msg(string.Format("{0} {1}", Constants.getPDamageInWords(pdmg, ref ran), c.tiletype));
+            Message(string.Format("{0} {1}", Constants.getPDamageInWords(pdmg, ref _random), c.tiletype));
 
             if (c.doDamage(pdmg, ref creature))
             {
-                onDead(ref p, c);
+                OnPlayerDeath(ref p, c);
             }
         }
 
         void attackPlayer(ref Tile creature)
         {
             Creature c = (Creature)creature;
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
-            int cdmg = c.hit(ref ran, ref p);
+            int cdmg = c.hit(ref _random, ref p);
 
-            msg(string.Format("{0} {1}", c.tiletype, Constants.getCDamageInWords(cdmg, ref ran)));
+            Message(string.Format("{0} {1}", c.tiletype, Constants.getCDamageInWords(cdmg, ref _random)));
 
-            if (p == null) onPlayerDead();
+            if (p == null) OnPlayerDeath();
         }
 
         void processMonsters()
         {
-            ((Creature)tiles[playerPos.X, playerPos.Y]).processed = true;
+            ((Creature)map[_playerPosition.X, _playerPosition.Y]).processed = true;
 
-            for (int x = 0; x < tiles.GetLength(0); x++) for (int y = 0; y < tiles.GetLength(1); y++)
+            for (int x = 0; x < map.GetLength(0); x++) for (int y = 0; y < map.GetLength(1); y++)
                 {
-                    if (tiles[x, y] is Creature && !((Creature)tiles[x, y]).processed)
+                    if (map[x, y] is Creature && !((Creature)map[x, y]).processed)
                     {
                         Point p = getPointTowardsPlayer(x, y);
 
-                        if (isValidMove(p) && !p.same(x, y))
+                        if (isValidMove(p) && !p.Same(x, y))
                         {
-                            if (tiles[p.X, p.Y].tiletype == TileType.Player)
+                            if (map[p.X, p.Y].tiletype == TileType.Player)
                             {
-                                attackPlayer(ref tiles[x, y]);
+                                attackPlayer(ref map[x, y]);
                             }
-                            else if (!(tiles[p.X, p.Y] is Creature))
+                            else if (!(map[p.X, p.Y] is Creature))
                             {
-                                Tile preCopy = tiles[p.X, p.Y]; // target tile
+                                Tile preCopy = map[p.X, p.Y]; // target tile
 
-                                tiles[p.X, p.Y] = tiles[x, y];
-                                Creature c = (Creature)tiles[p.X, p.Y];
+                                map[p.X, p.Y] = map[x, y];
+                                Creature c = (Creature)map[p.X, p.Y];
                                 if (preCopy.lighten) c.needsToBeDrawn = true;
                                 c.notLightenChar = preCopy.notLightenChar;
                                 c.processed = true;
 
-                                tiles[x, y] = c.lastTile;
-                                if (preCopy.lighten) tiles[x, y].needsToBeDrawn = true;
+                                map[x, y] = c.lastTile;
+                                if (preCopy.lighten) map[x, y].needsToBeDrawn = true;
                                 c.onTileEncounter(ref preCopy);
                                 c.lastTile = preCopy;
                             }
@@ -375,51 +386,52 @@ namespace Super_ForeverAloneInThaDungeon
                     }
                 }
 
-            // Yes, I know, but come on! It's a turn-based console game! This piece of code won't be noticed in performance!
-            for (int x = 0; x < tiles.GetLength(0); x++) for (int y = 0; y < tiles.GetLength(1); y++)
+            // Yes, I know, but come on! It'content a turn-based console game! This piece of code won't be noticed in performance!
+            for (int x = 0; x < map.GetLength(0); x++) for (int y = 0; y < map.GetLength(1); y++)
                 {
-                    if (tiles[x, y] is Creature) ((Creature)tiles[x, y]).processed = false;
+                    if (map[x, y] is Creature) 
+                        ((Creature)map[x, y]).processed = false;
                 }
         }
 
         // TODO: Make accesable for enemys too
         void handleThrowable(sbyte x, sbyte y, Throwable t, ref Player p)
         {
-            Point curPoint = playerPos;
+            Point curPoint = _playerPosition;
             for (byte i = 0; i < t.range; i++) // Just saved you 24 bit of RAM!
             {
                 curPoint.X += x;
                 curPoint.Y += y;
 
-                if (isInScreen(curPoint)) if (tiles[curPoint.X, curPoint.Y] is Creature)
+                if (isInScreen(curPoint)) if (map[curPoint.X, curPoint.Y] is Creature)
                     {
-                        int dmg = ran.Next(t.damage.X, t.damage.Y + 1);
+                        int dmg = _random.Next(t.damage.X, t.damage.Y + 1);
 
-                        //message = string.Format("{0} {1} with the Spear", Constants.getPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype);
-                        msg(string.Format("{0} {1} with the {2}", Constants.getPDamageInWords(dmg, ref ran), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
+                        //message = string.Format("{0} {1} with the Spear", Constants.getPDamageInWords(dmg), map[curPoint.X, curPoint.Y].tiletype);
+                        Message(string.Format("{0} {1} with the {2}", Constants.getPDamageInWords(dmg, ref _random), map[curPoint.X, curPoint.Y].tiletype, t.ToString()));
 
-                        Creature c = (Creature)tiles[curPoint.X, curPoint.Y];
-                        if (c.doDamage(dmg, ref tiles[curPoint.X, curPoint.Y]))
-                            onDead(ref p, c);
+                        Creature c = (Creature)map[curPoint.X, curPoint.Y];
+                        if (c.doDamage(dmg, ref map[curPoint.X, curPoint.Y]))
+                            OnPlayerDeath(ref p, c);
 
                         processMonsters();
                         return;
                     }
             }
 
-            msg("I don't see any creature there!");
+            Message("I don't see any creature there!");
         }
 
-        void generateScoreGrid(Point p)
+        private void GenerateScoreGrid(Point p)
         {
-            int count = 0; // this value will never be reached I think. It's mathematical worst-case, which is practically impossible in this scenario.
+            int count = 0; // this value will never be reached I think. It'content mathematical worst-case, which is practically impossible in this scenario.
             int index = 0;
 
             // mark the grid which positions should be checked
-            for (short x = 0; x < tiles.GetLength(0); x++)
-                for (short y = 0; y < tiles.GetLength(1); y++)
+            for (short x = 0; x < map.GetLength(0); x++)
+                for (short y = 0; y < map.GetLength(1); y++)
                 {
-                    if (tiles[x, y].walkable)
+                    if (map[x, y].walkable)
                     {
                         count++;
                         scores[x, y] = Constants.SFLAG_NEEDS_CHECK;
@@ -441,7 +453,7 @@ namespace Super_ForeverAloneInThaDungeon
                 BFSN cTile = list[index--];
                 ushort nscore = (ushort)(cTile.score + 1);
 
-                if (cTile.x + 1 < tiles.GetLength(0) && scores[cTile.x + 1, cTile.y] == Constants.SFLAG_NEEDS_CHECK)
+                if (cTile.x + 1 < map.GetLength(0) && scores[cTile.x + 1, cTile.y] == Constants.SFLAG_NEEDS_CHECK)
                 {
                     scores[cTile.x + 1, cTile.y] = nscore;
                     list[++index] = new BFSN(cTile.x + 1, cTile.y, nscore);
@@ -451,7 +463,7 @@ namespace Super_ForeverAloneInThaDungeon
                     scores[cTile.x - 1, cTile.y] = nscore;
                     list[++index] = new BFSN(cTile.x - 1, cTile.y, nscore);
                 }
-                if (cTile.y + 1 < tiles.GetLength(1) && scores[cTile.x, cTile.y + 1] == Constants.SFLAG_NEEDS_CHECK)
+                if (cTile.y + 1 < map.GetLength(1) && scores[cTile.x, cTile.y + 1] == Constants.SFLAG_NEEDS_CHECK)
                 {
                     scores[cTile.x, cTile.y + 1] = nscore;
                     list[++index] = new BFSN(cTile.x, cTile.y + 1, nscore);
@@ -464,7 +476,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        void onPlayerMove(ref Player p)
+        private void OnPlayerMove(ref Player p)
         {
             p.onMove();
 
@@ -475,23 +487,23 @@ namespace Super_ForeverAloneInThaDungeon
 
                 for (int xa = 0; xa < p.circle.GetLength(0); xa++)
                 {
-                    int xb = playerPos.X + xa - Constants.playerLookRadius + 1;
+                    int xb = _playerPosition.X + xa - Constants.playerLookRadius + 1;
                     for (int ya = 0; ya < p.circle.GetLength(1); ya++)
                     {
-                        Point pos = new Point(xb, playerPos.Y + ya - Constants.playerLookRadius + 1);
+                        Point pos = new Point(xb, _playerPosition.Y + ya - Constants.playerLookRadius + 1);
                         if (p.circle[xa, ya] && isInScreen(pos))
                         {
-                            if (tiles[pos.X, pos.Y].tiletype != TileType.None)
-                                if (!tiles[pos.X, pos.Y].discovered)
+                            if (map[pos.X, pos.Y].tiletype != TileType.None)
+                                if (!map[pos.X, pos.Y].discovered)
                                 {
-                                    tiles[pos.X, pos.Y].discovered = true;
-                                    tiles[pos.X, pos.Y].lighten = true;
-                                    tiles[pos.X, pos.Y].needsToBeDrawn = true;
+                                    map[pos.X, pos.Y].discovered = true;
+                                    map[pos.X, pos.Y].lighten = true;
+                                    map[pos.X, pos.Y].needsToBeDrawn = true;
                                 }
-                                else if (!tiles[pos.X, pos.Y].lighten)
+                                else if (!map[pos.X, pos.Y].lighten)
                                 {
-                                    tiles[pos.X, pos.Y].lighten = true;
-                                    tiles[pos.X, pos.Y].needsToBeDrawn = true;
+                                    map[pos.X, pos.Y].lighten = true;
+                                    map[pos.X, pos.Y].needsToBeDrawn = true;
                                 }
                             processed[xa + 1, ya + 1] = true;
                         }
@@ -501,34 +513,34 @@ namespace Super_ForeverAloneInThaDungeon
 
                 for (int x = 0; x < processed.GetLength(0); x++)
                 {
-                    int xp = playerPos.X + x - Constants.playerLookRadius;
+                    int xp = _playerPosition.X + x - Constants.playerLookRadius;
                     for (int y = 0; y < processed.GetLength(1); y++)
                     {
                         if (!processed[x, y])
                         {
-                            int yp = playerPos.Y + y - Constants.playerLookRadius;
-                            if (isInScreen(new Point(xp, yp)) && tiles[xp, yp].lighten)
+                            int yp = _playerPosition.Y + y - Constants.playerLookRadius;
+                            if (isInScreen(new Point(xp, yp)) && map[xp, yp].lighten)
                             {
-                                tiles[xp, yp].lighten = false;
-                                tiles[xp, yp].needsToBeDrawn = true;
+                                map[xp, yp].lighten = false;
+                                map[xp, yp].needsToBeDrawn = true;
                             }
                         }
                     }
                 }
             }
 
-            generateScoreGrid(playerPos);
+            GenerateScoreGrid(_playerPosition);
         }
 
 
         Point getPointTowardsPlayer(int x, int y)
         {
             Point p = new Point(x, y);
-            Creature c = (Creature)tiles[x, y];
+            Creature c = (Creature)map[x, y];
 
             if (isInRangeOfPlayer(p, c.searchRange))
             {
-                Point preferredDir = new Point(playerPos.X + (x > playerPos.X ? -1 : 1), playerPos.Y + (y > playerPos.Y ? 1 : -1));
+                Point preferredDir = new Point(_playerPosition.X + (x > _playerPosition.X ? -1 : 1), _playerPosition.Y + (y > _playerPosition.Y ? 1 : -1));
 
                 Point[] points = new Point[] {
                     // diagonal moves
@@ -572,17 +584,17 @@ namespace Super_ForeverAloneInThaDungeon
                 byte count = 0;
 
                 // who cares what index what direction is
-                if (tiles[x + 1, y].walkable)
+                if (map[x + 1, y].walkable)
                     points[count++] = new Point(x + 1, y);
-                if (tiles[x - 1, y].walkable)
+                if (map[x - 1, y].walkable)
                     points[count++] = new Point(x - 1, y);
-                if (tiles[x, y + 1].walkable)
+                if (map[x, y + 1].walkable)
                     points[count++] = new Point(x, y + 1);
-                if (tiles[x, y - 1].walkable)
+                if (map[x, y - 1].walkable)
                     points[count++] = new Point(x, y - 1);
                 points[count++] = new Point(x, y); // and do nothing is also a chance
 
-                p = points[ran.Next(0, count)];
+                p = points[_random.Next(0, count)];
             }
 
             return p;
@@ -590,18 +602,18 @@ namespace Super_ForeverAloneInThaDungeon
         #region boolean expressions
         bool isInRangeOfPlayer(Point p, int range)
         {
-            Point difference = new Point(playerPos.X - p.X, playerPos.Y - p.Y);
+            Point difference = new Point(_playerPosition.X - p.X, _playerPosition.Y - p.Y);
             return (difference.X >= -range && difference.X <= range && difference.Y >= -range && difference.X <= range);
         }
 
         bool isValidMove(Point pos)
         {
-            return (pos.X >= 0 && pos.Y >= 0 && pos.X < tiles.GetLength(0) && pos.Y < tiles.GetLength(1) && tiles[pos.X, pos.Y].walkable);
+            return (pos.X >= 0 && pos.Y >= 0 && pos.X < map.GetLength(0) && pos.Y < map.GetLength(1) && map[pos.X, pos.Y].walkable);
         }
 
         bool isInScreen(Point pos)
         {
-            return pos.X >= 0 && pos.X < tiles.GetLength(0) && pos.Y >= 0 && pos.Y < tiles.GetLength(1);
+            return pos.X >= 0 && pos.X < map.GetLength(0) && pos.Y >= 0 && pos.Y < map.GetLength(1);
         }
         #endregion
         #endregion
@@ -613,7 +625,7 @@ namespace Super_ForeverAloneInThaDungeon
             while (p.xp >= p.reqXp)
             {
                 p.levelUp();
-                msg("you are now level " + p.level + '!');
+                Message("you are now level " + p.level + '!');
             }
         }
         #endregion
@@ -621,21 +633,21 @@ namespace Super_ForeverAloneInThaDungeon
         #region popups
         void wipeDisplayItem(DisplayItem d)
         {
-            for (int y = d.pos.Y; y < d.EndY; y++)
-                for (int x = d.pos.X; x < d.EndX; x++)
-                    tiles[x, y].needsToBeDrawn = true;
+            for (int y = d.Position.Y; y < d.EndY; y++)
+                for (int x = d.Position.X; x < d.EndX; x++)
+                    map[x, y].needsToBeDrawn = true;
 
-            char[] buffer = new char[d.width];
-            for (short i = 0; i < d.width; i++)
+            char[] buffer = new char[d.Width];
+            for (short i = 0; i < d.Width; i++)
             {
                 buffer[i] = ' ';
             }
 
-            Console.CursorTop = d.pos.Y;
-            Console.CursorLeft = d.pos.X;
-            for (int y = d.pos.Y; y < d.EndY; y++)
+            Console.CursorTop = d.Position.Y;
+            Console.CursorLeft = d.Position.X;
+            for (int y = d.Position.Y; y < d.EndY; y++)
             {
-                Console.CursorLeft = d.pos.X;
+                Console.CursorLeft = d.Position.X;
                 Console.Write(buffer);
                 Console.CursorTop++;
             }
@@ -643,30 +655,34 @@ namespace Super_ForeverAloneInThaDungeon
         #endregion
 
         #region "constant" messages methods
-        public static void msg(string s)
+
+        // TODO : remove static 
+        public static void Message(string content)
         {
-            currentMessage += '\n' + s ;
+            _informationMessages += '\n' + content ;
         }
 
-        string getDefaultMessage()
+        private string GetDefaultInformationMessage()
         {
-            return playerPos.ToString();
+            return _playerPosition.ToString();
         }
 
-        void onDead(ref Player p, Creature c)
+        private void OnPlayerDeath(ref Player p, Creature c)
         {
-            msg("you have defeated " + c.tiletype + "!");
-            giveXp(ref p, c.getXp(ref ran));
+            Message("you have defeated " + c.tiletype + "!");
+            giveXp(ref p, c.getXp(ref _random));
         }
 
-        void onPlayerDead()
+        private void OnPlayerDeath()
         {
             // rest in rip player
-            msg("GAME OVER: R.I.P. " + ((Player)tiles[playerPos.X, playerPos.Y]).name + '!');
-            draw();
+            Message("GAME OVER: R.I.P. " + ((Player)map[_playerPosition.X, _playerPosition.Y]).name + '!');
+            _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
+                string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
+            _informationMessages = string.Empty;
             Console.ReadKey();
 
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+            Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
 
             // display and update highscores
             Highscores.Load();

@@ -18,7 +18,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        class LineWriter
+        public class LineWriter
         {
             // POD + constructor
             class Node

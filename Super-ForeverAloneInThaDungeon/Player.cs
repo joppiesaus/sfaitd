@@ -2,7 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class Player : Creature
+    public class Player : Creature
     {
         public int nInvItems = 0;
 

@@ -23,18 +23,18 @@ namespace Super_ForeverAloneInThaDungeon
             bar[--width] = Constants.rupWall;
 
             // draw upper bar
-            Console.SetCursorPosition(item.pos.X, item.pos.Y);
+            Console.SetCursorPosition(item.Position.X, item.Position.Y);
             Console.ForegroundColor = borderColor;
             Console.Write(bar);
 
-            Console.CursorLeft = item.pos.X;
+            Console.CursorLeft = item.Position.X;
             Console.CursorTop++;
 
             // extra line
             Console.Write(Constants.yWall);
             Console.CursorLeft = item.EndX - 1;
             Console.Write(Constants.yWall);
-            Console.CursorLeft = item.pos.X;
+            Console.CursorLeft = item.Position.X;
             Console.CursorTop++;
 
             // draw lines
@@ -53,7 +53,7 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.CursorTop++;
             }
 
-            Console.CursorLeft = item.pos.X;
+            Console.CursorLeft = item.Position.X;
 
             // draw additional empty lines
             for (byte i = 0; i < addLines; i++)
@@ -61,7 +61,7 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.Write(Constants.yWall);
                 Console.CursorLeft = item.EndX - 1;
                 Console.Write(Constants.yWall);
-                Console.CursorLeft = item.pos.X;
+                Console.CursorLeft = item.Position.X;
                 Console.CursorTop++;
             }
 
@@ -78,7 +78,7 @@ namespace Super_ForeverAloneInThaDungeon
             : base(width, enterMessage, borderColor, textColor, 2)
         {
             Console.CursorTop -= 2;
-            Console.CursorLeft = item.pos.X + 2;
+            Console.CursorLeft = item.Position.X + 2;
         }
     }
 }

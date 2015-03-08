@@ -1,17 +1,18 @@
 ﻿namespace Super_ForeverAloneInThaDungeon
 {
-    struct Point
+    public struct Point
     {
         public int X;
         public int Y;
 
         public Point(int x = 0, int y = 0)
         {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
         }
 
-        public bool same(int x, int y)
+        // TODO : override equals instead
+        public bool Same(int x, int y)
         {
             return (X == x && Y == y);
         }
@@ -22,48 +23,49 @@
         }
     }
 
-    class DisplayItem
+    public class DisplayItem
     {
-        public Point pos;
-        public short width, height;
+        public Point Position { get; set; }
+        public short Width { get; set; }
+        public short Height { get; set; }
 
         public Point End
         {
-            get { return new Point(pos.X + width, pos.Y + height); }
+            get { return new Point(Position.X + Width, Position.Y + Height); }
         }
         public int EndX
         {
-            get { return pos.X + width; }
-            set { width = (short)(value - pos.X); }
+            get { return Position.X + Width; }
+            set { Width = (short)(value - Position.X); }
         }
         public int EndY
         {
-            get { return pos.Y + height; }
-            set { height = (short)(value - pos.Y); }
+            get { return Position.Y + Height; }
+            set { Height = (short)(value - Position.Y); }
         }
 
         public DisplayItem(Point p, short w, short h)
         {
-            this.pos = p;
-            this.width = w;
-            this.height = h;
+            Position = p;
+            Width = w;
+            Height = h;
         }
         public DisplayItem(Point begin, Point end)
         {
-            this.pos = begin;
+            Position = begin;
 
-            this.width = (short)(end.X - begin.X);
-            this.height = (short)(end.Y - begin.Y);
+            Width = (short)(end.X - begin.X);
+            Height = (short)(end.Y - begin.Y);
         }
 
         public void CenterScreen()
         {
-            this.pos = new Point(System.Console.BufferWidth / 2 - width / 2, System.Console.BufferHeight / 2 - height / 2);
+            Position = new Point(System.Console.BufferWidth / 2 - Width / 2, System.Console.BufferHeight / 2 - Height / 2);
         }
 
         public void Center(int wdt, int hgt)
         {
-            this.pos = new Point(wdt / 2 - width / 2, hgt / 2 - height / 2);
+            Position = new Point(wdt / 2 - Width / 2, hgt / 2 - Height / 2);
         }
     }
 }
