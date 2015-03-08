@@ -446,6 +446,16 @@ namespace Super_ForeverAloneInThaDungeon
             inv_drawDescription();
         }
 
+        void inv_wipePopup(DisplayItem item)
+        {
+            MakeBlackSpace(item);
+            inv_handleCollision(item);
+            if (inv_collides(item, invDescription))
+            {
+                inv_drawDescription();
+            }
+        }
+
         void inv_handleCollision(DisplayItem item)
         {
             Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
@@ -461,7 +471,11 @@ namespace Super_ForeverAloneInThaDungeon
 
         bool inv_collides(DisplayItem a, DisplayItem b)
         {
-            return (a.Position.X + Constants.invDescriptionWidth > b.Position.X && a.Position.X < b.Position.X + Constants.invDescriptionWidth &&
+
+            // Constants.invDescriptionWidth is left out, because a's width needs to be called sometimes.
+            // Labda's don't work as default parameters, so everything becomes a mess.
+            // So that optimization cancels out.
+            return (a.Position.X + a.Width/*Constants.invDescriptionWidth*/ > b.Position.X && a.Position.X < b.Position.X + b.Width  &&
                     a.Position.Y + a.Height > b.Position.Y && a.Position.Y < b.Position.Y + b.Height);
         }
     }
