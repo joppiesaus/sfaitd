@@ -4,9 +4,13 @@ namespace Super_ForeverAloneInThaDungeon
 {
     class PopupWindow
     {
+        public const ConsoleColor DEFAULT_BORDERCOLOR = ConsoleColor.Yellow;
+        public const ConsoleColor DEFAULT_TEXTCOLOR = ConsoleColor.White;
+        public const short DEFAULT_WIDTH = 40;
+
         public DisplayItem item;
 
-        public PopupWindow(short width, string text, ConsoleColor borderColor = ConsoleColor.Yellow, ConsoleColor textColor = ConsoleColor.White, byte addLines = 0)
+        public PopupWindow(string text, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR, byte addLines = 0)
         {
             string[] lines = Constants.generateReadableString(text, width - 4);
             this.item = new DisplayItem(new Point(), width, (short)(lines.Length + ++addLines + 3));
@@ -74,11 +78,78 @@ namespace Super_ForeverAloneInThaDungeon
 
     class PopupWindowEnterText : PopupWindow
     {
-        public PopupWindowEnterText(short width, string enterMessage, ConsoleColor borderColor = ConsoleColor.Yellow, ConsoleColor textColor = ConsoleColor.White)
-            : base(width, enterMessage, borderColor, textColor, 2)
+        public PopupWindowEnterText(string enterMessage, short width = DEFAULT_WIDTH, 
+            ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR)
+            : base(enterMessage, width, borderColor, textColor, 2)
         {
-            Console.CursorTop -= 2;
+            // Empty
+        }
+
+        public string Act(ConsoleColor color = ConsoleColor.Green)
+        {
+            Console.CursorTop = item.EndY - 3;
             Console.CursorLeft = item.pos.X + 2;
+            Console.ForegroundColor = color;
+            return Console.ReadLine();
+        }
+    }
+
+    class PopupWindowMessage : PopupWindow
+    {
+        public PopupWindowMessage(string message, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR)
+            : base(message, width, borderColor, textColor)
+        {
+            // Empty
+        }
+
+        public void Act()
+        {
+            Console.CursorTop = Console.BufferHeight - 1;
+            Console.CursorLeft = 0;
+            Console.ReadKey();
+        }
+    }
+
+    class PopupWindowYesNo : PopupWindow
+    {
+        public PopupWindowYesNo(string message, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR)
+            : base(message, width, borderColor, textColor, 2)
+        {
+            Console.CursorTop = item.EndY - 4;
+            Console.CursorLeft = item.pos.X + 2;
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write('(');
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write('y');
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write(")es/(");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write('n');
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write(")o?");
+        }
+
+        public bool Act()
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.CursorTop = item.EndY - 3;
+            Console.CursorLeft = item.pos.X + 2;
+
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey();
+                if (keyInfo.Key == ConsoleKey.Escape) return false;
+
+                switch (keyInfo.KeyChar)
+                {
+                    case 'y':
+                    case 'Y':
+                        return true;
+                    case 'n':
+                    case 'N':
+                        return false;
+                }
+            }
         }
     }
 }

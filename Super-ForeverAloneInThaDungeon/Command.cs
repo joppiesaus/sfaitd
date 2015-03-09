@@ -6,9 +6,8 @@ namespace Super_ForeverAloneInThaDungeon
     {
         void ReadCommand()
         {
-            DisplayItem dispItem = (new PopupWindowEnterText(40, "Enter command")).item;
-            Console.ForegroundColor = ConsoleColor.Green;
-            string cmdText = Console.ReadLine();
+            PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command");
+            string cmdText = pWnd.Act();
 
             string[] args = cmdText.Split(' ');
             string command = args[0].ToUpper();
@@ -72,6 +71,10 @@ namespace Super_ForeverAloneInThaDungeon
                     }
                     break;
 
+                default :
+                    msg("Unknown command");
+                    break;
+
                 // TEMPORARY HACK!
                 /*case "KILL":
                     Tile player = tiles[playerPos.X, playerPos.Y];
@@ -88,11 +91,11 @@ namespace Super_ForeverAloneInThaDungeon
             switch (state)
             {
                 default:
-                    wipeDisplayItem(dispItem);
+                    wipeDisplayItem(pWnd.item);
                     draw();
                     break;
                 case State.Inventory:
-                    inv_wipePopup(dispItem);
+                    inv_wipePopup(pWnd.item);
                     drawInfoBar();
                     break;
             }
