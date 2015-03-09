@@ -16,10 +16,10 @@ namespace Super_ForeverAloneInThaDungeon
             this.image = img;
             this.color = clr;
 
-            this.extraInfo = new IIAI[] { new IIAI("Deals", superWeapon.damage.X + "-" + superWeapon.damage.Y) };
+            this.Details = new ItemDetail[] { new ItemDetail("Deals", superWeapon.damage.X + "-" + superWeapon.damage.Y) };
             if (superWeapon is Throwable)
             {
-                AddAdditionalInfo(new IIAI("Range", ((Throwable)superWeapon).range.ToString()));
+                AddAdditionalInfo(new ItemDetail("Range", ((Throwable)superWeapon).range.ToString()));
             }
 
             this.actions = new InventoryAction[] { new InventoryActionYield(), new InventoryActionDrop() };

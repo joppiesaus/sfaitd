@@ -12,9 +12,9 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public SpellEffect() { }
         public SpellEffect(int val) { this.value = val; }
 
-        public virtual IIAI GetInventoryInfo()
+        public virtual ItemDetail GetInventoryInfo()
         {
-            return new IIAI(Name, '+' + value.ToString(), ConsoleColor.DarkCyan, GetColor());
+            return new ItemDetail(Name, '+' + value.ToString(), ConsoleColor.DarkCyan, GetColor());
         }
 
         public abstract void Apply(ref Creature c);
@@ -51,9 +51,9 @@ namespace Super_ForeverAloneInThaDungeon.Spells
 
         public HitPenalty(int val) : base(val) { }
 
-        public override IIAI GetInventoryInfo()
+        public override ItemDetail GetInventoryInfo()
         {
-            return new IIAI(Name, ToPercent(-value), ConsoleColor.Yellow, GetColor());
+            return new ItemDetail(Name, ToPercent(-value), ConsoleColor.Yellow, GetColor());
         }
 
         public override void Apply(ref Creature c)

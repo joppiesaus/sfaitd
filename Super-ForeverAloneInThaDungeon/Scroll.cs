@@ -17,12 +17,12 @@ namespace Super_ForeverAloneInThaDungeon
 
             this.effects = fx;
 
-            extraInfo = new IIAI[fx.Length + 1];
-            extraInfo[0] = new IIAI("Effects", "", ConsoleColor.Magenta);
+            Details = new ItemDetail[fx.Length + 1];
+            Details[0] = new ItemDetail("Effects", "", ConsoleColor.Magenta);
 
             for (int i = 0; i < fx.Length; i++)
             {
-                extraInfo[i + 1] = fx[i].GetInventoryInfo();
+                Details[i + 1] = fx[i].GetInventoryInfo();
             }
 
             if (addActions == null)
@@ -93,7 +93,7 @@ namespace Super_ForeverAloneInThaDungeon
                 xOff++;
             }
 
-            /*return new InventoryItem(scrollName, "This scroll can do magical stuff", img, ForegroundColor, new IIAI[] { new IIAI("Effects", "???", ConsoleColor.Magenta) },
+            /*return new InventoryItem(scrollName, "This scroll can do magical stuff", img, ForegroundColor, new ItemDetail[] { new ItemDetail("Effects", "???", ConsoleColor.Magenta) },
                 new InventoryAction[] { new InventoryActionCast(), new InventoryActionDrop() });*/
             return new EffectItem(scrollName, "",
                 img, Color, effects);
