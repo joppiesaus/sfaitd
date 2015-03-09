@@ -315,6 +315,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
             Creature c = (Creature)creature;
+            c.OnPlayerAttack();
 
             int pdmg = 
                 ran.Next(0, 1001) <= p.hitLikelyness - c.HitPenalty ? (
@@ -331,6 +332,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+        // creature attacks player
         void attackPlayer(ref Tile creature)
         {
             Creature c = (Creature)creature;
@@ -529,63 +531,68 @@ namespace Super_ForeverAloneInThaDungeon
             Point p = new Point(x, y);
             Creature c = (Creature)tiles[x, y];
 
-            if (isInRangeOfPlayer(p, c.searchRange))
-            {
-                Point preferredDir = new Point(playerPos.X + (x > playerPos.X ? -1 : 1), playerPos.Y + (y > playerPos.Y ? 1 : -1));
+            c.UpdatePlayerDiscovery(isInRangeOfPlayer(p, c.searchRange));
 
-                Point[] points = new Point[] {
-                    // diagonal moves
-                    new Point(x - 1, y - 1),
-                    new Point(x + 1, y + 1),
-                    new Point(x - 1, y + 1),
-                    new Point(x + 1, y - 1),
-                    // horizontal/vertical moves
-                    new Point(x - 1, y),
-                    new Point(x + 1, y),
-                    new Point(x, y - 1),
-                    new Point(x, y + 1)
-                };
-                ushort least = ushort.MaxValue;
-                byte n = 0xff;
-                
-                // this has preferences.
-                for (byte i = 0; i < points.Length; i++)
-                {
-                    int scor = scores[points[i].X, points[i].Y];
-                    if (scores[points[i].X, points[i].Y] < least)
+            switch (c.moveMode)
+            {
+                case CreatureMoveMode.FollowPlayer:
+                    Point preferredDir = new Point(playerPos.X + (x > playerPos.X ? -1 : 1), playerPos.Y + (y > playerPos.Y ? 1 : -1));
+
+                    Point[] points = new Point[] {
+                        // diagonal moves
+                        new Point(x - 1, y - 1),
+                        new Point(x + 1, y + 1),
+                        new Point(x - 1, y + 1),
+                        new Point(x + 1, y - 1),
+                        // horizontal/vertical moves
+                        new Point(x - 1, y),
+                        new Point(x + 1, y),
+                        new Point(x, y - 1),
+                        new Point(x, y + 1)
+                    };
+                    ushort least = ushort.MaxValue;
+                    byte n = 0xff;
+
+                    // this has preferences.
+                    for (byte i = 0; i < points.Length; i++)
                     {
-                        least = scores[points[i].X, points[i].Y];
-                        n = i;
+                        int scor = scores[points[i].X, points[i].Y];
+                        if (scores[points[i].X, points[i].Y] < least)
+                        {
+                            least = scores[points[i].X, points[i].Y];
+                            n = i;
+                        }
                     }
-                }
 
-                if (scores[preferredDir.X, preferredDir.Y] <= least)
-                {
-                    return preferredDir;
-                }
+                    if (scores[preferredDir.X, preferredDir.Y] <= least)
+                    {
+                        return preferredDir;
+                    }
 
-                if (n != 0xff)
-                {
-                    p = points[n];
-                }
-            }
-            else
-            {
-                Point[] points = new Point[5];
-                byte count = 0;
+                    if (n != 0xff)
+                    {
+                        p = points[n];
+                    }
+                    break;
 
-                // who cares what index what direction is
-                if (tiles[x + 1, y].walkable)
-                    points[count++] = new Point(x + 1, y);
-                if (tiles[x - 1, y].walkable)
-                    points[count++] = new Point(x - 1, y);
-                if (tiles[x, y + 1].walkable)
-                    points[count++] = new Point(x, y + 1);
-                if (tiles[x, y - 1].walkable)
-                    points[count++] = new Point(x, y - 1);
-                points[count++] = new Point(x, y); // and do nothing is also a chance
+                case CreatureMoveMode.Random:
+                    c.UpdatePlayerDiscovery(false);
+                    points = new Point[5];
+                    byte count = 0;
 
-                p = points[ran.Next(0, count)];
+                    // who cares what index what direction is
+                    if (tiles[x + 1, y].walkable)
+                        points[count++] = new Point(x + 1, y);
+                    if (tiles[x - 1, y].walkable)
+                        points[count++] = new Point(x - 1, y);
+                    if (tiles[x, y + 1].walkable)
+                        points[count++] = new Point(x, y + 1);
+                    if (tiles[x, y - 1].walkable)
+                        points[count++] = new Point(x, y - 1);
+                    points[count++] = new Point(x, y); // and do nothing is also a chance
+
+                    p = points[ran.Next(0, count)];
+                    break;
             }
 
             return p;

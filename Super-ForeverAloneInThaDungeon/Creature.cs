@@ -2,13 +2,11 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    // mix of FOLLOW, FRIENDLY, ETC
-    // TODO: implement
-    enum CreatureAIMode
+    enum CreatureMoveMode
     {
-        Friendly,
-        Neutral,
-        Angry
+        FollowPlayer,
+        Random,
+        Stationary
     }
 
     class Creature : Tile
@@ -21,8 +19,11 @@ namespace Super_ForeverAloneInThaDungeon
         public ushort searchRange = 0;
         public Point damage = new Point(1, 4);
 
-        // IMPLEMENT
-        //public CreatureAIMode creatureAI = CreatureAIMode.Angry;
+        public bool friendly = false;   // if true, creature doesn't attack/heal
+
+        bool playerInRange = false;
+        public CreatureMoveMode moveMode = CreatureMoveMode.Random; // how the creature behaves
+
 
         public Tile lastTile = new Tile(TileType.Air);
 
@@ -58,11 +59,11 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
-        /// DIE YOU ANIMAL!
+        /// Attacks this creature
         /// </summary>
-        /// <param name="dmg">HOW HARD DO YOU WANT TO DIE ?</param>
-        /// <param name="t">Where do I need to dig your grave ?</param>
-        /// <returns>Is he dead now?</returns>
+        /// <param name="dmg">Damage</param>
+        /// <param name="t">"Grave" tile, place for drops</param>
+        /// <returns>Creature is dead</returns>
         public bool doDamage(int dmg, ref Tile t)
         {
             health -= dmg;
@@ -113,9 +114,34 @@ namespace Super_ForeverAloneInThaDungeon
             return 0;
         }
 
-        public void move(Tile old)
+
+
+        public void UpdatePlayerDiscovery(bool action)
         {
-            this.lastTile = old;
+            if (action)
+            {
+                if (!playerInRange)
+                    OnPlayerDiscovery();
+            }
+            else
+            {
+                if (playerInRange)
+                    OnPlayerLeave();
+            }
+        }
+
+        public virtual void OnPlayerDiscovery()
+        {
+            moveMode = CreatureMoveMode.FollowPlayer;
+        }
+
+        public virtual void OnPlayerLeave()
+        {
+            moveMode = CreatureMoveMode.Random;
+        }
+
+        public virtual void OnPlayerAttack()
+        {
         }
     }
 
@@ -173,7 +199,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override ushort getXp(ref Random ran)
         {
-            return (ushort)(ran.Next(1, 3 + maxHealth / 10) + ran.Next(0, damage.Y - damage.X));
+            return (ushort)(ran.Next(0, 2 + maxHealth / 10 + damage.Y - damage.X));
         }
     }
 }

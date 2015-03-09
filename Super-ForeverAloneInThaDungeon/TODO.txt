@@ -22,6 +22,9 @@ x you must go down until you've found x, then you must go up and then YOU WIN!!!
 x frozen
 x mental stuff
 
+x (network) co-op
+x modding
+
 DONE:
 * ADD BRAND NEW INVENTORY SYSTEM!
 * messages in inventory
