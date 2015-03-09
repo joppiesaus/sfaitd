@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
 {

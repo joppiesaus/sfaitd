@@ -11,6 +11,7 @@
 BUGS:
 * creatures can step out of lighting causing "ghosts"
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
+* Duplicate spells
 
 IDEAS:
 x Locked doors

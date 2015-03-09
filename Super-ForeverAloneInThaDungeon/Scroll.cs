@@ -8,7 +8,7 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public SpellEffect[] effects;
 
-        public EffectItem(string nameee, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx, InventoryAction[] addActions = null)
+        public EffectItem(string nameee, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx = null, InventoryAction[] addActions = null)
         {
             this.name = nameee;
             this.description = desc;
@@ -47,7 +47,7 @@ namespace Super_ForeverAloneInThaDungeon
     {
         SpellEffect[] effects;
 
-        public Scroll(SpellEffect[] fx)
+        public Scroll(SpellEffect[] fx = null)
         {
             this.drawChar = Constants.chars[0];
             this.tiletype = TileType.Scroll;
