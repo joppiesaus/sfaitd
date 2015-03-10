@@ -1,37 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
 {
     public class InventoryItem
     {
-        public string name, description;
-        public ItemDetail[] Details;
-        public char[,] image;
-        public ConsoleColor color;
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<ItemDetail> Details { get; set; }
+        public char[,] Visual { get; set; }
+        public ConsoleColor Color;
 
-        public InventoryAction[] actions;
+        public List<InventoryAction> Actions;
 
         
         public InventoryItem() { }
-        public InventoryItem(string name, string description, char[,] image, ConsoleColor color,
-            ItemDetail[] addInfo = null, InventoryAction[] invActions = null)
-        {
-            this.name = name;
-            this.description = description;
-            this.image = image;
-            this.color = color;
-            this.Details = addInfo;
 
-            this.actions = invActions == null ? new InventoryAction[] { new InventoryActionDrop() } : invActions;
+        public InventoryItem(string name, string description, char[,] visual, ConsoleColor color,
+            IEnumerable<ItemDetail> addInfo = null, IEnumerable<InventoryAction> invActions = null)
+        {
+            Name = name;
+            Description = description;
+            Visual = visual;
+            Color = color;
+
+            Details = addInfo == null ? new List<ItemDetail>() : addInfo.ToList();
+            Actions = invActions == null ? new List<InventoryAction>() { new InventoryActionDrop() } : invActions.ToList();
         }
-
-        // adds more info to this item
-        // do not use too much, because it will call array.resize.
-        public void AddAdditionalInfo(ItemDetail info)
+        
+        public void AddAdditionalInfo(ItemDetail detail)
         {
-            Array.Resize(ref Details, Details.Length + 1);
-            Details[Details.Length - 1] = info;
+            Details.Add(detail);
         }
     }
 
@@ -50,7 +51,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Do the action
         /// </summary>
-        /// <param name="p">Player</param>
+        /// <param Name="p">Player</param>
         /// <returns>If the item needs to be destroyed</returns>
         public abstract bool Act(Player p, int itemIndex);
     }
@@ -77,7 +78,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override bool Act(Player p, int itemIndex)
         {
-            SpellEffect[] effects = ((EffectItem)p.inventory[itemIndex]).effects;
+            SpellEffect[] effects = ((EffectItem)p.Inventory[itemIndex]).effects;
 
             Creature creature = (Creature)p;
 
@@ -99,18 +100,18 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override bool Act(Player p, int itemIndex)
         {
-            if (((WeaponItem)p.inventory[itemIndex]).weapon is Throwable)
+            if (((WeaponItem)p.Inventory[itemIndex]).weapon is Throwable)
             {
                 if (p.rWeaponItem != null) p.addInventoryItem(p.rWeaponItem);
-                p.rWeaponItem = (WeaponItem)p.inventory[itemIndex];
+                p.rWeaponItem = (WeaponItem)p.Inventory[itemIndex];
             }
             else
             {
                 if (p.mWeaponItem != null) p.addInventoryItem(p.mWeaponItem);
-                p.mWeaponItem = (WeaponItem)p.inventory[itemIndex];
+                p.mWeaponItem = (WeaponItem)p.Inventory[itemIndex];
             }
 
-            Game.Message("now holding " + p.inventory[itemIndex].name + '!');
+            Game.Message("now holding " + p.Inventory[itemIndex].Name + '!');
             return true;
         }
     }

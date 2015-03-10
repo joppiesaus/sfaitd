@@ -101,7 +101,7 @@ namespace Super_ForeverAloneInThaDungeon
             Screen.Write(line, foreground, background, position);
         }
 
-        public void DrawRectangle(Point origin, Size size, ConsoleColor color)
+        public void DrawRectangle(Point origin, Size size, ConsoleColor color = ConsoleColor.Black)
         {
             for (int lineIndex = 0; lineIndex < size.Height; lineIndex ++)
             {
@@ -109,15 +109,17 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        /// <summary>
-        /// Writes a message in the center of the screen
-        /// </summary>
-        /// <param name="s">String you want to display</param>
-        public void WriteCenter(string s)
+        public void WriteCenter(string text)
         {
-            Console.CursorLeft = Console.BufferWidth/2 - s.Length/2;
-            Console.CursorTop = Console.BufferHeight/2 - 2;
-            Console.Write(s);
+            var windowSize = Screen.Size;
+            var center = new Point(windowSize.Width/2 - text.Length/2, windowSize.Height/2 - 2);
+
+            Screen.Write(text, ConsoleColor.White, ConsoleColor.Black, center);
+        }
+
+        public void ClearScreen()
+        {
+            Screen.Clear();
         }
     }
 }

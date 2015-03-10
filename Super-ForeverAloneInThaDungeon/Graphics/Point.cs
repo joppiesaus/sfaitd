@@ -1,11 +1,15 @@
-﻿namespace Super_ForeverAloneInThaDungeon.Graphics
+﻿using System.Net.NetworkInformation;
+
+namespace Super_ForeverAloneInThaDungeon.Graphics
 {
     public struct Point
     {
         public int X;
         public int Y;
 
-        public Point(int x = 0, int y = 0)
+        public static Point Origin { get { return new Point(0, 0);} }
+
+        public Point(int x, int y)
         {
             X = x;
             Y = y;

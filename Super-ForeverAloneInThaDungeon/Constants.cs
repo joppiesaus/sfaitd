@@ -7,7 +7,7 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public const byte playerLookRadius = 6;//15;
 
-        public const byte invCapacity = 50;
+        public const byte InventoryMaximumCapacity = 50;
         public const byte invDescriptionWidth = 0x20;
 
         static Constants()
@@ -39,8 +39,8 @@ namespace Super_ForeverAloneInThaDungeon
         public const string HIGHSCORES_FILE_NAME = "SuperForeverAloneInThaDungeon.com";
 
 
-        public const ConsoleColor invItemBorderColor = ConsoleColor.DarkGreen;
-        public const ConsoleColor invSelItemBorderColor = ConsoleColor.Yellow;
+        public const ConsoleColor ItemBorderColor = ConsoleColor.DarkGreen;
+        public const ConsoleColor SelectedItemBorderColor = ConsoleColor.Yellow;
 
         public static readonly Encoding enc = Encoding.GetEncoding(437);
 

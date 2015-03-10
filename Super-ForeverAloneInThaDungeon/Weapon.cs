@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
@@ -9,20 +10,19 @@ namespace Super_ForeverAloneInThaDungeon
 
         public WeaponItem(Weapon superWeapon, string desc, char[,] img, ConsoleColor clr = ConsoleColor.Gray)
         {
-            this.weapon = superWeapon;
+            weapon = superWeapon;
+            Name = superWeapon.name;
+            Description = desc;
+            Visual = img;
+            Color = clr;
 
-            this.name = superWeapon.name;
-            this.description = desc;
-            this.image = img;
-            this.color = clr;
-
-            this.Details = new ItemDetail[] { new ItemDetail("Deals", superWeapon.damage.X + "-" + superWeapon.damage.Y) };
+            Details = new List<ItemDetail> { new ItemDetail("Deals", superWeapon.damage.X + "-" + superWeapon.damage.Y) };
             if (superWeapon is Throwable)
             {
                 AddAdditionalInfo(new ItemDetail("Range", ((Throwable)superWeapon).range.ToString()));
             }
 
-            this.actions = new InventoryAction[] { new InventoryActionYield(), new InventoryActionDrop() };
+            Actions = new List<InventoryAction>() { new InventoryActionYield(), new InventoryActionDrop() };
         }
     }
 

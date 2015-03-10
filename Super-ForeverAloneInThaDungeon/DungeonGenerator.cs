@@ -360,8 +360,8 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Is itz clears to you?
         /// </summary>
-        /// <param name="r">Boxs to sitz in</param>
-        /// <param name="direction">Favoritez direction to lie down: 0 = up, 1 = down, 2 = left, 3 = right</param>
+        /// <param Name="r">Boxs to sitz in</param>
+        /// <param Name="direction">Favoritez direction to lie down: 0 = up, 1 = down, 2 = left, 3 = right</param>
         /// <returns>How happy catz is!</returns>
         Point getRandomWallPoint(Room r, byte direction)
         {

@@ -41,7 +41,7 @@ namespace Super_ForeverAloneInThaDungeon
             /// <summary>
             /// Compares two highscores based on index
             /// </summary>
-            /// <param name="n">Index of highscore in Highscores.highscores</param>
+            /// <param Name="n">Index of highscore in Highscores.highscores</param>
             /// <returns>If inserted</returns>
             public bool Compare(byte n)
             {

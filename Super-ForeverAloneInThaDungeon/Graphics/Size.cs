@@ -11,7 +11,7 @@ namespace Super_ForeverAloneInThaDungeon.Graphics
         {
             if (width < 0)
             {
-                throw new ArgumentException(string.Format("Width shoud be > 0, actual {0}", width));
+                    throw new ArgumentException(string.Format("Width shoud be > 0, actual {0}", width));
             }
 
             if (height < 0)

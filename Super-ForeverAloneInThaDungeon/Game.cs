@@ -40,7 +40,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Gets or sets your mother'content car windscreenwiper.
         /// </summary>
-        /// <param name="size">Default: 120, 50. Product of size can never be larger than 65536, because that can lead to breadth-first search problems</param>
+        /// <param Name="size">Default: 120, 50. Product of size can never be larger than 65536, because that can lead to breadth-first search problems</param>
         public Game(Size size)
         {
             Console.CursorVisible = false;
@@ -78,7 +78,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                 OnPlayerMove(ref p); // make sure everything inits properly
 
-                Message("Welcome, " + p.name + "!"); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
+                Message("Welcome, " + p.name + "!"); // I could have just used Environment.UserName since the Player.Name = Environment.UserName... :~)
                 if (disableFight) p.Walkable = false;
 
 
@@ -172,7 +172,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 // assuming all other pickupables are handled!
                                 if (p.addInventoryItem(((Pickupable)preCopy).getInvItem(ref _random)))
                                 {
-                                    Message("You found " + p.lastInventoryItem().name);
+                                    Message("You found " + p.LastItem().Name);
                                     preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                                 }
                                 else Message(Constants.invFullMsg);
@@ -192,7 +192,7 @@ namespace Super_ForeverAloneInThaDungeon
                                     {
                                         if (p.addInventoryItem(c.contents[i]))
                                         {
-                                            Message("You found " + c.contents[i].name);
+                                            Message("You found " + c.contents[i].Name);
                                             count--;
                                         }
                                         else
@@ -246,12 +246,12 @@ namespace Super_ForeverAloneInThaDungeon
                     }
                 }
                 #endregion
-                #region inventory _state
+                #region Inventory _state
                 else if (_state == State.Inventory)
                 {
                     ConsoleKey key = Console.ReadKey().Key;
 
-                    if (((Player)map[_playerPosition.X, _playerPosition.Y]).ItemCount > 0)
+                    if (_player.ItemCount > 0)
                         switch (key)
                         {
                             case ConsoleKey.LeftArrow:

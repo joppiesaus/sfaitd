@@ -61,8 +61,8 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// DIE YOU ANIMAL!
         /// </summary>
-        /// <param name="dmg">HOW HARD DO YOU WANT TO DIE ?</param>
-        /// <param name="t">Where do I need to dig your grave ?</param>
+        /// <param Name="dmg">HOW HARD DO YOU WANT TO DIE ?</param>
+        /// <param Name="t">Where do I need to dig your grave ?</param>
         /// <returns>Is he dead now?</returns>
         public bool doDamage(int dmg, ref Tile t)
         {
@@ -81,7 +81,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Heal this creature
         /// </summary>
-        /// <param name="amnt">amount to heal<param>
+        /// <param Name="amnt">amount to heal<param>
         /// <returns>Effective points healed</returns>
         public int heal(int amnt)
         {

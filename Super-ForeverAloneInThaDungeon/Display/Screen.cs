@@ -9,7 +9,9 @@ namespace Super_ForeverAloneInThaDungeon.Display
 {
     public static class Screen
     {
-        private static readonly BlockingCollection<Symbol> Queue = new BlockingCollection<Symbol>();
+        private static BlockingCollection<Symbol> _queue = new BlockingCollection<Symbol>();
+
+        public static Size Size { get {  return new Size(Console.WindowWidth, Console.WindowHeight); } }
 
         static Screen()
         {
@@ -21,7 +23,7 @@ namespace Super_ForeverAloneInThaDungeon.Display
         {
             while (true)
             {
-                var symbol = Queue.Take();
+                var symbol = _queue.Take();
                 Console.ForegroundColor = symbol.ForegroundColor;
                 Console.BackgroundColor = symbol.BackgroundColor;
                 Console.SetCursorPosition(symbol.Position.X, symbol.Position.Y);
@@ -31,7 +33,7 @@ namespace Super_ForeverAloneInThaDungeon.Display
 
         public static void Write(Symbol symbol)
         {
-            Queue.Add(symbol);
+            _queue.Add(symbol);
         }
 
         public static void Write(IEnumerable<char> line, ConsoleColor foreground, ConsoleColor background, int position)
@@ -43,8 +45,15 @@ namespace Super_ForeverAloneInThaDungeon.Display
         {
             for (int i = 0; i < line.Count(); i++)
             {
-                Queue.Add(new Symbol(line.ElementAt(i), foreground, background, position.AddX(i)));
+                _queue.Add(new Symbol(line.ElementAt(i), foreground, background, position.AddX(i)));
             }
+        }
+
+        public static void Clear()
+        {
+            _queue.GetConsumingEnumerable(new CancellationToken(true));
+            Console.ForegroundColor = Console.BackgroundColor = ConsoleColor.Black;
+            Console.Clear();
         }
     }
 }

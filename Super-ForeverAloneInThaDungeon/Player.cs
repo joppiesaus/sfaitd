@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Super_ForeverAloneInThaDungeon.Graphics;
 
 namespace Super_ForeverAloneInThaDungeon
 {
     public class Player : Creature
     {
-        public int ItemCount { get; set; }
+        public int ItemCount { get { return Inventory.Count; } }
 
-        public InventoryItem[] inventory = new InventoryItem[Constants.invCapacity];
+        public List<InventoryItem> Inventory = new List<InventoryItem>(Constants.InventoryMaximumCapacity);
 
         public WeaponItem rWeaponItem;//= Constants.spear;
         public WeaponItem mWeaponItem;// = Constants.dagger;
@@ -49,33 +51,19 @@ namespace Super_ForeverAloneInThaDungeon
 
         public bool addInventoryItem(InventoryItem item)
         {
-            if (ItemCount >= inventory.Length) return false;
-            inventory[ItemCount++] = item;
+            if (ItemCount > Constants.InventoryMaximumCapacity) return false;
+            Inventory.Add(item);
             return true;
         }
 
         public void removeInventoryItem(int n)
         {
-            // order matters here
-            ItemCount--;
-            for (; n < ItemCount;)
-            {
-                inventory[n] = inventory[++n];
-            }
-            inventory[ItemCount] = null;
+            Inventory.RemoveAt(n);
         }
 
-        // unused
-        public InventoryItem swapInventoryItem(int n, InventoryItem item)
+        public InventoryItem LastItem()
         {
-            InventoryItem ret = inventory[n];
-            inventory[n] = item;
-            return ret;
-        }
-
-        public InventoryItem lastInventoryItem()
-        {
-            return inventory[ItemCount - 1];
+            return Inventory.Last();
         }
 
         public void onMove()

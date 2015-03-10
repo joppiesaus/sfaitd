@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
@@ -10,35 +10,34 @@ namespace Super_ForeverAloneInThaDungeon
 
         public EffectItem(string nameee, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx, InventoryAction[] addActions = null)
         {
-            this.name = nameee;
-            this.description = desc;
-            this.image = img;
-            this.color = clr;
+            Name = nameee;
+            Description = desc;
+            Visual = img;
+            Color = clr;
+            effects = fx;
 
-            this.effects = fx;
-
-            Details = new ItemDetail[fx.Length + 1];
-            Details[0] = new ItemDetail("Effects", "", ConsoleColor.Magenta);
+            Details = new List<ItemDetail>(fx.Length + 1);
+            Details.Add(new ItemDetail("Effects", "", ConsoleColor.Magenta));
 
             for (int i = 0; i < fx.Length; i++)
             {
-                Details[i + 1] = fx[i].GetInventoryInfo();
+                Details.Add(fx[i].GetInventoryInfo());
             }
 
             if (addActions == null)
             {
-                this.actions = new InventoryAction[] { new InventoryActionCast(), new InventoryActionDrop() };
+                Actions = new List<InventoryAction>() { new InventoryActionCast(), new InventoryActionDrop() };
             }
             else
             {
-                this.actions = new InventoryAction[addActions.Length + 1];
+                Actions = new List<InventoryAction>(addActions.Length + 1);
 
                 for (int i = 0; i < addActions.Length; i++)
                 {
-                    actions[i] = addActions[i];
+                    Actions[i] = addActions[i];
                 }
 
-                this.actions[addActions.Length] = new InventoryActionDrop();
+                Actions[addActions.Length] = new InventoryActionDrop();
             }
         }
     }
@@ -73,7 +72,7 @@ namespace Super_ForeverAloneInThaDungeon
 	        { ' ',' ',' ','\\','_','_','_','_','_','_','_','_','_','_','\\',' ' },
 	        { ' ',' ',' ','(',')','_','_','_','_','_','_','_','_','_','_',')'} };
 
-            // Write random text in the scroll's image
+            // Write random text in the scroll's Visual
             // THE NUMBERS MASON
             // WHAT DO THEY MEAN
             byte xOff = 3;
