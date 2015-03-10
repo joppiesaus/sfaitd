@@ -12,7 +12,7 @@ namespace Super_ForeverAloneInThaDungeon
         public int SelectedActionIndex { get; set; }
 
 
-        Point invPrevPoint = new Point();
+        Point invPrevPoint;
         int invLowestY = 0;
 
         private readonly List<DisplayItem> _items;
@@ -33,6 +33,8 @@ namespace Super_ForeverAloneInThaDungeon
             _items = new List<DisplayItem>();
         }
 
+        #region Graphic
+
         public void DrawInventory()
         {
 
@@ -51,18 +53,12 @@ namespace Super_ForeverAloneInThaDungeon
                     DrawProcess(item, 0, color);
                 }
                
-
                 DrawDescription();
             }
             else
             {
                 _drawer.WriteCenter("Your Inventory is empty");
             }
-        }
-
-        public void MakeBlackSpace(DisplayItem item)
-        {
-            _drawer.DrawRectangle(item.Origin, new Size(item.Width, item.Height), ConsoleColor.Black);
         }
 
         public void DrawProcess(InventoryItem item, int i, ConsoleColor color)
@@ -219,13 +215,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (selectedItem.Details != null)
             {
-                int valueLocation = 0;
-
-                for (int i = 0; i < selectedItem.Details.Count; i++)
-                    if (selectedItem.Details[i].Label.Length > valueLocation) 
-                        valueLocation = selectedItem.Details[i].Label.Length;
-
-                valueLocation += originX + 4;
+                int valueLocation = selectedItem.Details.Max(d => d.Label.Length) + originX + 4;
 
                 for (int i = 0; i < selectedItem.Details.Count; i++)
                 {
@@ -317,10 +307,12 @@ namespace Super_ForeverAloneInThaDungeon
 
             _drawer.Write(bar, Constants.SelectedItemBorderColor, new Point(cursorLeft, cursorTop));
 
-            int previousEndY = _itemDescription.EndY;
-
             _itemDescription = new DisplayItem(descriptionBlockOrigin, new Point(Constants.invDescriptionWidth, cursorTop + 1));
         }
+
+        #endregion
+
+        #region Manipulation
 
         public void PreviousAction()
         {
@@ -342,31 +334,6 @@ namespace Super_ForeverAloneInThaDungeon
             DrawInventory();
         }
 
-        public void DoSelectedInventoryAction()
-        {
-            // if an item gets added while the other is being removed,
-            // it will crash because _items doesn't get updated while the Inventory does.
-            int idiCount = _player.ItemCount;
-
-            // Do the action, check if needs to be destroyed
-            // It seems kindof redundant passing in the arguments you use to call the function itself
-            if (_player.Inventory[SelectedItemIndex].Actions[SelectedActionIndex].Act(_player, SelectedItemIndex))
-            {
-                // destroy item
-                for (int i = SelectedItemIndex; i < idiCount; i++)
-                {
-                    MakeBlackSpace(_items[i]);
-                }
-                _player.removeInventoryItem(SelectedItemIndex);
-
-                if (SelectedItemIndex == _player.ItemCount && SelectedItemIndex != 0)
-                    SelectedItemIndex--;
-
-                DrawInventory();
-            }
-
-        }
-
         public void NextItem()
         {
             if (SelectedItemIndex >= _player.ItemCount - 1) return;
@@ -382,10 +349,29 @@ namespace Super_ForeverAloneInThaDungeon
             DrawInventory();
         }
 
+        public void DoSelectedInventoryAction()
+        {
+            // Do the action, check if needs to be destroyed
+            // It seems kindof redundant passing in the arguments you use to call the function itself
+            if (_player.Inventory[SelectedItemIndex].Actions[SelectedActionIndex].Act(_player, SelectedItemIndex))
+            {
+                
+                _player.removeInventoryItem(SelectedItemIndex);
+
+                if (SelectedItemIndex == _player.ItemCount && SelectedItemIndex != 0)
+                    SelectedItemIndex--;
+
+                DrawInventory();
+            }
+
+        }
+
+        #endregion
+
+        #region REMOVE
 
         public void inv_wipePopup(DisplayItem item)
         {
-            MakeBlackSpace(item);
             inv_handleCollision(item);
             if (inv_collides(item, _itemDescription))
             {
@@ -414,5 +400,7 @@ namespace Super_ForeverAloneInThaDungeon
             return (a.Origin.X + a.Width/*Constants.invDescriptionWidth*/ > b.Origin.X && a.Origin.X < b.Origin.X + b.Width  &&
                     a.Origin.Y + a.Height > b.Origin.Y && a.Origin.Y < b.Origin.Y + b.Height);
         }
+
+        #endregion
     }
 }

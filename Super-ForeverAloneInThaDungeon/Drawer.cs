@@ -29,8 +29,8 @@ namespace Super_ForeverAloneInThaDungeon
 
         public void ReDrawDungeon(Tile[,] map, Point playerPosition, uint floor, Room room, string message)
         {
-            Console.Clear();
-            Console.SetCursorPosition(0, 0);
+            Screen.Clear();
+
             for (int x = 0; x < map.GetLength(0); x++)
             {
                 for (int y = 0; y < map.GetLength(1); y++)

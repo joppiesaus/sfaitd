@@ -76,7 +76,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                 spawnPlayerInRoom(rooms[_random.Next(0, rooms.Length)], p);
 
-                OnPlayerMove(ref p); // make sure everything inits properly
+                OnPlayerMove(p); // make sure everything inits properly
 
                 Message("Welcome, " + p.name + "!"); // I could have just used Environment.UserName since the Player.Name = Environment.UserName... :~)
                 if (disableFight) p.Walkable = false;
@@ -231,8 +231,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 c.lastTile = preCopy;
                                 _playerPosition = toCheck;
 
-                                Player plyr = (Player)map[toCheck.X, toCheck.Y];
-                                OnPlayerMove(ref plyr);
+                                OnPlayerMove(_player);
                             }
                         }
                     }
@@ -300,16 +299,14 @@ namespace Super_ForeverAloneInThaDungeon
                     _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
                 string.IsNullOrEmpty(_informationMessages) ? GetDefaultInformationMessage() : _informationMessages);
                     _informationMessages = string.Empty;
-                    Player p = (Player)map[_playerPosition.X, _playerPosition.Y];
-                    Throwable t = p.rangedWeapon;
 
                     switch (Console.ReadKey().Key)
                     {
                         // Think backwards here: If you need to go UP in an ARRAY, what do you need to do?
-                        case ConsoleKey.UpArrow: handleThrowable(0, -1, p.rangedWeapon, ref p); break;
-                        case ConsoleKey.DownArrow: handleThrowable(0, 1, p.rangedWeapon, ref p); break;
-                        case ConsoleKey.LeftArrow: handleThrowable(-1, 0, p.rangedWeapon, ref p); break;
-                        case ConsoleKey.RightArrow: handleThrowable(1, 0, p.rangedWeapon, ref p); break;
+                        case ConsoleKey.UpArrow: handleThrowable(0, -1, _player.rangedWeapon, _player); break;
+                        case ConsoleKey.DownArrow: handleThrowable(0, 1, _player.rangedWeapon, _player); break;
+                        case ConsoleKey.LeftArrow: handleThrowable(-1, 0, _player.rangedWeapon, _player); break;
+                        case ConsoleKey.RightArrow: handleThrowable(1, 0, _player.rangedWeapon, _player); break;
                     }
 
                     _drawer.Draw(map, false, _playerPosition, currentFloor, getDungeonAt(_playerPosition),
@@ -400,7 +397,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         // TODO: Make accesable for enemys too
-        void handleThrowable(sbyte x, sbyte y, Throwable t, ref Player p)
+        void handleThrowable(sbyte x, sbyte y, Throwable t, Player p)
         {
             Point curPoint = _playerPosition;
             for (byte i = 0; i < t.range; i++) // Just saved you 24 bit of RAM!
@@ -481,7 +478,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        private void OnPlayerMove(ref Player p)
+        private void OnPlayerMove(Player p)
         {
             p.onMove();
 
