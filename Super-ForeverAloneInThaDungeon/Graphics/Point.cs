@@ -1,4 +1,5 @@
 ﻿using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 
 namespace Super_ForeverAloneInThaDungeon.Graphics
 {
@@ -35,6 +36,7 @@ namespace Super_ForeverAloneInThaDungeon.Graphics
         {
             return new Point(X, Y + y);
         }
+
     }
 
     public class DisplayItem
@@ -67,6 +69,12 @@ namespace Super_ForeverAloneInThaDungeon.Graphics
             Size = new Size(width, height);
             
         }
+
+        public DisplayItem(Point origin, Size size)
+            : this(origin, origin.AddX(size.Width).AddY(size.Height))
+        {
+        }
+
         public DisplayItem(Point begin, Point end)
         {
             Origin = begin;

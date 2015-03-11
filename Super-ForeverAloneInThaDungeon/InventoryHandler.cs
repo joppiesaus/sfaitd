@@ -8,17 +8,14 @@ namespace Super_ForeverAloneInThaDungeon
 {
     public class InventoryHandler
     {
-        public int SelectedItemIndex { get; set; }
-        public int SelectedActionIndex { get; set; }
+        private int _selectedItemIndex;
+        private int _selectedActionIndex;
 
-
-        Point invPrevPoint;
-        int invLowestY = 0;
 
         private readonly List<DisplayItem> _items;
         private DisplayItem _itemDescription = new DisplayItem(new Point(), new Point());
 
-        public InventoryItem SelectedItem { get { return _player.Inventory[SelectedItemIndex]; } }
+        public InventoryItem SelectedItem { get { return _player.Inventory[_selectedItemIndex]; } }
 
         private readonly Player _player;
         private readonly Drawer _drawer;
@@ -40,7 +37,6 @@ namespace Super_ForeverAloneInThaDungeon
 
             _drawer.ClearScreen();
             _items.Clear();
-            invPrevPoint = Point.Origin;
 
             if (_player.ItemCount > 0)
             {
@@ -50,9 +46,11 @@ namespace Super_ForeverAloneInThaDungeon
                         ? Constants.SelectedItemBorderColor
                         : Constants.ItemBorderColor;
                     
-                    DrawProcess(item, 0, color);
+                    DrawProcess(item, color);
                 }
                
+                // TODO : the description should be either drawn on the left side or the right, 
+                // depending on the selected item location
                 DrawDescription();
             }
             else
@@ -61,27 +59,31 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        public void DrawProcess(InventoryItem item, int i, ConsoleColor color)
+        public void DrawProcess(InventoryItem item, ConsoleColor color)
         {
-            int graphicItemWidth = item.Visual.GetLength(1) + 2;
-
-            if (invPrevPoint.X + graphicItemWidth >= Console.BufferWidth)
-            {
-                invPrevPoint.X = 0;
-                invPrevPoint.Y = invLowestY + 1;
-            }
-            
-            Point begin = new Point(invPrevPoint.X, invPrevPoint.Y);
-
-            DrawItem(item, color, invPrevPoint);
+            // TODO : try to fit it on same line as previous item
+            // if size is too small, change the line
+            // TODO : change console buffer height to handle lot of items
 
             // TODO : find other way to get the dimension
+            int graphicItemWidth = item.Visual.GetLength(1) + 2;
             int graphicItemHeight = Constants.GenerateReadableString(item.Name, item.Visual.GetLength(1)).Length + item.Visual.GetLength(0) + 1;
 
-            _items.Add(new DisplayItem(begin, begin.AddX(graphicItemWidth).AddY(graphicItemHeight)));
+            DisplayItem previousItem = _items.Any() ? _items.Last() : null;
 
-            invPrevPoint.X += graphicItemWidth + 1;
-            if (_items[i].EndY > invLowestY) invLowestY = _items[i].EndY;
+            if (previousItem == null)
+            {
+                DrawItem(item, color, Point.Origin);
+                _items.Add(new DisplayItem(Point.Origin, new Size(graphicItemWidth, graphicItemHeight)));
+                return;
+            }
+
+            Point origin = (previousItem.EndX + graphicItemWidth >= Console.WindowWidth)
+                ? new Point(0, previousItem.EndY + 1)
+                : new Point(previousItem.EndX, previousItem.Origin.Y);
+
+            DrawItem(item, color, origin);
+            _items.Add(new DisplayItem(origin, origin.AddX(graphicItemWidth).AddY(graphicItemHeight)));
         }
 
         public void DrawItem(InventoryItem item, ConsoleColor borderColor, Point origin)
@@ -137,14 +139,14 @@ namespace Super_ForeverAloneInThaDungeon
 
         public void DrawDescription()
         {
-            InventoryItem selectedItem = _player.Inventory[SelectedItemIndex];
+            InventoryItem selectedItem = _player.Inventory[_selectedItemIndex];
             string[] itemDescription = Constants.GenerateReadableString(selectedItem.Description, Constants.invDescriptionWidth - 4);
             
             int itemInnerWidth = selectedItem.Visual.GetLength(1);
 
-            bool lefty = _items[SelectedItemIndex].Origin.X + Constants.invDescriptionWidth >= _mapWidth;
+            bool lefty = _items[_selectedItemIndex].Origin.X + Constants.invDescriptionWidth >= _mapWidth;
 
-            var selectedAction = selectedItem.Actions[SelectedActionIndex];
+            var selectedAction = selectedItem.Actions[_selectedActionIndex];
             var remainingActions = selectedItem.Actions.Count(a => a != selectedAction);
 
             string[] selectedActionDescriptionLines = Constants.GenerateReadableString(
@@ -156,9 +158,9 @@ namespace Super_ForeverAloneInThaDungeon
 
             int height = 4 + itemDescription.Length + selectedItem.Details.Count + selectedActionDescriptionLines.Length + remainingActions;
 
-            int originX = lefty ? _items[SelectedItemIndex].Origin.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : _items[SelectedItemIndex].Origin.X;
+            int originX = lefty ? _items[_selectedItemIndex].Origin.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : _items[_selectedItemIndex].Origin.X;
 
-            Point descriptionBlockOrigin = new Point(originX, _items[SelectedItemIndex].EndY - 1);
+            Point descriptionBlockOrigin = new Point(originX, _items[_selectedItemIndex].EndY - 1);
 
             _drawer.DrawRectangle(descriptionBlockOrigin, new Size(width, height), ConsoleColor.Black);
             
@@ -245,7 +247,7 @@ namespace Super_ForeverAloneInThaDungeon
                 _drawer.Draw(Constants.yWall, Constants.SelectedItemBorderColor, new Point(cursorLeft, cursorTop));
                 cursorLeft++;
 
-                if (i == SelectedActionIndex)
+                if (i == _selectedActionIndex)
                 {
 
                     cursorLeft++;
@@ -307,7 +309,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             _drawer.Write(bar, Constants.SelectedItemBorderColor, new Point(cursorLeft, cursorTop));
 
-            _itemDescription = new DisplayItem(descriptionBlockOrigin, new Point(Constants.invDescriptionWidth, cursorTop + 1));
+            _itemDescription = new DisplayItem(descriptionBlockOrigin, new Size(Constants.invDescriptionWidth, cursorTop + 1));
         }
 
         #endregion
@@ -316,9 +318,9 @@ namespace Super_ForeverAloneInThaDungeon
 
         public void PreviousAction()
         {
-            if (--SelectedActionIndex < 0)
+            if (--_selectedActionIndex < 0)
             {
-                SelectedActionIndex = SelectedItem.Actions.Count - 1;
+                _selectedActionIndex = SelectedItem.Actions.Count - 1;
             }
 
             DrawInventory();
@@ -326,9 +328,9 @@ namespace Super_ForeverAloneInThaDungeon
 
         public void NextAction()
         {
-            if (++SelectedActionIndex >= SelectedItem.Actions.Count)
+            if (++_selectedActionIndex >= SelectedItem.Actions.Count)
             {
-                SelectedActionIndex = 0;
+                _selectedActionIndex = 0;
             }
 
             DrawInventory();
@@ -336,16 +338,16 @@ namespace Super_ForeverAloneInThaDungeon
 
         public void NextItem()
         {
-            if (SelectedItemIndex >= _player.ItemCount - 1) return;
-            ++SelectedItemIndex;
+            if (_selectedItemIndex >= _player.ItemCount - 1) return;
+            ++_selectedItemIndex;
             DrawInventory();
 
         }
 
         public void PreviousItem()
         {
-            if (SelectedItemIndex == 0) return;
-            --SelectedItemIndex;
+            if (_selectedItemIndex == 0) return;
+            --_selectedItemIndex;
             DrawInventory();
         }
 
@@ -353,13 +355,13 @@ namespace Super_ForeverAloneInThaDungeon
         {
             // Do the action, check if needs to be destroyed
             // It seems kindof redundant passing in the arguments you use to call the function itself
-            if (_player.Inventory[SelectedItemIndex].Actions[SelectedActionIndex].Act(_player, SelectedItemIndex))
+            if (_player.Inventory[_selectedItemIndex].Actions[_selectedActionIndex].Act(_player, _selectedItemIndex))
             {
                 
-                _player.removeInventoryItem(SelectedItemIndex);
+                _player.removeInventoryItem(_selectedItemIndex);
 
-                if (SelectedItemIndex == _player.ItemCount && SelectedItemIndex != 0)
-                    SelectedItemIndex--;
+                if (_selectedItemIndex == _player.ItemCount && _selectedItemIndex != 0)
+                    _selectedItemIndex--;
 
                 DrawInventory();
             }
@@ -386,7 +388,7 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 if (inv_collides(item, _items[i]))
                 {
-                    DrawItem(_player.Inventory[i], i == SelectedItemIndex ? Constants.SelectedItemBorderColor : Constants.ItemBorderColor, _items[i].Origin);
+                    DrawItem(_player.Inventory[i], i == _selectedItemIndex ? Constants.SelectedItemBorderColor : Constants.ItemBorderColor, _items[i].Origin);
                 }
             }
         }
