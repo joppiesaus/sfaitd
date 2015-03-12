@@ -1,5 +1,4 @@
 ﻿next:
-* very first inventory screen, weird hole.
 * fix issue #1
 
 * item selection system(player types c((c)ast), player gets screenfull of scrolls and selects one)
@@ -8,10 +7,13 @@
 * Effects that last a few moves
 * improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
 
+* "pages" or scrolling in inventory
+
 BUGS:
 * creatures can step out of lighting causing "ghosts"
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
 * Duplicate spells
+
 
 IDEAS:
 x Locked doors
