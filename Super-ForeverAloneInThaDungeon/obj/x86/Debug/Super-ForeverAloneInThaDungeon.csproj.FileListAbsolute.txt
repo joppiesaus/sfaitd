@@ -8,3 +8,8 @@ C:\Users\laptop\Documents\projects\sfaitd\Super-ForeverAloneInThaDungeon\bin\Deb
 C:\Users\laptop\Documents\projects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\Super-ForeverAloneInThaDungeon.csprojResolveAssemblyReference.cache
 C:\Users\laptop\Documents\projects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\SuperForeverAloneInThaDungeon.exe
 C:\Users\laptop\Documents\projects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\SuperForeverAloneInThaDungeon.pdb
+C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\bin\Debug\SuperForeverAloneInThaDungeon.exe
+C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\bin\Debug\SuperForeverAloneInThaDungeon.pdb
+C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\Super-ForeverAloneInThaDungeon.csprojResolveAssemblyReference.cache
+C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\SuperForeverAloneInThaDungeon.exe
+C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\SuperForeverAloneInThaDungeon.pdb

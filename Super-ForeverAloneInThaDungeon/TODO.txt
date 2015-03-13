@@ -6,8 +6,10 @@
 * Different AI's
 * Effects that last a few moves
 * improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
+* different types of dungeons
 
 * "pages" or scrolling in inventory
+* add description size detection
 
 BUGS:
 * creatures can step out of lighting causing "ghosts"
