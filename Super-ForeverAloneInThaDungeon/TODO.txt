@@ -7,6 +7,8 @@
 * Effects that last a few moves
 * improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
 * different types of dungeons
+* Objects should have a class called thing(or something)
+* A weapon you can set stuff on fire with
 
 * "pages" or scrolling in inventory
 * add description size detection

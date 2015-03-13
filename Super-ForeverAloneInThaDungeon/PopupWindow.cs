@@ -55,9 +55,8 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.CursorLeft = item.EndX - 1;
                 Console.Write(Constants.yWall);
                 Console.CursorTop++;
+                Console.CursorLeft = item.pos.X;
             }
-
-            Console.CursorLeft = item.pos.X;
 
             // draw additional empty lines
             for (byte i = 0; i < addLines; i++)

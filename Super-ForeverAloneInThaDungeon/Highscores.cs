@@ -5,9 +5,14 @@ namespace Super_ForeverAloneInThaDungeon
 {
     static class Highscores
     {
+        public static bool HasLoaded
+        {
+            get { return nHighscores != -1; }
+        }
+
         const byte MAX_HIGHSCORES = 10;
 
-        private class Highscore
+        class Highscore
         {
             public string name;
             public int floor, level, money;
@@ -174,6 +179,11 @@ namespace Super_ForeverAloneInThaDungeon
                 for (byte i = (byte)(lastAddedItem + 1); i < nHighscores; i++)
                     Draw(i, longestName);
             }
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.SetCursorPosition(0, Console.BufferHeight - 1);
+            Console.Write("-- Press any key to continue --");
+            Console.ReadKey();
         }
 
         static void Draw(byte n, byte nameLength)
@@ -210,12 +220,12 @@ namespace Super_ForeverAloneInThaDungeon
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("lvl: " + highscores[n].level);
 
-            offset += 8;
+            offset += 10;
             Console.CursorLeft = offset;
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("flr: " + highscores[n].floor);
 
-            offset += 9;
+            offset += 11;
             Console.CursorLeft = offset;
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write("mny: " + highscores[n].money);

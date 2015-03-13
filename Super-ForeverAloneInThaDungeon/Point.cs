@@ -65,5 +65,27 @@
         {
             this.pos = new Point(wdt / 2 - width / 2, hgt / 2 - height / 2);
         }
+
+        public void Add(DisplayItem item)
+        {
+            if (item.pos.X < pos.X)
+            {
+                pos.X = item.pos.X;
+                EndX = pos.X + width;
+            }
+            else if (item.width > width)
+            {
+                width = item.width;
+            }
+            if (item.pos.Y < pos.Y)
+            {
+                pos.Y = item.pos.Y;
+                EndY = pos.Y + width;
+            }
+            else if (item.height > height)
+            {
+                height = item.height;
+            }
+        }
     }
 }

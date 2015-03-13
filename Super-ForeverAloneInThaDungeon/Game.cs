@@ -61,7 +61,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
 
-        // TODO: Make drawing effecienter
+        // TODO: Make redrawing effecienter
         public void run()
         {
             while (true)
@@ -133,6 +133,11 @@ namespace Super_ForeverAloneInThaDungeon
                             doNotCallDraw = true;
                             break;
                     }
+
+                    // Clear what key the user entered(prevent uglyness)
+                    Console.CursorLeft = 0;
+                    Console.Write(' ');
+                    Console.CursorLeft = 0;
 
                     if (toAdd.X != 0 || toAdd.Y != 0)
                     {
@@ -679,10 +684,8 @@ namespace Super_ForeverAloneInThaDungeon
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
 
             // display and update highscores
-            Highscores.Load();
             Highscores.Add(p.name, (int)-currentFloor, (int)p.level, (int)p.money);
             Highscores.Display();
-            Console.ReadKey();
 
             Environment.Exit(0);
         }

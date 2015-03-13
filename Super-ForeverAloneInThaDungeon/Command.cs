@@ -8,6 +8,8 @@ namespace Super_ForeverAloneInThaDungeon
         {
             PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command");
             string cmdText = pWnd.Act();
+
+            DisplayItem clearItem = pWnd.item; // What dimensions should be redrawn?
             
 
             string[] args = cmdText.Split(' ');
@@ -39,17 +41,42 @@ namespace Super_ForeverAloneInThaDungeon
 
                 case "REDRAW":
                 case "DRAW":
-                    switch (state)
-                    {
-                        default:
-                            reDrawDungeon();
-                            break;
-                        case State.Inventory:
-                            drawInventory();
-                            break;
-                    }
                     Game.msg("Redrawed succesfully");
+                    redrawNoMatterWhatState();
                     return;
+                
+                case "HIGHSCORES":
+
+                    if (!Highscores.HasLoaded) Highscores.Load();
+                    Highscores.Display();
+                    redrawNoMatterWhatState();
+                    return;
+
+                case "NAME":
+                    if (args.Length == 0)
+                    {
+                        PopupWindowEnterText newNameWnd = new PopupWindowEnterText("To what do you want to change your name?(leave blank to not change)");
+                        clearItem.Add(newNameWnd.item);
+
+                        string name = newNameWnd.Act();
+
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            ((Player)tiles[playerPos.X, playerPos.Y]).name = name;
+                            msg("Name changed to " + name);
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(args[0]))
+                        {
+                            ((Player)tiles[playerPos.X, playerPos.Y]).name = args[0];
+                            msg("Name changed to " + args[0]);
+                        }
+                    }
+
+                    
+                    break;
 
                 case "THIS":
                     if (args.Length > 0)
@@ -91,16 +118,29 @@ namespace Super_ForeverAloneInThaDungeon
                     break;*/
             }
 
-            
+
             switch (state)
             {
                 default:
-                    wipeDisplayItem(pWnd.item);
+                    wipeDisplayItem(clearItem);
                     draw();
                     break;
                 case State.Inventory:
-                    inv_wipePopup(pWnd.item);
+                    inv_wipePopup(clearItem);
                     drawInfoBar();
+                    break;
+            }
+        }
+
+        void redrawNoMatterWhatState()
+        {
+            switch (state)
+            {
+                default:
+                    reDrawDungeon();
+                    break;
+                case State.Inventory:
+                    drawInventory();
                     break;
             }
         }
