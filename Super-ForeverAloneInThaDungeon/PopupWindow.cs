@@ -113,7 +113,7 @@ namespace Super_ForeverAloneInThaDungeon
     class PopupWindowYesNo : PopupWindow
     {
         public PopupWindowYesNo(string message, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR)
-            : base(message, width, borderColor, textColor, 2)
+            : base(message, width, borderColor, textColor, 3)
         {
             Console.CursorTop = item.EndY - 4;
             Console.CursorLeft = item.pos.X + 2;

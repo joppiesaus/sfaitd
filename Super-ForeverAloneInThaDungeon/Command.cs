@@ -8,6 +8,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command");
             string cmdText = pWnd.Act();
+            
 
             string[] args = cmdText.Split(' ');
             string command = args[0].ToUpper();
@@ -57,6 +58,9 @@ namespace Super_ForeverAloneInThaDungeon
                         {
                             case "WEBSITE":
                                 Game.msg("function1.nl/p/sfaitd/");
+                                break;
+                            case "GIT":
+                                Game.msg("github.com/joppiesaus/sfaitd/");
                                 break;
                             case "PATH":
                                 Game.msg(Constants.EXE_DIR);
