@@ -20,7 +20,6 @@ namespace Super_ForeverAloneInThaDungeon
         void drawInventory(int fromIndex = 0 /*from what item it should start drawing from*/)
         {
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
-            //p.addInventoryItem(Constants.spear);
 
             if (p.nInvItems > 0)
             {
