@@ -109,7 +109,7 @@ namespace Super_ForeverAloneInThaDungeon
                 p.mWeaponItem = (WeaponItem)p.inventory[itemIndex];
             }
 
-            Game.msg("now holding " + p.inventory[itemIndex].name + '!');
+            Game.Message("now holding " + p.inventory[itemIndex].name + '!');
             return true;
         }
     }

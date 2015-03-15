@@ -2,7 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class Chest : Tile
+    class Chest : WorldObject
     {
         public InventoryItem[] contents;
 
@@ -32,7 +32,7 @@ namespace Super_ForeverAloneInThaDungeon
                         items[i] = Constants.spear;
                         break;
                     case 2:
-                        items[i] = (new Scroll(SpellGenerator.GenerateMultiple(ref ran))).getInvItem(ref ran);
+                        items[i] = (new Scroll(SpellGenerator.GenerateMultiple(ref ran))).GenerateInvItem(ref ran);
                         break;
                 }
             }

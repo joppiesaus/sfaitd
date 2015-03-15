@@ -129,7 +129,7 @@ namespace Super_ForeverAloneInThaDungeon
             Console.CursorLeft = origin.X;
             Console.CursorTop++;
 
-            string[] title = Constants.generateReadableString(item.name, innerWidth);
+            string[] title = Constants.GenerateReadableString(item.name, innerWidth);
             
             // draw title
             for (int y = 0; y < title.Length; y++)
@@ -186,7 +186,6 @@ namespace Super_ForeverAloneInThaDungeon
             int itemInnerWidth = item.image.GetLength(1);
 
             bool lefty = invDItems[invSelItem].pos.X + Constants.invDescriptionWidth >= tiles.GetLength(0);
-
             int originX = lefty ? invDItems[invSelItem].pos.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].pos.X;
 
             Point begin = new Point(originX, invDItems[invSelItem].EndY - 1);
@@ -230,7 +229,7 @@ namespace Super_ForeverAloneInThaDungeon
             Console.CursorLeft = originX;
 
             // draw the description
-            string[] description = Constants.generateReadableString(item.description, Constants.invDescriptionWidth - 4);
+            string[] description = Constants.GenerateReadableString(item.description, Constants.invDescriptionWidth - 4);
             for (int y = 0; y < description.Length; y++)
             {
                 Console.Write(Constants.yWall);
@@ -257,24 +256,74 @@ namespace Super_ForeverAloneInThaDungeon
             // draw additional info
             if (item.extraInfo != null)
             {
-                int valLoc = 0;
+                int valLoc = 0; // global location of the values displayed
 
                 // calculate the max distance so everything looks neat
                 for (int i = 0; i < item.extraInfo.Length; i++)
-                    if (item.extraInfo[i].label.Length > valLoc) valLoc = item.extraInfo[i].label.Length;
+                    if (item.extraInfo[i] is IIAID && item.extraInfo[i].label.Length > valLoc) valLoc = item.extraInfo[i].label.Length;
 
                 valLoc += originX + 4;
 
                 for (int i = 0; i < item.extraInfo.Length; i++)
                 {
                     Console.Write(Constants.yWall);
-                    Console.CursorLeft++;
-                    Console.ForegroundColor = item.extraInfo[i].lColor;
 
-                    Console.Write(item.extraInfo[i].label + ':');
-                    Console.CursorLeft = valLoc;
-                    Console.ForegroundColor = item.extraInfo[i].vColor;
-                    Console.Write(item.extraInfo[i].value);
+                    // If'its
+                    if (item.extraInfo[i] is IIAID)
+                    {
+                        IIAID itemInfo = (IIAID)item.extraInfo[i];
+
+                        Console.CursorLeft++;
+                        Console.ForegroundColor = itemInfo.lColor;
+
+                        Console.Write(itemInfo.label);
+                        Console.CursorLeft = valLoc;
+                        Console.ForegroundColor = itemInfo.vColor;
+                        Console.Write(itemInfo.value);
+                    }
+                    else if (item.extraInfo[i] is IIAIH)
+                    {
+                        // Add an extra line
+                        Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
+                        Console.Write(Constants.yWall);
+                        Console.CursorTop++;
+                        Console.CursorLeft = originX;
+                        Console.Write(Constants.yWall);
+
+                        IIAIH header = (IIAIH)item.extraInfo[i];
+
+                        // relative location
+                        int relativeLoc = (Constants.invDescriptionWidth - 4) / 2 - header.label.Length / 2;
+                        int rightLength = (Constants.invDescriptionWidth - 5) - header.label.Length - relativeLoc;
+                        char[] buf = new char[--relativeLoc];
+
+                        for (byte a = 0; a < relativeLoc; a++)
+                            buf[a] = '-';
+
+                        Console.CursorLeft++;
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write(buf);
+                        Console.CursorLeft++;
+
+                        Console.ForegroundColor = header.lColor;
+                        Console.Write(header.label);
+                        Console.CursorLeft++;
+
+                        buf = new char[rightLength];
+                        for (byte a = 0; a < rightLength; a++)
+                            buf[a] = '-';
+
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write(buf);
+                    }
+                    else
+                    {
+                        Console.CursorLeft++;
+
+                        Console.ForegroundColor = item.extraInfo[i].lColor;
+                        Console.Write(item.extraInfo[i].label);
+                    }
+                    
 
                     Console.ForegroundColor = Constants.invSelItemBorderColor;
                     Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
@@ -311,7 +360,7 @@ namespace Super_ForeverAloneInThaDungeon
                     Console.CursorLeft += 2;
 
                     int x = Console.CursorLeft;
-                    string[] desc = Constants.generateReadableString(
+                    string[] desc = Constants.GenerateReadableString(
                         item.actions[i].Description,
                         Constants.invDescriptionWidth - (x - originX) - 2
                     );

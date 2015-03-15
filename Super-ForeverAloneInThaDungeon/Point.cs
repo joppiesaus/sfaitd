@@ -2,8 +2,7 @@
 {
     struct Point
     {
-        public int X;
-        public int Y;
+        public int X, Y;
 
         public Point(int x = 0, int y = 0)
         {
@@ -11,9 +10,13 @@
             this.Y = y;
         }
 
-        public bool same(int x, int y)
+        public bool Same(int x, int y)
         {
             return (X == x && Y == y);
+        }
+        public bool Same(Point p)
+        {
+            return (X == p.X && Y == p.Y);
         }
 
         public override string ToString()
@@ -56,11 +59,19 @@
             this.height = (short)(end.Y - begin.Y);
         }
 
+        /// <summary>
+        /// Positions this displayitem in the middle of screen
+        /// </summary>
         public void CenterScreen()
         {
             this.pos = new Point(System.Console.BufferWidth / 2 - width / 2, System.Console.BufferHeight / 2 - height / 2);
         }
 
+        /// <summary>
+        /// Positions this displayitem in the given dimensions(origin 0,0)
+        /// </summary>
+        /// <param name="wdt">width of dimension</param>
+        /// <param name="hgt">height of dimension</param>
         public void Center(int wdt, int hgt)
         {
             this.pos = new Point(wdt / 2 - width / 2, hgt / 2 - height / 2);
@@ -68,23 +79,24 @@
 
         public void Add(DisplayItem item)
         {
-            if (item.pos.X < pos.X)
+            if (pos.X > item.pos.X)
             {
                 pos.X = item.pos.X;
                 EndX = pos.X + width;
             }
-            else if (item.width > width)
+            if (item.EndX > EndX)
             {
-                width = item.width;
+                EndX = item.EndX;
             }
-            if (item.pos.Y < pos.Y)
+
+            if (pos.Y > item.pos.Y)
             {
                 pos.Y = item.pos.Y;
-                EndY = pos.Y + width;
+                EndY = pos.Y + height;
             }
-            else if (item.height > height)
+            if (item.EndY > EndY)
             {
-                height = item.height;
+                EndY = item.EndY;
             }
         }
     }

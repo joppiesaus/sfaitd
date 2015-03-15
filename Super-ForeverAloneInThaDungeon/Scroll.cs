@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
@@ -8,9 +7,9 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public SpellEffect[] effects;
 
-        public EffectItem(string nameee, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx = null, InventoryAction[] addActions = null)
+        public EffectItem(string _name, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx = null, InventoryAction[] addActions = null)
         {
-            this.name = nameee;
+            this.name = _name;
             this.description = desc;
             this.image = img;
             this.color = clr;
@@ -18,11 +17,11 @@ namespace Super_ForeverAloneInThaDungeon
             this.effects = fx;
 
             extraInfo = new IIAI[fx.Length + 1];
-            extraInfo[0] = new IIAI("Effects", "", ConsoleColor.Magenta);
+            extraInfo[0] = new IIAIH("Effects", ConsoleColor.Magenta);
 
             for (int i = 0; i < fx.Length; i++)
             {
-                extraInfo[i + 1] = fx[i].GetInventoryInfo();
+                extraInfo[i + 1] = fx[i].GenerateInventoryInfo();
             }
 
             if (addActions == null)
@@ -56,7 +55,7 @@ namespace Super_ForeverAloneInThaDungeon
             this.effects = fx;
         }
 
-        public override InventoryItem getInvItem(ref Random ran)
+        public override InventoryItem GenerateInvItem(ref Random ran)
         {
             string scrollName = ran.Next(0, 2) == 0 ? 
                 string.Format("\"Scroll of The {0} {1}\"",
@@ -95,11 +94,8 @@ namespace Super_ForeverAloneInThaDungeon
 
             /*return new InventoryItem(scrollName, "This scroll can do magical stuff", img, color, new IIAI[] { new IIAI("Effects", "???", ConsoleColor.Magenta) },
                 new InventoryAction[] { new InventoryActionCast(), new InventoryActionDrop() });*/
-            return new EffectItem(scrollName, "",
-                img, color, effects);
+            return new EffectItem(scrollName, "", img, color, effects);
         }
-
-        
 
     }
 }

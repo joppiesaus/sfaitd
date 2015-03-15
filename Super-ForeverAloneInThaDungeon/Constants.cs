@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -79,7 +78,7 @@ namespace Super_ForeverAloneInThaDungeon
         public const string invFullMsg = "Inventory full!";
 
         #region methods
-        public static bool[,] generateCircle(int radius)
+        public static bool[,] GenerateCircle(int radius)
         {
             // http://webstaff.itn.liu.se/~stegu/circle/circlealgorithm.pdf
             int x = 0;
@@ -119,7 +118,7 @@ namespace Super_ForeverAloneInThaDungeon
             return circle;
         }
 
-        public static string getPDamageInWords(int dmg, ref Random ran)
+        public static string GetPDamageInWords(int dmg, ref Random ran)
         {
             if (dmg == 0)
             {
@@ -135,7 +134,7 @@ namespace Super_ForeverAloneInThaDungeon
             else return ran.Next(0, 2) == 1 ? "you did a great hit on" : "you injured";
         }
 
-        public static string getCDamageInWords(int dmg, ref Random ran)
+        public static string GetCDamageInWords(int dmg, ref Random ran)
         {
             if (dmg < 0) return "has healed you with " + dmg;
             else if (dmg == 0)
@@ -153,7 +152,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         // makes a string break into pieces
-        public static string[] generateReadableString(string input, int lineLength)
+        public static string[] GenerateReadableString(string input, int lineLength)
         {
             string[] sInput = input.Split(' ');
             string[] lines = new string[sInput.Length/*input.Length / lineLength + 4*/];
@@ -169,8 +168,6 @@ namespace Super_ForeverAloneInThaDungeon
                         if (currentLine.Length + sInput[i].Length + 1 <= lineLength) currentLine += ' ';
                         else
                         {
-                            // GOD DAMNIT! NEED TO DO IT TWICE
-                            //lines[a] = fillUpEmptySpace(currentLine, lineLength);
                             lines[a] = currentLine;
                             a++;
                             currentLine = "";
@@ -187,7 +184,6 @@ namespace Super_ForeverAloneInThaDungeon
                 }
                 else
                 {
-                    //lines[a] = fillUpEmptySpace(currentLine, lineLength);
                     lines[a] = currentLine;
                     a++;
                     currentLine = "";
@@ -197,26 +193,16 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (currentLine != "")
             {
-                //lines[a] = fillUpEmptySpace(currentLine, lineLength);
                 lines[a] = currentLine;
                 a++;
             }
-
 
             Array.Resize(ref lines, a);
             return lines;
         }
 
-        // makes a string fit into 
-        public static string fillUpEmptySpace(string s, int l, char c = ' ')
-        {
-            l -= s.Length;
-            for (int i = 0; i < l; i++) s += c;
-            return s;
-        }
-
         // Lazyness level: Over 9000!
-        public static bool invert(this bool b)
+        public static bool Invert(this bool b)
         {
             /*if (b) return false;
             return true;*/
@@ -230,6 +216,13 @@ namespace Super_ForeverAloneInThaDungeon
         {
             string s = val.ToString();
             return s.Insert(s.Length - 1, ".") + '%';
+        }
+
+        // ???
+        // I don't know what format yet
+        public static string ToMysteriousNumeralSystem(uint val)
+        {
+            return val.ToString();
         }
         #endregion
     }

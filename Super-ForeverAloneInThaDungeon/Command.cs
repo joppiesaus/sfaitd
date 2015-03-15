@@ -4,9 +4,10 @@ namespace Super_ForeverAloneInThaDungeon
 {
     partial class Game
     {
+        // Maybe another command system in the future?
         void ReadCommand()
         {
-            PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command");
+            PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command", 60);
             string cmdText = pWnd.Act();
 
             DisplayItem clearItem = pWnd.item; // What dimensions should be redrawn?
@@ -41,42 +42,50 @@ namespace Super_ForeverAloneInThaDungeon
 
                 case "REDRAW":
                 case "DRAW":
-                    Game.msg("Redrawed succesfully");
+                    Game.Message("Redrawed succesfully");
                     redrawNoMatterWhatState();
                     return;
                 
                 case "HIGHSCORES":
-
                     if (!Highscores.HasLoaded) Highscores.Load();
                     Highscores.Display();
                     redrawNoMatterWhatState();
                     return;
 
-                case "NAME":
-                    if (args.Length == 0)
+                case "ME":
+                    if (args.Length > 0)
                     {
-                        PopupWindowEnterText newNameWnd = new PopupWindowEnterText("To what do you want to change your name?(leave blank to not change)");
-                        clearItem.Add(newNameWnd.item);
-
-                        string name = newNameWnd.Act();
-
-                        if (!string.IsNullOrWhiteSpace(name))
+                        switch (args[0].ToUpper())
                         {
-                            ((Player)tiles[playerPos.X, playerPos.Y]).name = name;
-                            msg("Name changed to " + name);
+                            case "RENAME":
+                            case "NAME":
+                                if (args.Length == 1)
+                                {
+                                    PopupWindowEnterText newNameWnd = new PopupWindowEnterText(
+                                        "To what do you want to change your name?(leave blank to not change)", 50, ConsoleColor.Red);
+                                    clearItem.Add(newNameWnd.item);
+
+                                    string name = newNameWnd.Act();
+
+                                    if (!string.IsNullOrWhiteSpace(name))
+                                    {
+                                        ((Player)tiles[playerPos.X, playerPos.Y]).name = name;
+                                        Message("Name changed to " + name);
+                                    }
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(args[1]))
+                                    {
+                                        ((Player)tiles[playerPos.X, playerPos.Y]).name = args[1];
+                                        Message("Name changed to " + args[1]);
+                                    }
+                                }
+                                break;
                         }
                     }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(args[0]))
-                        {
-                            ((Player)tiles[playerPos.X, playerPos.Y]).name = args[0];
-                            msg("Name changed to " + args[0]);
-                        }
-                    }
-
-                    
                     break;
+                
 
                 case "THIS":
                     if (args.Length > 0)
@@ -84,26 +93,26 @@ namespace Super_ForeverAloneInThaDungeon
                         switch (args[0].ToUpper())
                         {
                             case "WEBSITE":
-                                Game.msg("function1.nl/p/sfaitd/");
+                                Game.Message("function1.nl/p/sfaitd/");
                                 break;
                             case "GIT":
-                                Game.msg("github.com/joppiesaus/sfaitd/");
+                                Game.Message("github.com/joppiesaus/sfaitd/");
                                 break;
                             case "PATH":
-                                Game.msg(Constants.EXE_DIR);
+                                Game.Message(Constants.EXE_DIR);
                                 break;
                             case "VERSION":
-                                Game.msg("Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+                                Game.Message("Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
                                 break;
                             case "CREDITS":
-                                Game.msg("nope");
+                                Game.Message("nope");
                                 break;
                         }
                     }
                     break;
 
                 default :
-                    msg("Unknown command");
+                    Message("Unknown command");
                     break;
 
                 // TEMPORARY HACK!

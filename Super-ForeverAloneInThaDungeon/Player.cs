@@ -28,7 +28,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         private byte hMoves = 0;
 
-        public readonly bool[,] circle = Constants.generateCircle(Constants.playerLookRadius);
+        public readonly bool[,] circle = Constants.GenerateCircle(Constants.playerLookRadius);
 
         public Player()
             : base()

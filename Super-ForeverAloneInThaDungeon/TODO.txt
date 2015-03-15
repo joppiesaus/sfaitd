@@ -1,5 +1,9 @@
 ﻿next:
+* Rewrite the way messages are called. Also the way things get attacked. It shouldn't be 2 functions.
 * fix issue #1
+* Create list of commands
+
+* flint and steel!
 
 * item selection system(player types c((c)ast), player gets screenfull of scrolls and selects one)
 * Enchanting!
@@ -7,7 +11,7 @@
 * Effects that last a few moves
 * improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
 * different types of dungeons
-* Objects should have a class called thing(or something)
+
 * A weapon you can set stuff on fire with
 
 * "pages" or scrolling in inventory
@@ -33,6 +37,7 @@ x (network) co-op
 x modding
 
 DONE:
+* Objects should have a class called thing(or something)
 * ADD BRAND NEW INVENTORY SYSTEM!
 * messages in inventory
 * test weapons stuff

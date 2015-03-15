@@ -12,9 +12,9 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public SpellEffect() { }
         public SpellEffect(int val) { this.value = val; }
 
-        public virtual IIAI GetInventoryInfo()
+        public virtual IIAI GenerateInventoryInfo()
         {
-            return new IIAI(Name, '+' + value.ToString(), ConsoleColor.DarkCyan, GetColor());
+            return new IIAID(Name, '+' + value.ToString(), ConsoleColor.DarkCyan, GetColor());
         }
 
         public abstract void Apply(ref Creature c);
@@ -51,16 +51,16 @@ namespace Super_ForeverAloneInThaDungeon.Spells
 
         public HitPenalty(int val) : base(val) { }
 
-        public override IIAI GetInventoryInfo()
+        public override IIAI GenerateInventoryInfo()
         {
-            return new IIAI(Name, ToPercent(-value), ConsoleColor.Yellow, GetColor());
+            return new IIAID(Name, ToPercent(-value), ConsoleColor.Yellow, GetColor());
         }
 
         public override void Apply(ref Creature c)
         {
             c.HitPenalty = (short)value;
             if (c.HitPenalty > 400) c.HitPenalty = 400;
-            Game.msg("Your chance of getting hit has decreased by " + Constants.ToPercent((short)value));
+            Game.Message("Your chance of getting hit has decreased by " + Constants.ToPercent((short)value));
         }
     }
 
@@ -74,8 +74,8 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public override void Apply(ref Creature c)
         {
             c.maxHealth += (ushort)value;
-            if (c is Player) Game.msg("Your max health has been increased by " + value);
-            else Game.msg("The " + c + " casted " + Name + ", max health has been increased by " + value);
+            if (c is Player) Game.Message("Your max health has been increased by " + value);
+            else Game.Message("The " + c + " casted " + Name + ", max health has been increased by " + value);
         }
     }
 
@@ -89,8 +89,8 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public override void Apply(ref Creature c)
         {
             int amount = c.heal(value);
-            if (c is Player) Game.msg("Your health has been increased by " + amount);
-            else Game.msg("The " + c + " healed himself " + amount);
+            if (c is Player) Game.Message("Your health has been increased by " + amount);
+            else Game.Message("The " + c + " healed himself " + amount);
         }
     }
 
@@ -105,7 +105,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         {
             c.damage.X += value;
             c.damage.Y += value;
-            if (c is Player) Game.msg("Your strength has been increased by " + value);
+            if (c is Player) Game.Message("Your strength has been increased by " + value);
         }
     }
 }

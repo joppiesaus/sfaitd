@@ -96,7 +96,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-
+    
 
     class Wall : Tile
     {

@@ -38,7 +38,7 @@ namespace Super_ForeverAloneInThaDungeon
                     if (corrP == null) continue;
                     cEnd = corrP.Length - 1;
 
-                    if (!corrP[cEnd].same(-1, -1))
+                    if (!corrP[cEnd].Same(-1, -1))
                     {
                         fail = false;
                         break;

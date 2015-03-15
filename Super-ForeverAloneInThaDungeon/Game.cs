@@ -4,6 +4,8 @@ namespace Super_ForeverAloneInThaDungeon
 {
     // I question myself: Have I ever been this depressed while coding?
     // I've a lot to learn.
+    // fiav-minutehs-latehrh
+    // OH THIS IS SO FUN
     partial class Game
     {
         enum State
@@ -67,7 +69,7 @@ namespace Super_ForeverAloneInThaDungeon
             while (true)
             {
                 Player p;
-                if (playerPos.same(-1, -1)) p = new Player();
+                if (playerPos.Same(-1, -1)) p = new Player();
                 else p = (Player)tiles[playerPos.X, playerPos.Y];
 
                 setDungeonToEmpty();
@@ -79,7 +81,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                 onPlayerMove(ref p); // make sure everything inits properly
 
-                msg("Welcome, " + p.name + "!"); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
+                Message("Welcome, " + p.name + '!'); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
                 if (disableFight) p.walkable = false;
 
 
@@ -114,7 +116,7 @@ namespace Super_ForeverAloneInThaDungeon
                         case ConsoleKey.UpArrow: toAdd.Y--; break;
                         case ConsoleKey.DownArrow: toAdd.Y++; break;
                         case ConsoleKey.Tab: state = State.Inventory; drawInventory(); continue;
-                        case ConsoleKey.F1: hack = hack.invert(); break; //                                                 HACK TOGGLE HACK TOGGLE HACK
+                        case ConsoleKey.F1: hack = hack.Invert(); break; //                                                 HACK TOGGLE HACK TOGGLE HACK
                         case ConsoleKey.F2: hackLighting = true;
                             for (int x = 0; x < tiles.GetLength(0); x++)
                                 for (int y = 0; y < tiles.GetLength(1); y++)
@@ -162,19 +164,19 @@ namespace Super_ForeverAloneInThaDungeon
                                 int money = ((Money)preCopy).money;
                                 string s = money == 1 ? "" : "s";
                                 p.money += money;
-                                msg("You found " + money + " coin" + s + '!');
+                                Message("You found " + money + " coin" + s + '!');
                                 preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                             }
                             // TODO: Make available for other items
                             else if (preCopy is Pickupable)
                             {
                                 // assuming all other pickupables are handled!
-                                if (p.addInventoryItem(((Pickupable)preCopy).getInvItem(ref ran)))
+                                if (p.addInventoryItem(((Pickupable)preCopy).GenerateInvItem(ref ran)))
                                 {
-                                    msg("You found " + p.lastInventoryItem().name);
+                                    Message("You found " + p.lastInventoryItem().name);
                                     preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                                 }
-                                else msg(Constants.invFullMsg);
+                                else Message(Constants.invFullMsg);
                             }
                             else if (preCopy is Chest)
                             {
@@ -185,22 +187,22 @@ namespace Super_ForeverAloneInThaDungeon
 
                                 int count = c.contents.Length;
 
-                                msg("You explore the chest");
+                                Message("You explore the chest");
                                 if (count > 0)
                                     for (int i = 0; i < c.contents.Length; i++)
                                     {
                                         if (p.addInventoryItem(c.contents[i]))
                                         {
-                                            msg("You found " + c.contents[i].name);
+                                            Message("You found " + c.contents[i].name);
                                             count--;
                                         }
                                         else
                                         {
-                                            msg("There's more, but you can't carry more");
+                                            Message("There's more, but you can't carry more");
                                         }
                                     }
                                 else
-                                    msg("The chest is empty");
+                                    Message("The chest is empty");
 
                                 if (count == 0)
                                     c.contents = new InventoryItem[0];
@@ -242,6 +244,7 @@ namespace Super_ForeverAloneInThaDungeon
                     if (!doNotCallDraw)
                     {
                         processMonsters();
+                        update();
                         draw();
                     }
                 }
@@ -249,7 +252,6 @@ namespace Super_ForeverAloneInThaDungeon
                 #region inventory state
                 else if (state == State.Inventory)
                 {
-                    //drawInventory();
                     ConsoleKey key = Console.ReadKey().Key;
 
                     if (((Player)tiles[playerPos.X, playerPos.Y]).nInvItems > 0)
@@ -292,7 +294,7 @@ namespace Super_ForeverAloneInThaDungeon
                 #region Throwing state
                 else if (state == State.Throwing)
                 {
-                    msg("Which direction?");
+                    Message("Which direction?");
                     draw();
                     Player p = (Player)tiles[playerPos.X, playerPos.Y];
                     Throwable t = p.rangedWeapon;
@@ -313,6 +315,26 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+        /// <summary>
+        /// Updates all WorldObjects
+        /// </summary>
+        void update()
+        {
+            for (int x = 0; x < tiles.GetLength(0); x++)
+                for (int y = 0; y < tiles.GetLength(1); y++)
+                {
+                    if (tiles[x, y] is WorldObject)
+                    {
+                        WorldObject obj = (WorldObject)tiles[x, y];
+
+                        if (obj.destroyed)
+                        {
+                            tiles[x, y] = new Tile(TileType.Air);
+                        }
+                    }
+                }
+        }
+
 
         #region div
         // player attacks creature
@@ -329,7 +351,7 @@ namespace Super_ForeverAloneInThaDungeon
                 : 0
             ;
 
-            msg(string.Format("{0} {1}", Constants.getPDamageInWords(pdmg, ref ran), c.tiletype));
+            Message(string.Format("{0} {1}", Constants.GetPDamageInWords(pdmg, ref ran), c.tiletype));
 
             if (c.doDamage(pdmg, ref creature))
             {
@@ -345,7 +367,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             int cdmg = c.hit(ref ran, ref p);
 
-            msg(string.Format("{0} {1}", c.tiletype, Constants.getCDamageInWords(cdmg, ref ran)));
+            Message(string.Format("{0} {1}", c.tiletype, Constants.GetCDamageInWords(cdmg, ref ran)));
 
             if (p == null) onPlayerDead();
         }
@@ -360,7 +382,7 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         Point p = getPointTowardsPlayer(x, y);
 
-                        if (isValidMove(p) && !p.same(x, y))
+                        if (isValidMove(p) && !p.Same(x, y))
                         {
                             if (tiles[p.X, p.Y].tiletype == TileType.Player)
                             {
@@ -406,7 +428,7 @@ namespace Super_ForeverAloneInThaDungeon
                         int dmg = ran.Next(t.damage.X, t.damage.Y + 1);
 
                         //message = string.Format("{0} {1} with the Spear", Constants.getPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype);
-                        msg(string.Format("{0} {1} with the {2}", Constants.getPDamageInWords(dmg, ref ran), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
+                        Message(string.Format("{0} {1} with the {2}", Constants.GetPDamageInWords(dmg, ref ran), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
 
                         Creature c = (Creature)tiles[curPoint.X, curPoint.Y];
                         if (c.doDamage(dmg, ref tiles[curPoint.X, curPoint.Y]))
@@ -417,7 +439,7 @@ namespace Super_ForeverAloneInThaDungeon
                     }
             }
 
-            msg("I don't see any creature there!");
+            Message("I don't see any creature there!");
         }
 
         void generateScoreGrid(Point p)
@@ -628,7 +650,7 @@ namespace Super_ForeverAloneInThaDungeon
             while (p.xp >= p.reqXp)
             {
                 p.levelUp();
-                msg("you are now level " + p.level + '!');
+                Message("you are now level " + p.level + '!');
             }
         }
         #endregion
@@ -658,7 +680,7 @@ namespace Super_ForeverAloneInThaDungeon
         #endregion
 
         #region "constant" messages methods
-        public static void msg(string s)
+        public static void Message(string s)
         {
             currentMessage += '\n' + s ;
         }
@@ -670,14 +692,14 @@ namespace Super_ForeverAloneInThaDungeon
 
         void onDead(ref Player p, Creature c)
         {
-            msg("you have defeated " + c.tiletype + "!");
+            Message("you have defeated " + c.tiletype + "!");
             giveXp(ref p, c.getXp(ref ran));
         }
 
         void onPlayerDead()
         {
             // rest in rip player
-            msg("GAME OVER: R.I.P. " + ((Player)tiles[playerPos.X, playerPos.Y]).name + '!');
+            Message("GAME OVER: R.I.P. " + ((Player)tiles[playerPos.X, playerPos.Y]).name + '!');
             draw();
             Console.ReadKey();
 

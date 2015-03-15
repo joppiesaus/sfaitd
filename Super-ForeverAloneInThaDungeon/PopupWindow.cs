@@ -12,7 +12,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public PopupWindow(string text, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR, byte addLines = 0)
         {
-            string[] lines = Constants.generateReadableString(text, width - 4);
+            string[] lines = Constants.GenerateReadableString(text, width - 4);
             this.item = new DisplayItem(new Point(), width, (short)(lines.Length + ++addLines + 3));
 
             item.CenterScreen();
