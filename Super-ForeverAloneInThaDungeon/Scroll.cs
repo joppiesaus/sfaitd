@@ -55,14 +55,14 @@ namespace Super_ForeverAloneInThaDungeon
             this.effects = fx;
         }
 
-        public override InventoryItem GenerateInvItem(ref Random ran)
+        public override InventoryItem GenerateInvItem()
         {
-            string scrollName = ran.Next(0, 2) == 0 ? 
+            string scrollName = Game.ran.Next(0, 2) == 0 ? 
                 string.Format("\"Scroll of The {0} {1}\"",
-                    Constants.namefwords[ran.Next(Constants.namefwords.Length)],
-                    Constants.nameswords[ran.Next(Constants.nameswords.Length)]
+                    Constants.namefwords[Game.ran.Next(Constants.namefwords.Length)],
+                    Constants.nameswords[Game.ran.Next(Constants.nameswords.Length)]
                 )
-                : string.Format("\"Scroll of {0}\"", Constants.namewords[ran.Next(Constants.namewords.Length)]
+                : string.Format("\"Scroll of {0}\"", Constants.namewords[Game.ran.Next(Constants.namewords.Length)]
             );
 
             char[,] img = new char[,] { {' ','_','_','_','_','_','_','_','_','_','_',' ',' ',' ',' ',' ' },
@@ -78,16 +78,16 @@ namespace Super_ForeverAloneInThaDungeon
             byte xOff = 3;
             for (byte y = 2; y < 4; y++)
             {
-                int length = xOff + ran.Next(2, 9);
+                int length = xOff + Game.ran.Next(2, 9);
                 for (int i = xOff; i < length; i++)
-                    img[y, i] = Constants.rlangChars[ran.Next(0, Constants.rlangChars.Length)];
+                    img[y, i] = Constants.rlangChars[Game.ran.Next(0, Constants.rlangChars.Length)];
 
                 if (length < xOff + 5)
                 {
                     int i = length + 1;
-                    length += ran.Next(2, 5);
+                    length += Game.ran.Next(2, 5);
                     for (; i < length; i++)
-                        img[y, i] = Constants.rlangChars[ran.Next(0, Constants.rlangChars.Length)];
+                        img[y, i] = Constants.rlangChars[Game.ran.Next(0, Constants.rlangChars.Length)];
                 }
                 xOff++;
             }

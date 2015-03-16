@@ -12,16 +12,16 @@ namespace Super_ForeverAloneInThaDungeon
         public WeaponItem mWeaponItem;// = Constants.dagger;
 
         // "holding" weapons
-        public Throwable rangedWeapon
+        public Throwable RangedWeapon
         {
             get { return rWeaponItem == null ? null : (Throwable)rWeaponItem.weapon; }
         }
-        public Weapon meleeWeapon
+        public Weapon MeleeWeapon
         {
             get { return mWeaponItem == null ? null : mWeaponItem.weapon; }
         }
 
-        public string name = Environment.UserName;
+        public string name;
         public uint xp = 0;
         public uint reqXp = 1;
         public uint level = 1;
@@ -30,9 +30,22 @@ namespace Super_ForeverAloneInThaDungeon
 
         public readonly bool[,] circle = Constants.GenerateCircle(Constants.playerLookRadius);
 
+        public void Rename(string _name)
+        {
+            this.name = _name;
+            Console.Title = "SuperForeverAloneInThaDungeon - " + _name;
+        }
+
+
+        public override string InlineName()
+        {
+            return "you";
+        }
+
         public Player()
             : base()
         {
+            Rename(Environment.UserName);
             health = maxHealth = 12;
 
             tiletype = TileType.Player;
@@ -44,6 +57,7 @@ namespace Super_ForeverAloneInThaDungeon
             hitLikelyness = 400;
 
             addInventoryItem(Constants.dagger);
+            addInventoryItem(Constants.swedishMatches);
         }
 
         public bool addInventoryItem(InventoryItem item)
@@ -88,8 +102,50 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+        public override int GetDamage(AttackMode aMode)
+        {
+            return aMode == AttackMode.Melee ? damage.X : 0;
+        }
+
+        public override void Drop(ref Tile t)
+        {
+            // Stop making InvalidCastOperation happen
+            // It's not going to happen
+        }
+
+        public override void OnKill(Creature target)
+        {
+            xp += target.GetXp();
+
+            while (xp >= reqXp)
+            {
+                levelUp();
+                Game.Message("You are now level " + level + '!');
+            }
+        }
+
+        public override void AmplifyAttack(ref WorldObject target, AttackMode aMode)
+        {
+            amplifyAttack(ref target, aMode == AttackMode.Melee ? MeleeWeapon : RangedWeapon);
+        }
+
+        void amplifyAttack(ref WorldObject target, Weapon weapon)
+        {
+            if (weapon != null)
+            {
+                target.DoDirectDamage(Game.ran.Next(weapon.damage.X, weapon.damage.Y + 1));
+
+                if (weapon.enchantments.Length > 0)
+                for (int i = 0; i < weapon.enchantments.Length; i++)
+                {
+                    weapon.enchantments[i].Apply(ref target);
+                }
+            }
+        }
+
         public void levelUp()
         {
+
             xp -= reqXp;
             level++;
 

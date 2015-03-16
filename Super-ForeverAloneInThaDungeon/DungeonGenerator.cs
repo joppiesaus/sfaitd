@@ -11,7 +11,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             Point spawnRoomGenPoint = new Point(tiles.GetLength(0) / 2 + ran.Next(-10, 5), tiles.GetLength(1) / 2 + ran.Next(-10, 5));
             Room spawnRoom = new Room(spawnRoomGenPoint, new Point(spawnRoomGenPoint.X + ran.Next(4, 12), spawnRoomGenPoint.Y + ran.Next(4, 8)));
-            spawnRoom.appendName(ref ran);
+            spawnRoom.appendName();
             generateRoom(spawnRoom);
 
             Room[] dungeons = new Room[howManyRooms + 1];
@@ -184,7 +184,7 @@ namespace Super_ForeverAloneInThaDungeon
             if (doorAtP) tiles[p.X, p.Y] = new Tile(TileType.Corridor);
 
 
-            r.appendName(ref ran);
+            r.appendName();
             return r;
         }
 
@@ -235,20 +235,20 @@ namespace Super_ForeverAloneInThaDungeon
                             {
                                 case 0:
                                 case 1:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateRandomSpellEffects(ref ran, ran.Next(2, 6)));
+                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateRandomSpellEffects(ran.Next(2, 6)));
                                     break;
                                 case 2:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleUncommon(ref ran, ran.Next(1, 5)));
+                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleUncommon(ran.Next(1, 5)));
                                     break;
                                 case 3:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleRare(ref ran, ran.Next(1, 4)));
+                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleRare(ran.Next(1, 4)));
                                     break;
                                 case 4:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleCommon(ref ran, ran.Next(3, 8)));
+                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleCommon(ran.Next(3, 8)));
                                     break;
                             }
                         }
-                        else if (ran.Next(0, 500) == 0) tiles[x, y] = new Snake(ref ran);
+                        else if (ran.Next(0, 500) == 0) tiles[x, y] = new Snake();
                         else tiles[x, y].setTile(TileType.Air);
                     }
             }
@@ -258,8 +258,8 @@ namespace Super_ForeverAloneInThaDungeon
                 for (int x = where.X; x <= end.X; x++)
                     for (int y = where.Y; y <= end.Y; y++)
                     {
-                        if (ran.Next(0, 25) == 0) tiles[x, y] = new Snake(ref ran, ran.Next(0, 3));
-                        else if (ran.Next(0, 25) == 0) tiles[x, y] = new Goblin(ref ran, ran.Next(0, 2));
+                        if (ran.Next(0, 25) == 0) tiles[x, y] = new Snake(ran.Next(0, 3));
+                        else if (ran.Next(0, 25) == 0) tiles[x, y] = new Goblin(ran.Next(0, 2));
                         else tiles[x, y].setTile(TileType.Air);
                     }
             }
@@ -270,10 +270,10 @@ namespace Super_ForeverAloneInThaDungeon
                     for (int y = where.Y; y <= end.Y; y++)
                     {
                         if (ran.Next(0, 40) == 0) tiles[x, y] = new Money(ran.Next(1, 6));
-                        else if (ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple(ref ran));
-                        else if (ran.Next(0, 800) < 2) tiles[x, y] = new Snake(ref ran);
-                        else if (ran.Next(0, 1000) < 2) tiles[x, y] = new Goblin(ref ran);
-                        else if (ran.Next(0, 1250) == 0) tiles[x, y] = new Chest(ref ran);
+                        else if (ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple());
+                        else if (ran.Next(0, 800) < 2) tiles[x, y] = new Snake();
+                        else if (ran.Next(0, 1000) < 2) tiles[x, y] = new Goblin();
+                        else if (ran.Next(0, 1250) == 0) tiles[x, y] = new Chest();
                         else tiles[x, y].setTile(TileType.Air);
                     }
             }

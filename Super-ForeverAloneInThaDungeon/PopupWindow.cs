@@ -148,6 +148,9 @@ namespace Super_ForeverAloneInThaDungeon
                     case 'N':
                         return false;
                 }
+                Console.CursorLeft--;
+                Console.Write(' ');
+                Console.CursorLeft--;
             }
         }
     }

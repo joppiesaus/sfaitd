@@ -58,8 +58,8 @@ namespace Super_ForeverAloneInThaDungeon.Spells
 
         public override void Apply(ref Creature c)
         {
-            c.HitPenalty = (short)value;
-            if (c.HitPenalty > 400) c.HitPenalty = 400;
+            c.hitPenalty = (short)value;
+            if ((short)c.hitPenalty > 400) c.hitPenalty = 400;
             Game.Message("Your chance of getting hit has decreased by " + Constants.ToPercent((short)value));
         }
     }

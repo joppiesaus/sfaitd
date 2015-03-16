@@ -12,7 +12,7 @@ namespace Super_ForeverAloneInThaDungeon
             walkable = true;
         }
 
-        public virtual InventoryItem GenerateInvItem(ref Random ran)
+        public virtual InventoryItem GenerateInvItem()
         {
             return null;
         }

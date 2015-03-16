@@ -1,24 +1,40 @@
 ﻿next:
-* Rewrite the way messages are called. Also the way things get attacked. It shouldn't be 2 functions.
-* fix issue #1
+* Weapon enchantments
+* fix spears and other stuff
+* Effects(fire, strength...) that last a few moves	(update methods too)
+* method that handles interaction (like chests) between things?
+* Fix issue #1
+
+* You can't attack objects
+
+* 2easy4me
+* balance leveling
+
+
+* weapon enchantments
+* combine/selection/etc inventory dr
+
 * Create list of commands
 
-* flint and steel!
+* Add description size predicting to inventory
+	for the description, use an int that already calculated how long it'll be(or something like that)
+	same for the actions.
 
 * item selection system(player types c((c)ast), player gets screenfull of scrolls and selects one)
 * Enchanting!
 * Different AI's
-* Effects that last a few moves
+
 * improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
 * different types of dungeons
 
 * A weapon you can set stuff on fire with
 
 * "pages" or scrolling in inventory
-* add description size detection
 
 BUGS:
 * creatures can step out of lighting causing "ghosts"
+* Creatures don't get updated when inside lightning(weren't discovered in first place?)
+* Weird movement
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
 * Duplicate spells
 
@@ -37,6 +53,7 @@ x (network) co-op
 x modding
 
 DONE:
+* Rewrite the way messages are called. Also the way things get attacked. It shouldn't be 2 functions.
 * Objects should have a class called thing(or something)
 * ADD BRAND NEW INVENTORY SYSTEM!
 * messages in inventory

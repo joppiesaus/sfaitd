@@ -9,8 +9,18 @@ namespace Super_ForeverAloneInThaDungeon
         Stationary
     }
 
-    class Creature : Tile
+    enum AttackMode
     {
+        Melee, Ranged
+    }
+
+    class Creature : WorldObject
+    {
+        const byte EFFECT_CAPACITY = 100;
+
+        TemporaryEffect[] tEffects = new TemporaryEffect[EFFECT_CAPACITY];
+        ushort nTeffects = 0;
+
         public bool processed = false;
 
         public int maxHealth = 0;
@@ -31,25 +41,25 @@ namespace Super_ForeverAloneInThaDungeon
         public ushort hitLikelyness = 0;
 
         // Likelyness of getting hit in a form of a penalty
-        short? hitPenalty = null; // 1000 = max, 0 = min
-        public bool HasHitPenalty
-        {
-            get { return hitPenalty != null; }
-        }
-        public short HitPenalty
-        {
-            get { return HasHitPenalty ? (short)hitPenalty : (short)0; }
-            set { this.hitPenalty = value; }
-        }
-
+        public short? hitPenalty = null; // 1000 = max, 0 = min
 
         public Creature()
         {
             walkable = true;
+            attackable = true;
         }
 
-        // Include if (t is Pickupable) when you need to do multiple checks!
-        public void onTileEncounter(ref Tile t)
+        protected override Tile GenerateDrop()
+        {
+            return new Money(this.money);
+        }
+
+        public override void SetOnFire()
+        {
+            if (DoDirectDamage(1)) EventRegister.RegisterDeath(this, "fire");
+        }
+
+        public void OnTileEncounter(ref Tile t)
         {
             if (t.tiletype == TileType.Money)
             {
@@ -61,21 +71,43 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Attacks this creature
         /// </summary>
-        /// <param name="dmg">Damage</param>
-        /// <param name="t">"Grave" tile, place for drops</param>
         /// <returns>Creature is dead</returns>
-        public bool doDamage(int dmg, ref Tile t)
+        public override bool DoDirectDamage(int dmg)
         {
             health -= dmg;
 
             if (health <= 0)
             {
-                t = new Money(this.money);
-                ((Pickupable)t).replaceTile = lastTile.tiletype;
-                t.needsToBeDrawn = true;
+                destroyed = true;
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Makes creature drop all it's stuff and replace itself, dead or alive.
+        /// </summary>
+        /// <param name="t">"Grave" tile, place for drops</param>
+        public override void Drop(ref Tile t)
+        {
+            // probably both always will be true
+            bool lighten = t.lighten;
+            bool discovered = lighten || t.discovered;
+
+            t = GenerateDrop();
+
+            if (t is Pickupable)
+            {
+                ((Pickupable)t).replaceTile = lastTile.tiletype;
+            }
+            else if (t == null)
+            {
+                t = lastTile;
+            }
+
+            t.discovered = discovered;
+            t.lighten = lighten;
+            t.needsToBeDrawn = true;
         }
 
         /// <summary>
@@ -94,24 +126,71 @@ namespace Super_ForeverAloneInThaDungeon
             return h;
         }
 
-        public int hit(ref Random ran, ref Player p)
+        /// <summary>
+        /// When attacking, creatures can defend
+        /// </summary>
+        /// <remarks>This function ALSO HANDLES MESSAGES WHEN BLOCKED.</remarks>
+        /// <param name="Game.ran">Random input</param>
+        /// <returns>If it defended or not</returns>
+        public virtual bool TryDefend(AttackMode aMode)
         {
-            if (ran.Next(0, 1001) > hitLikelyness - p.HitPenalty)
-            {
-                return 0;
-            }
-
-            int dmg = ran.Next(damage.X, damage.Y + 1);
-
-            Tile t = (Tile)p;
-            if (p.doDamage(dmg, ref t)) p = null;
-
-            return dmg;
+            return false;
         }
 
-        public virtual ushort getXp(ref Random ran)
+        /// <summary>
+        /// When attacking, initiative can amplify it's attack(think of potions, weapons, etc)
+        /// </summary>
+        /// <param name="Game.ran">Random input</param>
+        public virtual void AmplifyAttack(ref WorldObject target, AttackMode aMode)
         {
-            return 0;
+        }
+
+        public virtual int GetDamage(AttackMode mode)
+        {
+            return Game.ran.Next(damage.X, damage.Y + 1);
+        }
+
+        /// <summary>
+        /// When the creature killed something, this is called
+        /// </summary>
+        /// <param name="target">Target creature which is killed</param>
+        public virtual void OnKill(Creature target)
+        {
+        }
+
+        public override void Attack(ref Tile target, AttackMode attackMode = AttackMode.Melee)
+        {
+            Creature t = (Creature)target;
+
+            int dmg = 0;
+
+            if (Game.ran.Next(0, 1001) <= hitLikelyness - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
+            {
+                if (t.TryDefend(attackMode))
+                {
+                    return;
+                }
+                else
+                {
+                    dmg = GetDamage(attackMode);
+                }
+
+                WorldObject wo = (WorldObject)target;
+                AmplifyAttack(ref wo, attackMode);
+            }
+
+            EventRegister.RegisterAttack(this, t, dmg);
+
+            t.DoDirectDamage(dmg);
+
+            if (t.destroyed)
+            {
+                EventRegister.RegisterKill(this, t);
+
+                OnKill(t);
+
+                t.Drop(ref target);
+            }
         }
 
 
@@ -143,17 +222,44 @@ namespace Super_ForeverAloneInThaDungeon
         public virtual void OnPlayerAttack()
         {
         }
+
+        /// <remarks>DON'T FORGET to call base.update in other variants!</remarks>
+        public override void Update()
+        {
+            for (ushort i = 0; i < nTeffects; i++)
+            {
+                // WHAT NOW??/1/!/11//1/1/1/J34IO;LRHJ SDFJUIH
+                //tEffects[i].Act(ref this);
+                if ( 0==-- tEffects[i].moves)
+                    removeTemporaryEffect(i);
+            }
+        }
+
+        #region temporary effects
+        public bool AddTemporaryEffect(TemporaryEffect effect)
+        {
+            if (nTeffects == EFFECT_CAPACITY) return false;
+            tEffects[nTeffects++] = effect;
+            return true;
+        }
+
+        void removeTemporaryEffect(ushort i)
+        {
+            tEffects[i] = tEffects[nTeffects - 1];
+            tEffects[nTeffects--] = null;
+        }
+        #endregion
     }
 
 
 
     class Snake : Creature
     {
-        public Snake(ref Random ran, int lvl = 0)
+        public Snake(int lvl = 0)
             : base()
         {
-            health = maxHealth = ran.Next(6, 10) + lvl;
-            money = ran.Next(1, 5); 
+            health = maxHealth = Game.ran.Next(6, 10) + lvl;
+            money = Game.ran.Next(1, 5); 
             tiletype = TileType.Snake;
             drawChar = 'S';
             color = ConsoleColor.DarkGreen;
@@ -167,27 +273,27 @@ namespace Super_ForeverAloneInThaDungeon
             }
             else hitLikelyness = 900;
 
-            hitLikelyness += (ushort)ran.Next(-20, 21);
+            hitLikelyness += (ushort)Game.ran.Next(-20, 21);
         }
 
-        public override ushort getXp(ref Random ran)
+        public override ushort GetXp()
         {
-            return (ushort)ran.Next(0, damage.X / 2 + maxHealth / 5);
+            return (ushort)Game.ran.Next(0, damage.X / 2 + maxHealth / 5);
         }
     }
 
     class Goblin : Creature
     {
-        public Goblin(ref Random ran, int lvl = 0)
+        public Goblin(int lvl = 0)
             : base()
         {
-            money = ran.Next(2, 7);
-            health = maxHealth = ran.Next(8, 13) + lvl;
+            money = Game.ran.Next(2, 7);
+            health = maxHealth = Game.ran.Next(8, 13) + lvl;
             searchRange = (ushort)(6 + lvl / 3);
             tiletype = TileType.Goblin;
             drawChar = Constants.chars[3];
             color = ConsoleColor.DarkRed;
-            damage = new Point(2 + lvl, 4 + lvl + ran.Next(0, lvl));
+            damage = new Point(2 + lvl, 4 + lvl + Game.ran.Next(0, lvl));
             
             if (lvl <= 8)
             {
@@ -197,9 +303,9 @@ namespace Super_ForeverAloneInThaDungeon
             else hitLikelyness = 800;
         }
 
-        public override ushort getXp(ref Random ran)
+        public override ushort GetXp()
         {
-            return (ushort)(ran.Next(0, 2 + maxHealth / 10 + damage.Y - damage.X));
+            return (ushort)(Game.ran.Next(0, 2 + maxHealth / 10 + damage.Y - damage.X));
         }
     }
 }

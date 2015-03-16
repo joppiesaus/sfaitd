@@ -151,18 +151,18 @@ namespace Super_ForeverAloneInThaDungeon
             }
 
             // draw image
+            char[] lineBuf = new char[innerWidth];
+
             for (int y = 0; y < item.image.GetLength(0); y++)
             {
                 Console.ForegroundColor = borderColor;
                 Console.Write(Constants.yWall);
 
-                string line = "";
-
                 for (int x = 0; x < innerWidth; x++)
-                    line += item.image[y, x];
+                    lineBuf[x] = item.image[y, x];
 
                 Console.ForegroundColor = item.color;
-                Console.Write(line);
+                Console.Write(lineBuf);
 
                 Console.ForegroundColor = borderColor;
                 Console.Write(Constants.yWall);
@@ -451,29 +451,64 @@ namespace Super_ForeverAloneInThaDungeon
         {
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
 
-            // if an item gets added while the other is being removed,
-            // it will crash because invDItems doesn't get updated while the inventory does.
-            int idiCount = p.nInvItems;
-
-            // Do the action, check if needs to be destroyed
-            // It seems kindof redundant passing in the arguments you use to call the function itself
-            if (p.inventory[invSelItem].actions[invActionSel].Act(ref p, invSelItem))
+            if (p.inventory[invSelItem].actions[invActionSel] is InventoryActionInteract)
             {
-                // destroy item
-                for (int i = invSelItem; i < idiCount; i++)
+                InventoryActionInteract action = (InventoryActionInteract)p.inventory[invSelItem].actions[invActionSel];
+
+                switch (action.command)
                 {
-                    MakeBlackSpace(invDItems[i]);
+                    case InventoryAction.PreExecuteCommand.SelectDirection:
+                        state = State.Default;
+                        Message("Which direction?");
+                        reDrawDungeon();
+
+                        Point dir = Constants.GetDirectionByKey(Console.ReadKey().Key);
+                        if (!dir.Same(0, 0))
+                        {
+                            Point targetPoint = new Point(playerPos.X + dir.X, playerPos.Y + dir.Y);
+
+                            object target = tiles[targetPoint.X, targetPoint.Y];
+                            if (action.Interact(ref p, invSelItem, ref target))
+                            {
+                                p.removeInventoryItem(invSelItem);
+
+                                if (invSelItem == p.nInvItems && invSelItem != 0)
+                                    invSelItem--;
+                            }
+                            tiles[targetPoint.X, targetPoint.Y] = (Tile)target;
+
+                            draw();
+                        }
+                        break;
                 }
-                p.removeInventoryItem(invSelItem);
-
-                // == seems unsafe, but if you mess arround with it it'll crash <i>anyway</i>
-                if (invSelItem == p.nInvItems && invSelItem != 0)
-                    invSelItem--;
-
-                drawInventory(invSelItem);
             }
+            else
+            {
+                // if an item gets added while the other is being removed,
+                // it will crash because invDItems doesn't get updated while the inventory does.
+                int idiCount = p.nInvItems;
 
-            drawInfoBar();
+                // Do the action, check if needs to be destroyed
+                // It seems kindof redundant passing in the arguments you use to call the function itself
+                if (p.inventory[invSelItem].actions[invActionSel].Act(ref p, invSelItem))
+                {
+                    // destroy item
+                    for (int i = invSelItem; i < idiCount; i++)
+                    {
+                        MakeBlackSpace(invDItems[i]);
+                    }
+                    p.removeInventoryItem(invSelItem);
+
+                    // == seems unsafe, but if you mess arround with it it'll crash <i>anyway</i>
+                    if (invSelItem == p.nInvItems && invSelItem != 0)
+                        invSelItem--;
+
+                    drawInventory(invSelItem);
+                }
+
+                drawInfoBar();
+                drawInventory();
+            }
         }
 
         void inv_changeSelectedItem(int to)

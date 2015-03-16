@@ -62,9 +62,9 @@ namespace Super_ForeverAloneInThaDungeon
         public readonly static char[] rlangChars = new char[] { 'a', 'o', 'e', 'u', 'j', 'k', 'n', 'q', 'p', 'w',
             _g(230), _g(208), _g(244), _g(255), _g(232), _g(209), _g(190), _g(207)  };
 
-        public readonly static InventoryItem[] invItems = {
+        /*public readonly static InventoryItem[] invItems = {
             new InventoryItem("Empty", "Empty", new char[,] {{'\\',' ',' ',' ',' ',' ','/'},{' ','\\',' ',' ',' ','/',' '},{' ',' ','\\',' ','/',' ',' '},{' ',' ',' ','X',' ',' ',' '},
-	        { ' ',' ','/',' ','\\',' ',' ' },{ ' ','/',' ',' ',' ','\\',' ' },{ '/',' ',' ',' ',' ',' ','\\'}}, ConsoleColor.DarkRed),};
+	        { ' ',' ','/',' ','\\',' ',' ' },{ ' ','/',' ',' ',' ','\\',' ' },{ '/',' ',' ',' ',' ',' ','\\'}}, ConsoleColor.DarkRed),};*/
 
 
         public static readonly WeaponItem spear = new WeaponItem(new Spear(),
@@ -72,12 +72,27 @@ namespace Super_ForeverAloneInThaDungeon
             new char[,] { {' ',' ',' ',' ',' ','/','|' },{ ' ',' ',' ',' ','/',' ','|' },
             { ' ',' ',' ',' ','/','/',' ' },{ ' ',' ',' ','/','/',' ',' ' },{ ' ',' ','/','/',' ',' ',' ' },{ ' ','/','/',' ',' ',' ',' '} });
         public static readonly WeaponItem dagger = new WeaponItem(new Dagger(),
-            "A simple knife!", new char[,] { { ' ', '_', '_', '_', '_', '_', '.', '_', '_', ' ' }, { ' ', '`', '-', '-', '-', '-', ';', '=', '=', '\'' } });
+            "A simple knife!", new char[,] { {' ','_','_','_','_','_','.','_','_',' ' }, { ' ','`','-','-','-','-',';','=','=','\'' } });
+
+        public static readonly ItemInventoryItem swedishMatches = new ItemInventoryItem(new SwedishMatches(), "Swedish matches manufactured at Uddevalla to set everything on fire with!", 
+            new char[,] { {'(',')','=','=','=','=','=','=','=','=','='} }, ConsoleColor.Red);
 
 
         public const string invFullMsg = "Inventory full!";
 
         #region methods
+        public static Point GetDirectionByKey(ConsoleKey key)
+        {
+            switch (key)
+            {
+                case ConsoleKey.UpArrow: return new Point(0, -1);
+                case ConsoleKey.DownArrow: return new Point(0, 1);
+                case ConsoleKey.LeftArrow: return new Point(-1, 0);
+                case ConsoleKey.RightArrow: return new Point(1, 0);
+            }
+            return new Point(0, 0);
+        }
+
         public static bool[,] GenerateCircle(int radius)
         {
             // http://webstaff.itn.liu.se/~stegu/circle/circlealgorithm.pdf
@@ -118,37 +133,31 @@ namespace Super_ForeverAloneInThaDungeon
             return circle;
         }
 
-        public static string GetPDamageInWords(int dmg, ref Random ran)
+        public static string GetCreatureDamageInWords(int dmg)
         {
-            if (dmg == 0)
-            {
-                switch (ran.Next(0, 4))
-                {
-                    default: return "you missed";
-                    case 1: return "you barely missed";
-                    case 2: return "you completely missed";
-                }
-            }
-            else if (dmg < 5) return ran.Next(0, 2) == 1 ? "you did a simple hit on" : "you did a minor hit on";
-            else if (dmg < 10) return "you did a great hit on";
-            else return ran.Next(0, 2) == 1 ? "you did a great hit on" : "you injured";
-        }
-
-        public static string GetCDamageInWords(int dmg, ref Random ran)
-        {
-            if (dmg < 0) return "has healed you with " + dmg;
+            if (dmg < 0) return "healed " + dmg + " to";
             else if (dmg == 0)
             {
-                switch (ran.Next(0, 4))
+                switch (Game.ran.Next(0, 4))
                 {
-                    default: return "missed you";
-                    case 1: return "barely missed you";
-                    case 2: return "completely missed you";
+                    default: return "missed";
+                    case 1: return "barely missed";
+                    case 2: return "completely missed";
                 }
             }
-            else if (dmg < 5) return ran.Next(0, 2) == 1 ? "did a simple hit on you" : "did a minor hit on you";
-            else if (dmg < 10) return "did a great hit on you";
-            else return ran.Next(0, 2) == 1 ? "did a critical hit on you" : "injured you";
+            else if (dmg < 5) return Game.ran.Next(0, 2) == 1 ? "did a simple hit on" : "did a minor hit on";
+            else return Game.ran.Next(0, 2) == 1 ? "did a great hit on" : "injured";
+        }
+
+        public static string GetCreatureBlockMessage()
+        {
+            switch (Game.ran.Next(0, 2))
+            {
+                default:
+                    return "blocked";
+                case 1:
+                    return "blocked brutely";
+            }
         }
 
         // makes a string break into pieces
@@ -201,16 +210,6 @@ namespace Super_ForeverAloneInThaDungeon
             return lines;
         }
 
-        // Lazyness level: Over 9000!
-        public static bool Invert(this bool b)
-        {
-            /*if (b) return false;
-            return true;*/
-            /*return (b) ? false : true;*/
-            /*return b ^= true;*/
-            return !b;
-        }
-
         // converts 340 to 34.0%
         public static string ToPercent(short val)
         {
@@ -223,6 +222,23 @@ namespace Super_ForeverAloneInThaDungeon
         public static string ToMysteriousNumeralSystem(uint val)
         {
             return val.ToString();
+        }
+        #endregion
+
+        #region extension methods
+        // Lazyness level: Over 9000!
+        public static bool Invert(this bool b)
+        {
+            /*if (b) return false;
+            return true;*/
+            /*return (b) ? false : true;*/
+            /*return b ^= true;*/
+            return !b;
+        }
+
+        public static string CapitalizeFirstLetter(this string s)
+        {
+            return s.Insert(0, s[0].ToString().ToUpper()).Remove(1, 1);
         }
         #endregion
     }

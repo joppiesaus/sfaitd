@@ -9,14 +9,14 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Does the same as GenerateRandomSpellEffects, but chooses the number of effects himself.
         /// </summary>
-        public static SpellEffect[] GenerateMultiple(ref Random ran)
+        public static SpellEffect[] GenerateMultiple()
         {
             byte count = 1;
 
             // I have no idea what I'm doing
             int chance = 999;
             int less = 7;
-            while (ran.Next(0, 999) < chance)
+            while (Game.ran.Next(0, 999) < chance)
             {
                 less *= 9;
                 less -= 7 * count;
@@ -29,104 +29,104 @@ namespace Super_ForeverAloneInThaDungeon
 
             for (int i = 0; i < count; i++)
             {
-                effects[i] = Generate(ref ran);
+                effects[i] = Generate();
             }
 
             return effects;
         }
 
         /// <summary>
-        /// Generates fully random spell effects including rarity.
+        /// Generates fully Game.random spell effects including rarity.
         /// </summary>
-        public static SpellEffect Generate(ref Random ran)
+        public static SpellEffect Generate()
         {
-            int n = ran.Next(0, 1000);
+            int n = Game.ran.Next(0, 1000);
             if (n < 30)
             {
-                return GenerateRareSpell(ref ran);
+                return GenerateRareSpell();
             }
             else if (n < 222)
             {
-                return GenerateUncommonSpell(ref ran);
+                return GenerateUncommonSpell();
             }
             else
             {
-                return GenerateCommonSpell(ref ran);
+                return GenerateCommonSpell();
             }
         }
 
-        public static SpellEffect GenerateCommonSpell(ref Random ran)
+        public static SpellEffect GenerateCommonSpell()
         {
-            switch (ran.Next(0, 2))
+            switch (Game.ran.Next(0, 2))
             {
                 default:
-                    return new Heal(ran.Next(3, 8));
+                    return new Heal(Game.ran.Next(3, 8));
                 case 1:
-                    return new StrengthBoost(ran.Next(2, 5));
+                    return new StrengthBoost(Game.ran.Next(2, 5));
             }
         }
 
-        public static SpellEffect GenerateUncommonSpell(ref Random ran)
+        public static SpellEffect GenerateUncommonSpell()
         {
-            switch (ran.Next(0, 1))
+            switch (Game.ran.Next(0, 1))
             {
                 default:
-                    return new MaxHealthBoost(ran.Next(10, 34) / 10);
+                    return new MaxHealthBoost(Game.ran.Next(10, 34) / 10);
             }
         }
 
-        public static SpellEffect GenerateRareSpell(ref Random ran)
+        public static SpellEffect GenerateRareSpell()
         {
-            switch (ran.Next(0, 1))
+            switch (Game.ran.Next(0, 1))
             {
                 default:
-                    return new HitPenalty(ran.Next(15, 21));
+                    return new HitPenalty(Game.ran.Next(15, 21));
             }
         }
 
-        public static SpellEffect[] GenerateMultipleCommon(ref Random ran, int n = 2)
+        public static SpellEffect[] GenerateMultipleCommon(int n = 2)
         {
             SpellEffect[] eff = new SpellEffect[n];
 
             for (int i = 0; i < n; i++)
             {
-                eff[i] = GenerateCommonSpell(ref ran);
-            }
-
-            return eff;
-        }
-
-        public static SpellEffect[] GenerateMultipleUncommon(ref Random ran, int n = 2)
-        {
-            SpellEffect[] eff = new SpellEffect[n];
-
-            for (int i = 0; i < n; i++)
-            {
-                eff[i] = GenerateUncommonSpell(ref ran);
+                eff[i] = GenerateCommonSpell();
             }
 
             return eff;
         }
 
-        public static SpellEffect[] GenerateMultipleRare(ref Random ran, int n = 2)
+        public static SpellEffect[] GenerateMultipleUncommon(int n = 2)
         {
             SpellEffect[] eff = new SpellEffect[n];
 
             for (int i = 0; i < n; i++)
             {
-                eff[i] = GenerateRareSpell(ref ran);
+                eff[i] = GenerateUncommonSpell();
             }
 
             return eff;
         }
 
-        public static SpellEffect[] GenerateRandomSpellEffects(ref Random ran, int n = 2)
+        public static SpellEffect[] GenerateMultipleRare(int n = 2)
         {
             SpellEffect[] eff = new SpellEffect[n];
 
             for (int i = 0; i < n; i++)
             {
-                eff[i] = Generate(ref ran);
+                eff[i] = GenerateRareSpell();
+            }
+
+            return eff;
+        }
+
+        public static SpellEffect[] GenerateRandomSpellEffects(int n = 2)
+        {
+            SpellEffect[] eff = new SpellEffect[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                eff[i] = Generate();
             }
 
             return eff;

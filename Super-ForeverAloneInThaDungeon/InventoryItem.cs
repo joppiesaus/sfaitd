@@ -36,6 +36,13 @@ namespace Super_ForeverAloneInThaDungeon
 
     abstract class InventoryAction
     {
+        public enum PreExecuteCommand
+        {
+            SelectDirection,
+            CombineTwo,
+            Select,
+        }
+
         public abstract string Action { get; }
         public abstract string Description { get; }
 
@@ -113,25 +120,43 @@ namespace Super_ForeverAloneInThaDungeon
             return true;
         }
     }
+    
 
-    /*class InventoryActionHeal : InventoryAction
+    class InventoryActionInteract : InventoryAction
     {
-        public override string Action { get { return "Heal"; } }
-        public override string Description { get { return "Heal yourself " + amnt + " with this item"; } }
+        public override string Action { get { return "Use"; } }
+        public override string Description { get { return "Interact with something with this item"; } }
 
-        public InventoryActionHeal(int amount) : base(amount) { }
+        public readonly PreExecuteCommand command;
+
+        public InventoryActionInteract(PreExecuteCommand cmd) : base()
+        {
+            this.command = cmd;
+        }
 
         public override bool Act(ref Player p, int itemIndex)
         {
-            int health = p.health + amnt;
-            if (health > p.maxHealth) health = p.maxHealth;
-
-            health -= p.health;
-
-            p.health += health;
-
-            Game.msg("you healed yourself " + health);
-            return true;
+            throw new InvalidOperationException("Method cannot be used in InventoryActionInteract, use Interact instead.");
         }
-    }*/
+
+        public virtual bool Interact(ref Player p, int itemIndex, ref object target)
+        {
+            return ((ItemInventoryItem)p.inventory[itemIndex]).item.Interact(ref p, ref target);
+        }
+    }
+
+    // Unfinished
+    class InventoryActionCombine : InventoryActionInteract
+    {
+        public override string Action { get { return "Combine"; } }
+        public override string Description { get { return "Combine two of the same type"; } }
+
+        public Type typeToCombine;
+
+        public InventoryActionCombine(Type type)
+            : base(PreExecuteCommand.CombineTwo)
+        {
+            typeToCombine = type;
+        }
+    }
 }

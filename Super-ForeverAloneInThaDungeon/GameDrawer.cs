@@ -84,7 +84,7 @@ namespace Super_ForeverAloneInThaDungeon
             infoLine1.Draw(new string[] { 
                 "Health: " + p.health + '(' + p.maxHealth + ')',
                 "xp: " + p.xp + '/' + p.reqXp + "(lvl " + p.level + ')',
-                p.meleeWeapon == null ? "str: " + p.damage.X : "str: " + p.damage.X + '+' + p.meleeWeapon.damage.X + '-' + p.meleeWeapon.damage.Y,
+                p.MeleeWeapon == null ? "str: " + p.damage.X : "str: " + p.damage.X + '+' + p.MeleeWeapon.damage.X + '-' + p.MeleeWeapon.damage.Y,
                 "Floor: -" + currentFloor,
                 "Money: " + p.money
             });

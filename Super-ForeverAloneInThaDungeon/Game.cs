@@ -6,11 +6,16 @@ namespace Super_ForeverAloneInThaDungeon
     // I've a lot to learn.
     // fiav-minutehs-latehrh
     // OH THIS IS SO FUN
+    // another fiav-minutehs-laterh
+    // this code is shit
+    // i am shit
     partial class Game
     {
+        public static readonly Random ran;
+
         enum State
         {
-            Default, Inventory, Combat, Pause, Throwing
+            Default, Inventory, Throwing
         }
 
         const TileType noneTile = TileType.None; // use ONLY for dungeon generation(educational :p) exception purposes.
@@ -28,7 +33,6 @@ namespace Super_ForeverAloneInThaDungeon
         ushort[,] scores; // For enemys searching the player
 
         // Div
-        Random ran;
         State state = State.Default;
 
         LineWriter infoLine1 = new LineWriter(new ushort[] { 0, 20, 40, 60, 0xfaef });
@@ -39,7 +43,11 @@ namespace Super_ForeverAloneInThaDungeon
 
         static string currentMessage = "";
 
-        
+
+        static Game()
+        {
+            ran = new Random();
+        }
 
         /// <summary>
         /// Gets or sets your mother's car windscreenwiper.
@@ -49,7 +57,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             //Console.CursorVisible = false;
             Console.OutputEncoding = Constants.enc;
-            Console.Title = "SuperForeverAloneInThaDungeon";
+            //Console.Title = "SuperForeverAloneInThaDungeon"; Player will set the name
             Console.SetWindowSize(size.X, size.Y + 3);
             Console.BufferHeight = Console.WindowHeight;
 
@@ -58,20 +66,17 @@ namespace Super_ForeverAloneInThaDungeon
 
             // inventory stuff
             invDItems = new DisplayItem[Constants.invCapacity];
-
-            ran = new Random();
         }
 
 
         // TODO: Make redrawing effecienter
         public void run()
         {
+            Player p = new Player();
+            Message("Welcome, " + p.name + '!'); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
+
             while (true)
             {
-                Player p;
-                if (playerPos.Same(-1, -1)) p = new Player();
-                else p = (Player)tiles[playerPos.X, playerPos.Y];
-
                 setDungeonToEmpty();
 
                 // tweak this
@@ -81,17 +86,18 @@ namespace Super_ForeverAloneInThaDungeon
 
                 onPlayerMove(ref p); // make sure everything inits properly
 
-                Message("Welcome, " + p.name + '!'); // I could have just used Environment.UserName since the Player.name = Environment.UserName... :~)
                 if (disableFight) p.walkable = false;
-
 
                 currentFloor++;
 
-
                 // Make sure the dungeon starts nice and clean
+                // MAKE EFFECIENTER???
                 reDrawDungeon();
 
                 gameLoop();
+
+
+                p = (Player)tiles[playerPos.X, playerPos.Y];
             }
         }
 
@@ -127,7 +133,7 @@ namespace Super_ForeverAloneInThaDungeon
                                         tiles[x, y].needsToBeDrawn = true;
                                     } break; ////////////////////////////////
                         default:
-                            if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).rangedWeapon != null)
+                            if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
                             {
                                 state = State.Throwing;
                                 continue;
@@ -144,34 +150,35 @@ namespace Super_ForeverAloneInThaDungeon
                     if (toAdd.X != 0 || toAdd.Y != 0)
                     {
                         Point toCheck = new Point(playerPos.X + toAdd.X, playerPos.Y + toAdd.Y);
-                        if (isValidMove(toCheck) || hack)
-                        {
+                        //if (/*isValidMove(toCheck) || hack*/)
+                        //{
                             Point old = playerPos;                      // Tile that will appear(old tile under player)
                             Tile preCopy = tiles[toCheck.X, toCheck.Y]; // Tile where the player will move to
 
                             Player p = (Player)tiles[old.X, old.Y];
 
-                            bool abort = false;
+                            bool abort = false; // if true, move will be halted no matter if it's a possible move or not.
 
+                            // TODO: if preCopy is WorldObject && isAttackable
                             if (preCopy is Creature)
                             {
-                                attackCreature(ref tiles[toCheck.X, toCheck.Y]);
+                                p.Attack(ref tiles[toCheck.X, toCheck.Y]);
                                 abort = true;
                             }
                             else if (preCopy.tiletype == TileType.Money)
                             {
                                 // I knew I'd know the English grammar!
+                                // I'm sick of these games with "You found 1 coins!"
                                 int money = ((Money)preCopy).money;
                                 string s = money == 1 ? "" : "s";
                                 p.money += money;
                                 Message("You found " + money + " coin" + s + '!');
                                 preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                             }
-                            // TODO: Make available for other items
                             else if (preCopy is Pickupable)
                             {
                                 // assuming all other pickupables are handled!
-                                if (p.addInventoryItem(((Pickupable)preCopy).GenerateInvItem(ref ran)))
+                                if (p.addInventoryItem(((Pickupable)preCopy).GenerateInvItem()))
                                 {
                                     Message("You found " + p.lastInventoryItem().name);
                                     preCopy = new Tile(((Pickupable)preCopy).replaceTile);
@@ -181,6 +188,7 @@ namespace Super_ForeverAloneInThaDungeon
                             else if (preCopy is Chest)
                             {
                                 // Don't allow to walk on chest
+                                // (not needed)
                                 abort = true;
 
                                 Chest c = (Chest)preCopy;
@@ -223,7 +231,7 @@ namespace Super_ForeverAloneInThaDungeon
                             else if (preCopy.tiletype == TileType.Down) return;
 
 
-                            if (!abort)
+                            if (!abort && (isValidMove(toCheck) || hack))
                             {
                                 tiles[toCheck.X, toCheck.Y].needsToBeDrawn = true;
                                 preCopy.needsToBeDrawn = true;
@@ -238,13 +246,13 @@ namespace Super_ForeverAloneInThaDungeon
 
                                 onPlayerMove(ref plyr);
                             }
-                        }
+                        //}
                     }
 
                     if (!doNotCallDraw)
                     {
-                        processMonsters();
                         update();
+                        processMonsters();
                         draw();
                     }
                 }
@@ -275,7 +283,6 @@ namespace Super_ForeverAloneInThaDungeon
                                 break;
                             case ConsoleKey.Enter:
                                 doSelectedInventoryAction();
-                                drawInventory();
                                 break;
 
                             case ConsoleKey.OemPeriod: ReadCommand(); break;
@@ -297,15 +304,15 @@ namespace Super_ForeverAloneInThaDungeon
                     Message("Which direction?");
                     draw();
                     Player p = (Player)tiles[playerPos.X, playerPos.Y];
-                    Throwable t = p.rangedWeapon;
+                    Throwable t = p.RangedWeapon;
 
                     switch (Console.ReadKey().Key)
                     {
                         // Think backwards here: If you need to go UP in an ARRAY, what do you need to do?
-                        case ConsoleKey.UpArrow: handleThrowable(0, -1, p.rangedWeapon, ref p); break;
-                        case ConsoleKey.DownArrow: handleThrowable(0, 1, p.rangedWeapon, ref p); break;
-                        case ConsoleKey.LeftArrow: handleThrowable(-1, 0, p.rangedWeapon, ref p); break;
-                        case ConsoleKey.RightArrow: handleThrowable(1, 0, p.rangedWeapon, ref p); break;
+                        case ConsoleKey.UpArrow: handleThrowable(0, -1, p.RangedWeapon, ref p); break;
+                        case ConsoleKey.DownArrow: handleThrowable(0, 1, p.RangedWeapon, ref p); break;
+                        case ConsoleKey.LeftArrow: handleThrowable(-1, 0, p.RangedWeapon, ref p); break;
+                        case ConsoleKey.RightArrow: handleThrowable(1, 0, p.RangedWeapon, ref p); break;
                     }
 
                     draw();
@@ -327,9 +334,11 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         WorldObject obj = (WorldObject)tiles[x, y];
 
+                        obj.Update();
+
                         if (obj.destroyed)
                         {
-                            tiles[x, y] = new Tile(TileType.Air);
+                            obj.Drop(ref tiles[x, y]);
                         }
                     }
                 }
@@ -337,41 +346,6 @@ namespace Super_ForeverAloneInThaDungeon
 
 
         #region div
-        // player attacks creature
-        void attackCreature(ref Tile creature)
-        {
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
-            Creature c = (Creature)creature;
-            c.OnPlayerAttack();
-
-            int pdmg = 
-                ran.Next(0, 1001) <= p.hitLikelyness - c.HitPenalty ? (
-                    p.meleeWeapon == null ? p.damage.X : p.damage.X + ran.Next(p.meleeWeapon.damage.X, p.meleeWeapon.damage.Y + 1)
-                )
-                : 0
-            ;
-
-            Message(string.Format("{0} {1}", Constants.GetPDamageInWords(pdmg, ref ran), c.tiletype));
-
-            if (c.doDamage(pdmg, ref creature))
-            {
-                onDead(ref p, c);
-            }
-        }
-
-        // creature attacks player
-        void attackPlayer(ref Tile creature)
-        {
-            Creature c = (Creature)creature;
-            Player p = (Player)tiles[playerPos.X, playerPos.Y];
-
-            int cdmg = c.hit(ref ran, ref p);
-
-            Message(string.Format("{0} {1}", c.tiletype, Constants.GetCDamageInWords(cdmg, ref ran)));
-
-            if (p == null) onPlayerDead();
-        }
-
         void processMonsters()
         {
             ((Creature)tiles[playerPos.X, playerPos.Y]).processed = true;
@@ -386,7 +360,7 @@ namespace Super_ForeverAloneInThaDungeon
                         {
                             if (tiles[p.X, p.Y].tiletype == TileType.Player)
                             {
-                                attackPlayer(ref tiles[x, y]);
+                                ((Creature)tiles[x, y]).Attack(ref tiles[playerPos.X, playerPos.Y]);
                             }
                             else if (!(tiles[p.X, p.Y] is Creature))
                             {
@@ -394,13 +368,19 @@ namespace Super_ForeverAloneInThaDungeon
 
                                 tiles[p.X, p.Y] = tiles[x, y];
                                 Creature c = (Creature)tiles[p.X, p.Y];
-                                if (preCopy.lighten) c.needsToBeDrawn = true;
+
+                                if (preCopy.lighten)
+                                {
+                                    c.discovered = true; // TODO: Find better method then discovered?
+                                    c.lighten = true;
+                                    c.needsToBeDrawn = true;
+                                }
                                 c.notLightenChar = preCopy.notLightenChar;
                                 c.processed = true;
 
                                 tiles[x, y] = c.lastTile;
                                 if (preCopy.lighten) tiles[x, y].needsToBeDrawn = true;
-                                c.onTileEncounter(ref preCopy);
+                                c.OnTileEncounter(ref preCopy);
                                 c.lastTile = preCopy;
                             }
                         }
@@ -412,12 +392,18 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     if (tiles[x, y] is Creature) ((Creature)tiles[x, y]).processed = false;
                 }
+
+            if (((WorldObject)tiles[playerPos.X, playerPos.Y]).destroyed)
+            {
+                gameOver();
+            }
         }
 
         // TODO: Make accesable for enemys too
+        // TODO: Rewrite
         void handleThrowable(sbyte x, sbyte y, Throwable t, ref Player p)
         {
-            Point curPoint = playerPos;
+            /*Point curPoint = playerPos;
             for (byte i = 0; i < t.range; i++) // Just saved you 24 bit of RAM!
             {
                 curPoint.X += x;
@@ -428,10 +414,10 @@ namespace Super_ForeverAloneInThaDungeon
                         int dmg = ran.Next(t.damage.X, t.damage.Y + 1);
 
                         //message = string.Format("{0} {1} with the Spear", Constants.getPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype);
-                        Message(string.Format("{0} {1} with the {2}", Constants.GetPDamageInWords(dmg, ref ran), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
+                        Message(string.Format("{0} {1} with the {2}", Constants.GetPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
 
                         Creature c = (Creature)tiles[curPoint.X, curPoint.Y];
-                        if (c.doDamage(dmg, ref tiles[curPoint.X, curPoint.Y]))
+                        if (c.DoDirectDamage(dmg, ref tiles[curPoint.X, curPoint.Y]))
                             onDead(ref p, c);
 
                         processMonsters();
@@ -439,7 +425,7 @@ namespace Super_ForeverAloneInThaDungeon
                     }
             }
 
-            Message("I don't see any creature there!");
+            Message("I don't see any creature there!");*/
         }
 
         void generateScoreGrid(Point p)
@@ -643,18 +629,6 @@ namespace Super_ForeverAloneInThaDungeon
         #endregion
         #endregion
 
-        #region environment
-        void giveXp(ref Player p, ushort amnt)
-        {
-            p.xp += amnt;
-            while (p.xp >= p.reqXp)
-            {
-                p.levelUp();
-                Message("you are now level " + p.level + '!');
-            }
-        }
-        #endregion
-
         #region popups
         void wipeDisplayItem(DisplayItem d)
         {
@@ -689,14 +663,9 @@ namespace Super_ForeverAloneInThaDungeon
         {
             return playerPos.ToString();
         }
+        #endregion
 
-        void onDead(ref Player p, Creature c)
-        {
-            Message("you have defeated " + c.tiletype + "!");
-            giveXp(ref p, c.getXp(ref ran));
-        }
-
-        void onPlayerDead()
+        void gameOver()
         {
             // rest in rip player
             Message("GAME OVER: R.I.P. " + ((Player)tiles[playerPos.X, playerPos.Y]).name + '!');
@@ -711,6 +680,5 @@ namespace Super_ForeverAloneInThaDungeon
 
             Environment.Exit(0);
         }
-        #endregion
     }
 }

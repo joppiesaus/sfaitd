@@ -21,7 +21,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             int extraInfoLength = 1;
             if (superWeapon is Throwable) extraInfoLength++;
-            if (superWeapon.enchantments != null) extraInfoLength += superWeapon.enchantments.Length + 1;
+            if (superWeapon.enchantments.Length > 0) extraInfoLength += superWeapon.enchantments.Length + 1;
 
             this.extraInfo = new IIAI[extraInfoLength];
 
@@ -34,7 +34,7 @@ namespace Super_ForeverAloneInThaDungeon
                 extraInfo[eic++] = new IIAID("Range", ((Throwable)superWeapon).range.ToString());
             }
 
-            if (superWeapon.enchantments != null)
+            if (superWeapon.enchantments.Length > 0)
             {
                 extraInfo[eic++] = new IIAIH("Enchantments", ConsoleColor.Blue);
 
@@ -97,8 +97,6 @@ namespace Super_ForeverAloneInThaDungeon
         {
             damage = new Point(1, 3);
             name = "Dagger";
-
-            enchantments = new ItemEnchantment[] { new ItemEnchantmentFire() };
         }
     }
 

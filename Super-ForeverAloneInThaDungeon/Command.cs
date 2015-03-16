@@ -7,7 +7,7 @@ namespace Super_ForeverAloneInThaDungeon
         // Maybe another command system in the future?
         void ReadCommand()
         {
-            PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command", 60);
+            PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command", 70);
             string cmdText = pWnd.Act();
 
             DisplayItem clearItem = pWnd.item; // What dimensions should be redrawn?
@@ -29,15 +29,12 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 args = new string[0];
             }
-
+            
+            // How do I improve this so I can make help stuff quicker?
             switch (command)
             {
                 case "EXIT":
                     Environment.Exit(0);
-                    break;
-
-                case "SUICIDE":
-                    onPlayerDead();
                     break;
 
                 case "REDRAW":
@@ -69,7 +66,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                                     if (!string.IsNullOrWhiteSpace(name))
                                     {
-                                        ((Player)tiles[playerPos.X, playerPos.Y]).name = name;
+                                        ((Player)tiles[playerPos.X, playerPos.Y]).Rename(name);
                                         Message("Name changed to " + name);
                                     }
                                 }
@@ -77,10 +74,15 @@ namespace Super_ForeverAloneInThaDungeon
                                 {
                                     if (!string.IsNullOrEmpty(args[1]))
                                     {
-                                        ((Player)tiles[playerPos.X, playerPos.Y]).name = args[1];
+                                        ((Player)tiles[playerPos.X, playerPos.Y]).Rename(args[1]);
                                         Message("Name changed to " + args[1]);
                                     }
                                 }
+                                break;
+                            case "SUICIDE":
+                                PopupWindowYesNo sureWnd = new PopupWindowYesNo("Are you sure?", 30, ConsoleColor.Cyan, ConsoleColor.Gray);
+                                if (sureWnd.Act()) gameOver();
+                                clearItem.Add(sureWnd.item);
                                 break;
                         }
                     }

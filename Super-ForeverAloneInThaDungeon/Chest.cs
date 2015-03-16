@@ -6,24 +6,24 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public InventoryItem[] contents;
 
-        public Chest(ref Random ran, InventoryItem[] cont = null)
+        public Chest(InventoryItem[] cont = null)
         {
             this.tiletype = TileType.Chest;
             this.drawChar = Constants.chars[5];
             this.color = ConsoleColor.DarkYellow;
-            this.walkable = true;
+            this.walkable = false;
 
-            this.contents = cont == null ? GenerateRandomLoot(ref ran, ran.Next(ran.Next(0, 2), 4)) : cont;
+            this.contents = cont == null ? GenerateRandomLoot(Game.ran.Next(Game.ran.Next(0, 2), 4)) : cont;
         }
 
 
-        public static InventoryItem[] GenerateRandomLoot(ref Random ran, int n)
+        public static InventoryItem[] GenerateRandomLoot(int n)
         {
             InventoryItem[] items = new InventoryItem[n];
 
             for (int i = 0; i < n; i++)
             {
-                switch (ran.Next(0, 3))
+                switch (Game.ran.Next(0, 3))
                 {
                     case 0:
                         items[i] = Constants.dagger;
@@ -32,7 +32,7 @@ namespace Super_ForeverAloneInThaDungeon
                         items[i] = Constants.spear;
                         break;
                     case 2:
-                        items[i] = (new Scroll(SpellGenerator.GenerateMultiple(ref ran))).GenerateInvItem(ref ran);
+                        items[i] = (new Scroll(SpellGenerator.GenerateMultiple())).GenerateInvItem();
                         break;
                 }
             }

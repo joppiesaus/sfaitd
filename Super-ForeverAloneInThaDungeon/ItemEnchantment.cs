@@ -31,6 +31,7 @@ namespace Super_ForeverAloneInThaDungeon.Enchantments
         public override void Apply(ref WorldObject obj)
         {
             obj.SetOnFire();
+            EventRegister.RegisterFire("you", obj);
         }
     }
 }
