@@ -15,12 +15,18 @@ namespace Super_ForeverAloneInThaDungeon
         }
         public static void RegisterDeath(WorldObject to, string by)
         {
-            Game.Message(string.Format("{0} got killed by {1}!", to, by).CapitalizeFirstLetter()); 
+            Game.Message(string.Format("{0} got killed by {1}!", to.InlineName(), by).CapitalizeFirstLetter()); 
         }
 
         public static void RegisterFire(string from, WorldObject to)
         {
-            Game.Message(string.Format("{0} set {1} on fire!", from, to).CapitalizeFirstLetter());
+            Game.Message(string.Format("{0} set {1} on fire!", from, to.InlineName()).CapitalizeFirstLetter());
+        }
+
+
+        public static void RegisterBurn(WorldObject who)
+        {
+            Game.Message(string.Format("{0} burns!", who.InlineName()).CapitalizeFirstLetter());
         }
     }
 }

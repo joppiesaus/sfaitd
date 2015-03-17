@@ -66,6 +66,7 @@
     <Compile Include="Creature.cs" />
     <Compile Include="DungeonGenerator.cs" />
     <Compile Include="EventRegister.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameDrawer.cs" />
     <Compile Include="Highscores.cs" />

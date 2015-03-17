@@ -178,9 +178,9 @@ namespace Super_ForeverAloneInThaDungeon
                             else if (preCopy is Pickupable)
                             {
                                 // assuming all other pickupables are handled!
-                                if (p.addInventoryItem(((Pickupable)preCopy).GenerateInvItem()))
+                                if (p.AddInventoryItem(((Pickupable)preCopy).GenerateInvItem()))
                                 {
-                                    Message("You found " + p.lastInventoryItem().name);
+                                    Message("You found " + p.LastInventoryItem().name);
                                     preCopy = new Tile(((Pickupable)preCopy).replaceTile);
                                 }
                                 else Message(Constants.invFullMsg);
@@ -199,7 +199,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 if (count > 0)
                                     for (int i = 0; i < c.contents.Length; i++)
                                     {
-                                        if (p.addInventoryItem(c.contents[i]))
+                                        if (p.AddInventoryItem(c.contents[i]))
                                         {
                                             Message("You found " + c.contents[i].name);
                                             count--;

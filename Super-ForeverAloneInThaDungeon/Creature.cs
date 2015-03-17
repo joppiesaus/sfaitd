@@ -14,6 +14,12 @@ namespace Super_ForeverAloneInThaDungeon
         Melee, Ranged
     }
 
+    enum CreatureElement
+    {
+        Fire = 1,
+        Magic = 2,
+    }
+
     class Creature : WorldObject
     {
         const byte EFFECT_CAPACITY = 100;
@@ -34,6 +40,8 @@ namespace Super_ForeverAloneInThaDungeon
         bool playerInRange = false;
         public CreatureMoveMode moveMode = CreatureMoveMode.Random; // how the creature behaves
 
+        public ushort weaknesses, immunities = 0;
+
 
         public Tile lastTile = new Tile(TileType.Air);
 
@@ -52,11 +60,6 @@ namespace Super_ForeverAloneInThaDungeon
         protected override Tile GenerateDrop()
         {
             return new Money(this.money);
-        }
-
-        public override void SetOnFire()
-        {
-            if (DoDirectDamage(1)) EventRegister.RegisterDeath(this, "fire");
         }
 
         public void OnTileEncounter(ref Tile t)
@@ -228,8 +231,16 @@ namespace Super_ForeverAloneInThaDungeon
         {
             for (ushort i = 0; i < nTeffects; i++)
             {
-                // WHAT NOW??/1/!/11//1/1/1/J34IO;LRHJ SDFJUIH
-                //tEffects[i].Act(ref this);
+                // You can't pass in this as a reference, because it's a keyword, not a variable.
+                // You can do it with reference classes however.
+                Creature sillycompiler = this;
+                tEffects[i].Act(ref sillycompiler);
+
+                // Try it yourself:
+                //bool diditwork = Object.ReferenceEquals(sillycompiler, this);
+
+
+                // I present to you: Code art!
                 if ( 0==-- tEffects[i].moves)
                     removeTemporaryEffect(i);
             }
@@ -249,6 +260,42 @@ namespace Super_ForeverAloneInThaDungeon
             tEffects[nTeffects--] = null;
         }
         #endregion
+
+        #region special attacks
+
+        /* All these method assume you call the EventRegister! */
+
+        public override void SetOnFire(byte moves = 10)
+        {
+            AddTemporaryEffect(new TemporaryEffectBurn(moves, 1));
+        }
+        #endregion
+
+        public bool HasWeakness(CreatureElement weakness)
+        {
+            return ((weaknesses & (ushort)weakness) == (ushort)weakness);
+        }
+        public void AddWeakness(CreatureElement weakness)
+        {
+            weaknesses |= (ushort)weakness;
+        }
+        public void RemoveWeakness(CreatureElement weakness)
+        {
+            weaknesses ^= (ushort)weakness;
+        }
+
+        public bool HasImmunity(CreatureElement immunity)
+        {
+            return ((immunities & (ushort)immunity) == (ushort)immunity);
+        }
+        public void AddImmunity(CreatureElement immunity)
+        {
+            immunities |= (ushort)immunity;
+        }
+        public void RemoveImmunity(CreatureElement immunity)
+        {
+            immunities ^= (ushort)immunity;
+        }
     }
 
 

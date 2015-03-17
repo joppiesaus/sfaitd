@@ -223,23 +223,19 @@ namespace Super_ForeverAloneInThaDungeon
         {
             return val.ToString();
         }
-        #endregion
 
-        #region extension methods
-        // Lazyness level: Over 9000!
-        public static bool Invert(this bool b)
+        /*public static void AddElement(ref ushort elements, CreatureElement e)
         {
-            /*if (b) return false;
-            return true;*/
-            /*return (b) ? false : true;*/
-            /*return b ^= true;*/
-            return !b;
+            elements |= (ushort)e;
         }
-
-        public static string CapitalizeFirstLetter(this string s)
+        public static void RemoveElement(ref ushort elements, CreatureElement e)
         {
-            return s.Insert(0, s[0].ToString().ToUpper()).Remove(1, 1);
+            elements ^= (ushort)e;
         }
+        public static bool CheckElement(ushort elements, CreatureElement e)
+        {
+            return ((elements & (ushort)e) == (ushort)e);
+        }*/
         #endregion
     }
 }

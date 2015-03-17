@@ -97,6 +97,8 @@ namespace Super_ForeverAloneInThaDungeon
         {
             damage = new Point(1, 3);
             name = "Dagger";
+
+            Enchant(new ItemEnchantmentFire());
         }
     }
 
@@ -104,7 +106,7 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public Spear()
         {
-            hitChance = 780;
+            hitChance = 789;
             range = 3;
             damage = new Point(3, 7);
             name = "Spear";

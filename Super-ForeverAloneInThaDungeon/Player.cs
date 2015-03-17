@@ -56,18 +56,18 @@ namespace Super_ForeverAloneInThaDungeon
 
             hitLikelyness = 400;
 
-            addInventoryItem(Constants.dagger);
-            addInventoryItem(Constants.swedishMatches);
+            AddInventoryItem(Constants.dagger);
+            AddInventoryItem(Constants.swedishMatches);
         }
 
-        public bool addInventoryItem(InventoryItem item)
+        public bool AddInventoryItem(InventoryItem item)
         {
             if (nInvItems >= inventory.Length) return false;
             inventory[nInvItems++] = item;
             return true;
         }
 
-        public void removeInventoryItem(int n)
+        public void RemoveInventoryItem(int n)
         {
             // order matters here
             nInvItems--;
@@ -79,14 +79,14 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         // unused
-        public InventoryItem swapInventoryItem(int n, InventoryItem item)
+        public InventoryItem SwapInventoryItem(int n, InventoryItem item)
         {
             InventoryItem ret = inventory[n];
             inventory[n] = item;
             return ret;
         }
 
-        public InventoryItem lastInventoryItem()
+        public InventoryItem LastInventoryItem()
         {
             return inventory[nInvItems - 1];
         }

@@ -107,12 +107,12 @@ namespace Super_ForeverAloneInThaDungeon
         {
             if (((WeaponItem)p.inventory[itemIndex]).weapon is Throwable)
             {
-                if (p.rWeaponItem != null) p.addInventoryItem(p.rWeaponItem);
+                if (p.rWeaponItem != null) p.AddInventoryItem(p.rWeaponItem);
                 p.rWeaponItem = (WeaponItem)p.inventory[itemIndex];
             }
             else
             {
-                if (p.mWeaponItem != null) p.addInventoryItem(p.mWeaponItem);
+                if (p.mWeaponItem != null) p.AddInventoryItem(p.mWeaponItem);
                 p.mWeaponItem = (WeaponItem)p.inventory[itemIndex];
             }
 

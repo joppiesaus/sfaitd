@@ -470,7 +470,7 @@ namespace Super_ForeverAloneInThaDungeon
                             object target = tiles[targetPoint.X, targetPoint.Y];
                             if (action.Interact(ref p, invSelItem, ref target))
                             {
-                                p.removeInventoryItem(invSelItem);
+                                p.RemoveInventoryItem(invSelItem);
 
                                 if (invSelItem == p.nInvItems && invSelItem != 0)
                                     invSelItem--;
@@ -497,7 +497,7 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         MakeBlackSpace(invDItems[i]);
                     }
-                    p.removeInventoryItem(invSelItem);
+                    p.RemoveInventoryItem(invSelItem);
 
                     // == seems unsafe, but if you mess arround with it it'll crash <i>anyway</i>
                     if (invSelItem == p.nInvItems && invSelItem != 0)
