@@ -1,5 +1,0 @@
-C:\Users\joppiesaus\Documents\Visual Studio 2010\Projects\Super-ForeverAloneInThaDungeon\Super-ForeverAloneInThaDungeon\bin\Release\SuperForeverAloneInThaDungeon.exe
-C:\Users\joppiesaus\Documents\Visual Studio 2010\Projects\Super-ForeverAloneInThaDungeon\Super-ForeverAloneInThaDungeon\bin\Release\SuperForeverAloneInThaDungeon.pdb
-C:\Users\joppiesaus\Documents\Visual Studio 2010\Projects\Super-ForeverAloneInThaDungeon\Super-ForeverAloneInThaDungeon\obj\x86\Release\SuperForeverAloneInThaDungeon.exe
-C:\Users\joppiesaus\Documents\Visual Studio 2010\Projects\Super-ForeverAloneInThaDungeon\Super-ForeverAloneInThaDungeon\obj\x86\Release\SuperForeverAloneInThaDungeon.pdb
-C:\Users\joppiesaus\Documents\Visual Studio 2010\Projects\Super-ForeverAloneInThaDungeon\Super-ForeverAloneInThaDungeon\obj\x86\Release\Super-ForeverAloneInThaDungeon.csprojResolveAssemblyReference.cache
