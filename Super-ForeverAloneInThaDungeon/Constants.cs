@@ -67,13 +67,26 @@ namespace Super_ForeverAloneInThaDungeon
 	        { ' ',' ','/',' ','\\',' ',' ' },{ ' ','/',' ',' ',' ','\\',' ' },{ '/',' ',' ',' ',' ',' ','\\'}}, ConsoleColor.DarkRed),};*/
 
 
+        public static readonly char[,] emptyScrollImage = new char[,] { {' ','_','_','_','_','_','_','_','_','_','_',' ',' ',' ',' ',' ' },
+            { '(',')','_','_','_','_','_','_','_','_','_',')',' ',' ',' ',' ' },{ ' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ',' ' },
+	        { ' ',' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ' },{ ' ',' ',' ','\\','_','_','_','_','_','_','_','_','_','_','\\',' ' },
+	        { ' ',' ',' ','(',')','_','_','_','_','_','_','_','_','_','_',')'} };
+
+        // ranged weapons
         public static readonly WeaponItem spear = new WeaponItem(new Spear(),
             "The spear is a weapon with short range you can throw to creatures. It's very effective against big creatures!",
             new char[,] { {' ',' ',' ',' ',' ','/','|' },{ ' ',' ',' ',' ','/',' ','|' },
             { ' ',' ',' ',' ','/','/',' ' },{ ' ',' ',' ','/','/',' ',' ' },{ ' ',' ','/','/',' ',' ',' ' },{ ' ','/','/',' ',' ',' ',' '} });
+
+        // melee weapons
         public static readonly WeaponItem dagger = new WeaponItem(new Dagger(),
             "A simple knife!", new char[,] { {' ','_','_','_','_','_','.','_','_',' ' }, { ' ','`','-','-','-','-',';','=','=','\'' } });
 
+        public static readonly WeaponItem sword = new WeaponItem(new Sword(), "A sword", new char[,] { {' ',' ','/','\\',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },
+        { ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ 'o','=','=','=','=','o' },{ ' ',' ',')','(',' ',' ' },
+        { ' ',' ','(',')',' ',' '} }, ConsoleColor.White);
+
+        // items
         public static readonly ItemInventoryItem swedishMatches = new ItemInventoryItem(new SwedishMatches(), "Swedish matches manufactured at Uddevalla to set everything on fire with!", 
             new char[,] { {'(',')','=','=','=','=','=','=','=','=','='} }, ConsoleColor.Red);
 
@@ -143,9 +156,10 @@ namespace Super_ForeverAloneInThaDungeon
                     default: return "missed";
                     case 1: return "barely missed";
                     case 2: return "completely missed";
+                    case 3: return "didn't hit";
                 }
             }
-            else if (dmg < 5) return Game.ran.Next(0, 2) == 1 ? "did a simple hit on" : "did a minor hit on";
+            else if (dmg < 6) return Game.ran.Next(0, 2) == 1 ? "did a simple hit on" : "did a minor hit on";
             else return Game.ran.Next(0, 2) == 1 ? "did a great hit on" : "injured";
         }
 
@@ -222,6 +236,40 @@ namespace Super_ForeverAloneInThaDungeon
         public static string ToMysteriousNumeralSystem(uint val)
         {
             return val.ToString();
+        }
+
+        public static string GenerateRandomName()
+        {
+            return Game.ran.Next(0, 3) == 0 ?
+                namefwords[Game.ran.Next(namefwords.Length)] + " " + nameswords[Game.ran.Next(nameswords.Length)] :
+                namewords[Game.ran.Next(namewords.Length)];
+        }
+
+        public static char[,] GenerateRandomScrollImage()
+        {
+            char[,] img = emptyScrollImage;
+
+            // Write random text in the scroll's image
+            // THE NUMBERS MASON
+            // WHAT DO THEY MEAN
+            byte xOff = 3;
+            for (byte y = 2; y < 4; y++)
+            {
+                int length = xOff + Game.ran.Next(2, 9);
+                for (int i = xOff; i < length; i++)
+                    img[y, i] = Constants.rlangChars[Game.ran.Next(0, Constants.rlangChars.Length)];
+
+                if (length < xOff + 5)
+                {
+                    int i = length + 1;
+                    length += Game.ran.Next(2, 5);
+                    for (; i < length; i++)
+                        img[y, i] = Constants.rlangChars[Game.ran.Next(0, Constants.rlangChars.Length)];
+                }
+                xOff++;
+            }
+
+            return img;
         }
 
         /*public static void AddElement(ref ushort elements, CreatureElement e)

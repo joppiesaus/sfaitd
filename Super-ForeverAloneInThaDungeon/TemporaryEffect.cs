@@ -15,6 +15,13 @@
         public abstract void Act(ref Creature c);
     }
 
+    abstract class TemporaryEffectBeginEnd : TemporaryEffect
+    {
+        public TemporaryEffectBeginEnd(ushort count, short _amount = 0) : base(count, _amount) { }
+
+        public abstract void UnAct(ref Creature c);
+    }
+
     class TemporaryEffectBurn : TemporaryEffect
     {
         public TemporaryEffectBurn(ushort count, short amount = 1) : base(count, amount) { }
@@ -54,6 +61,26 @@
         public override void Act(ref Creature c)
         {
             c.heal(amount);
+        }
+    }
+
+
+    // BUG: Can cause collisions if things change in the middle while this is active
+    class TemporaryEffectAllImmune : TemporaryEffectBeginEnd
+    {
+        ushort before;
+
+        public TemporaryEffectAllImmune(ushort count) : base(count) { }
+
+        public override void Act(ref Creature c)
+        {
+            before = c.immunities;
+            c.immunities = 0xffff;
+        }
+
+        public override void UnAct(ref Creature c)
+        {
+            c.immunities = before;
         }
     }
 }

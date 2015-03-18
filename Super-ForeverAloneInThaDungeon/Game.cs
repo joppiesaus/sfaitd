@@ -207,6 +207,7 @@ namespace Super_ForeverAloneInThaDungeon
                                         else
                                         {
                                             Message("There's more, but you can't carry more");
+                                            break;
                                         }
                                     }
                                 else

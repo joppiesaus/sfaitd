@@ -9,12 +9,15 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public abstract string Name { get; }
         public abstract string HelpDescription { get; }
 
+        public virtual bool LessIsGood { get { return false; } }
+        public virtual ConsoleColor LabelColor { get { return ConsoleColor.DarkCyan; } }
+
         public SpellEffect() { }
         public SpellEffect(int val) { this.value = val; }
 
         public virtual IIAI GenerateInventoryInfo()
         {
-            return new IIAID(Name, '+' + value.ToString(), ConsoleColor.DarkCyan, GetColor());
+            return new IIAID(Name, ToString(), LabelColor, GetColor());
         }
 
         public abstract void Apply(ref Creature c);
@@ -31,11 +34,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
 
         public ConsoleColor GetColor()
         {
-            return value >= 0 ? ConsoleColor.Green : ConsoleColor.Red;
-        }
-        public ConsoleColor GetColorInversed()
-        {
-            return value <= 0 ? ConsoleColor.Green : ConsoleColor.Red;
+            return (LessIsGood ? value <= 0 : value >= 0) ? ConsoleColor.Green : ConsoleColor.Red;
         }
 
         public static string ToPercent(int val)
@@ -44,23 +43,44 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         }
     }
 
-    class HitPenalty : SpellEffect
+    abstract class SpellEffectPercent : SpellEffect
     {
-        public override string Name { get { return "Hard to hit"; } }
-        public override string HelpDescription { get { return "When applied, the target creature has value divided by 10 percentage points less chance of getting hit"; } }
-
-        public HitPenalty(int val) : base(val) { }
+        public SpellEffectPercent(int val) { this.value = val; }
 
         public override IIAI GenerateInventoryInfo()
         {
-            return new IIAID(Name, ToPercent(-value), ConsoleColor.Yellow, GetColor());
+            return new IIAID(Name, ToPercent(value), LabelColor, GetColor());
         }
+    }
+
+    abstract class SpellEffectTemporaryEffect : SpellEffect
+    {
+        public SpellEffectTemporaryEffect(int val) { this.value = val; }
+
+        public override IIAI GenerateInventoryInfo()
+        {
+            return new IIAID(Name, ToString() + " moves", LabelColor, GetColor());
+        }
+    }
+
+
+
+    class HitPenalty : SpellEffectPercent
+    {
+        public override string Name { get { return "Hard to hit"; } }
+        public override string HelpDescription { get { return "When applied, the target creature has value percentage points less chance of getting hit"; } }
+
+        public override ConsoleColor LabelColor { get { return ConsoleColor.Yellow; } }
+        public override bool LessIsGood { get { return true; } }
+
+        public HitPenalty(int val) : base(-val) { }
+
 
         public override void Apply(ref Creature c)
         {
-            c.hitPenalty = (short)value;
+            c.hitPenalty -= (short)value;
             if ((short)c.hitPenalty > 400) c.hitPenalty = 400;
-            Game.Message("Your chance of getting hit has decreased by " + Constants.ToPercent((short)value));
+            Game.Message("Your chance of getting hit has decreased by " + Constants.ToPercent((short)-value));
         }
     }
 
@@ -84,6 +104,8 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public override string Name { get { return "Heal"; } }
         public override string HelpDescription { get { return "Players's health is increased by the value"; } }
 
+        public override ConsoleColor LabelColor { get { return ConsoleColor.Red; } }
+
         public Heal(int val) : base(val) { }
 
         public override void Apply(ref Creature c)
@@ -99,6 +121,8 @@ namespace Super_ForeverAloneInThaDungeon.Spells
         public override string Name { get { return "Bear Strength"; } }
         public override string HelpDescription { get { return "Creature's strength is increased by the value"; } }
 
+        public override ConsoleColor LabelColor { get { return ConsoleColor.DarkGreen; } } 
+
         public StrengthBoost(int val) : base(val) { }
 
         public override void Apply(ref Creature c)
@@ -106,6 +130,22 @@ namespace Super_ForeverAloneInThaDungeon.Spells
             c.damage.X += value;
             c.damage.Y += value;
             if (c is Player) Game.Message("Your strength has been increased by " + value);
+        }
+    }
+
+    class TemporaryImmunity : SpellEffectTemporaryEffect
+    {
+        public override string Name { get { return "Temporary Immunity"; } }
+        public override string HelpDescription { get { return "Creature's immune to all special attacks for a few moves"; } }
+
+        public override ConsoleColor LabelColor { get { return ConsoleColor.White; } }
+
+
+        public TemporaryImmunity(int val = 10) : base(val) { }
+
+        public override void Apply(ref Creature c)
+        {
+            c.AddTemporaryEffect(new TemporaryEffectAllImmune((ushort)value));
         }
     }
 }

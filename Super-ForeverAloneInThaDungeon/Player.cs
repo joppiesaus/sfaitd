@@ -57,7 +57,9 @@ namespace Super_ForeverAloneInThaDungeon
             hitLikelyness = 400;
 
             AddInventoryItem(Constants.dagger);
+            AddInventoryItem(Constants.sword);
             AddInventoryItem(Constants.swedishMatches);
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
         }
 
         public bool AddInventoryItem(InventoryItem item)
@@ -124,22 +126,22 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        public override void AmplifyAttack(ref WorldObject target, AttackMode aMode)
+        public override void AmplifyAttack(ref WorldObject target, ref int damage, AttackMode aMode)
         {
-            amplifyAttack(ref target, aMode == AttackMode.Melee ? MeleeWeapon : RangedWeapon);
+            amplifyAttack(ref target, ref damage, aMode == AttackMode.Melee ? MeleeWeapon : RangedWeapon);
         }
 
-        void amplifyAttack(ref WorldObject target, Weapon weapon)
+        void amplifyAttack(ref WorldObject target, ref int damage, Weapon weapon)
         {
             if (weapon != null)
             {
-                target.DoDirectDamage(Game.ran.Next(weapon.damage.X, weapon.damage.Y + 1));
+                damage += Game.ran.Next(weapon.damage.X, weapon.damage.Y + 1);
 
                 if (weapon.enchantments.Length > 0)
-                for (int i = 0; i < weapon.enchantments.Length; i++)
-                {
-                    weapon.enchantments[i].Apply(ref target);
-                }
+                    for (int i = 0; i < weapon.enchantments.Length; i++)
+                    {
+                        weapon.enchantments[i].Apply(ref target);
+                    }
             }
         }
 

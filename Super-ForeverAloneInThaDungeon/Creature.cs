@@ -144,7 +144,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// When attacking, initiative can amplify it's attack(think of potions, weapons, etc)
         /// </summary>
         /// <param name="Game.ran">Random input</param>
-        public virtual void AmplifyAttack(ref WorldObject target, AttackMode aMode)
+        public virtual void AmplifyAttack(ref WorldObject target, ref int damage, AttackMode aMode)
         {
         }
 
@@ -179,7 +179,7 @@ namespace Super_ForeverAloneInThaDungeon
                 }
 
                 WorldObject wo = (WorldObject)target;
-                AmplifyAttack(ref wo, attackMode);
+                AmplifyAttack(ref wo, ref dmg, attackMode);
             }
 
             EventRegister.RegisterAttack(this, t, dmg);
@@ -226,6 +226,9 @@ namespace Super_ForeverAloneInThaDungeon
         {
         }
 
+        /// <summary>
+        /// Updates this creature.
+        /// </summary>
         /// <remarks>DON'T FORGET to call base.update in other variants!</remarks>
         public override void Update()
         {
@@ -265,12 +268,13 @@ namespace Super_ForeverAloneInThaDungeon
 
         /* All these method assume you call the EventRegister! */
 
-        public override void SetOnFire(byte moves = 10)
+        public override void SetOnFire()
         {
-            AddTemporaryEffect(new TemporaryEffectBurn(moves, 1));
+            AddTemporaryEffect(new TemporaryEffectBurn((ushort)Game.ran.Next(8, 13), 1));
         }
         #endregion
 
+        #region conditionals
         public bool HasWeakness(CreatureElement weakness)
         {
             return ((weaknesses & (ushort)weakness) == (ushort)weakness);
@@ -296,6 +300,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             immunities ^= (ushort)immunity;
         }
+        #endregion
     }
 
 

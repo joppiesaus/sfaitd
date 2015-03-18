@@ -37,6 +37,7 @@ BUGS:
 * Weird movement
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
 * Duplicate spells
+? Enchantments are always players
 
 
 IDEAS:

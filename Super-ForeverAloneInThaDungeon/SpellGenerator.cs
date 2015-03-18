@@ -77,10 +77,13 @@ namespace Super_ForeverAloneInThaDungeon
 
         public static SpellEffect GenerateRareSpell()
         {
-            switch (Game.ran.Next(0, 1))
+            switch (Game.ran.Next(0, 3))
             {
                 default:
                     return new HitPenalty(Game.ran.Next(15, 21));
+
+                case 2:
+                    return new TemporaryImmunity(Game.ran.Next(10, 14 + Game.ran.Next(0, 7)));
             }
         }
 

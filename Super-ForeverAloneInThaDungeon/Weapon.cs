@@ -102,6 +102,15 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
+    class Sword : Weapon
+    {
+        public Sword()
+        {
+            damage = new Point(3, 7);
+            name = "Sword";
+        }
+    }
+
     class Spear : Throwable
     {
         public Spear()
