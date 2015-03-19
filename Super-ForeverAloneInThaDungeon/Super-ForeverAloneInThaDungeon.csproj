@@ -70,6 +70,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="GameDrawer.cs" />
     <Compile Include="Highscores.cs" />
+    <Compile Include="InventoryAction.cs" />
     <Compile Include="InventoryHandler.cs" />
     <Compile Include="InventoryItem.cs" />
     <Compile Include="GameClasses.cs" />
