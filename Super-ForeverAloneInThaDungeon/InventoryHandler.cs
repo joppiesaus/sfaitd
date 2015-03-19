@@ -17,6 +17,10 @@ namespace Super_ForeverAloneInThaDungeon
         DisplayItem invDescription = new DisplayItem(new Point(), new Point());
 
         // I feel sooo redundant. It's not that easy you know. I could just have an array of "chars", but drawing one char is wayyy much slower than 10.
+        /// <summary>
+        /// Draws inventory
+        /// </summary>
+        /// <param name="fromIndex">Start drawing from an selected index</param>
         void drawInventory(int fromIndex = 0 /*from what item it should start drawing from*/)
         {
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
@@ -68,11 +72,12 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        /*void test()
-        {
-            filterInventoryItems(delegate(InventoryItem item) { return item is EffectItem; });
-        }*/
 
+        /// <summary>
+        /// Filters all player inventory items based on a lambda
+        /// </summary>
+        /// <param name="filter">Filter function</param>
+        /// <returns>Array of indexes</returns>
         ushort[] filterInventoryItems(Func<InventoryItem, bool> filter)
         {
             Player p = (Player)tiles[playerPos.X, playerPos.Y];
@@ -92,10 +97,14 @@ namespace Super_ForeverAloneInThaDungeon
             return items;
         }
 
-        // ugly way to solve this problem
-        // TODO: TESSTTT
+        /// <summary>
+        /// Lets the user select an inventory item based on a filter
+        /// </summary>
+        /// <param name="selected">Array of player inventory indexes</param>
+        /// <returns>Index of item</returns>
         int selectInventoryItem(ushort[] selected)
         {
+            // ugly way to solve this problem
             invActionSel = 0;
             invSelItem = 0;
             invPrevPoint = new Point();
@@ -119,22 +128,25 @@ namespace Super_ForeverAloneInThaDungeon
             inv_drawDescription(items[0]);
             inv_drawDescription(items[0]);
 
-            while (true)
+            int ret = -2;
+
+            while (ret == -2)
             {
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
-                        return -1;
+                        ret = -1;
+                        break;
 
                     case ConsoleKey.LeftArrow:
-                        if (--invSelItem == -1) invSelItem = items.Length;
+                        if (--invSelItem == -1) invSelItem = items.Length - 1;
 
                         invDidDescDraw = false;
                         MakeBlackSpace(invDescription);
 
                         for (int i = 0; i < items.Length; i++)
                         {
-                            if (inv_collides(invDescription, invDItems[i]))
+                            if (Collides(invDescription, invDItems[i]))
                             {
                                 drawInvItem(items[i], Constants.invItemBorderColor, invDItems[i].pos);
                             }
@@ -152,7 +164,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                         for (int i = 0; i < items.Length; i++)
                         {
-                            if (inv_collides(invDescription, invDItems[i]))
+                            if (Collides(invDescription, invDItems[i]))
                             {
                                 drawInvItem(items[i], Constants.invItemBorderColor, invDItems[i].pos);
                             }
@@ -164,27 +176,14 @@ namespace Super_ForeverAloneInThaDungeon
                         break;
 
                     case ConsoleKey.Enter:
-                        invPrevPoint = new Point();
-                        return selected[invSelItem];
+                        ret = selected[invSelItem];
+                        break;
                 }
             }
-        }
 
-        public static void MakeBlackSpace(DisplayItem item)
-        {
-            Console.CursorTop = item.pos.Y;
-
-            // writing an array of characters is wayyy faster than one character.
-            char[] blank = new char[item.width];
-            for (int i = 0; i < blank.Length; i++)
-                blank[i] = ' ';
-
-            for (int y = 0; y < item.height; y++)
-            {
-                Console.CursorLeft = item.pos.X;
-                Console.Write(blank);
-                Console.CursorTop++;
-            }
+            invDidDescDraw = false;
+            invPrevPoint = new Point();
+            return ret;
         }
 
         void inv_drawProcess(InventoryItem item, int i, ConsoleColor clr)
@@ -528,7 +527,7 @@ namespace Super_ForeverAloneInThaDungeon
                 bool needed = false;
                 for (int i = 0; i < p.nInvItems; i++)
                 {
-                    if (invDItems[i].EndY > invDescription.EndY && inv_collides(invDescription, invDItems[i]))
+                    if (invDItems[i].EndY > invDescription.EndY && Collides(invDescription, invDItems[i]))
                     {
                         needed = true;
                         drawInvItem(p.inventory[i], Constants.invItemBorderColor/*can never be selected item, no need to check*/, invDItems[i].pos);
@@ -634,7 +633,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             MakeBlackSpace(item);
             inv_handleCollision(item);
-            if (inv_collides(item, invDescription))
+            if (Collides(item, invDescription))
             {
                 inv_drawDescription();
             }
@@ -646,20 +645,39 @@ namespace Super_ForeverAloneInThaDungeon
 
             for (int i = 0; i < p.nInvItems; i++)
             {
-                if (inv_collides(item, invDItems[i]))
+                if (Collides(item, invDItems[i]))
                 {
                     drawInvItem(p.inventory[i], Constants.invItemBorderColor, invDItems[i].pos);
                 }
             }
         }
 
-        bool inv_collides(DisplayItem a, DisplayItem b)
+        public static bool Collides(DisplayItem a, DisplayItem b)
         {
             // Constants.invDescriptionWidth is left out, because a's width needs to be called sometimes.
             // Labda's don't work as default parameters, so everything becomes a mess.
             // So that optimization cancels out.
             return (a.pos.X + a.width/*Constants.invDescriptionWidth*/ > b.pos.X && a.pos.X < b.pos.X + b.width/*Constants.invDescriptionWidth*/ &&
                     a.pos.Y + a.height > b.pos.Y && a.pos.Y < b.pos.Y + b.height);
+        }
+
+
+
+        public static void MakeBlackSpace(DisplayItem item)
+        {
+            Console.CursorTop = item.pos.Y;
+
+            // writing an array of characters is wayyy faster than one character.
+            char[] blank = new char[item.width];
+            for (int i = 0; i < blank.Length; i++)
+                blank[i] = ' ';
+
+            for (int y = 0; y < item.height; y++)
+            {
+                Console.CursorLeft = item.pos.X;
+                Console.Write(blank);
+                Console.CursorTop++;
+            }
         }
     }
 }
