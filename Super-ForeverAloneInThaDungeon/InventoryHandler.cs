@@ -2,7 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    // Refractor count: 22
+    // Refractor count: 23
     partial class Game
     {
         int invSelItem;
@@ -65,6 +65,108 @@ namespace Super_ForeverAloneInThaDungeon
                     invDescription = new DisplayItem(new Point(), 0, 0);
                 }
                 WriteCenter("Your inventory is empty");
+            }
+        }
+
+        /*void test()
+        {
+            filterInventoryItems(delegate(InventoryItem item) { return item is EffectItem; });
+        }*/
+
+        ushort[] filterInventoryItems(Func<InventoryItem, bool> filter)
+        {
+            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+
+            ushort index = 0;
+            ushort[] items = new ushort[p.nInvItems];
+
+            for (ushort i = 0; i < p.nInvItems; i++)
+            {
+                if (filter(p.inventory[i]))
+                {
+                    items[index++] = i;
+                }
+            }
+
+            Array.Resize(ref items, index);
+            return items;
+        }
+
+        // ugly way to solve this problem
+        // TODO: TESSTTT
+        int selectInventoryItem(ushort[] selected)
+        {
+            invActionSel = 0;
+            invSelItem = 0;
+            invPrevPoint = new Point();
+            invLowestY = 0;
+
+            Player p = (Player)tiles[playerPos.X, playerPos.Y];
+
+            InventoryItem[] items = new InventoryItem[selected.Length];
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = p.inventory[selected[i]];
+                items[i].actions = new InventoryAction[] { new InventoryActionSelect() };
+            }
+
+            inv_drawProcess(items[0], 0, Constants.invSelItemBorderColor);
+            for (int i = 1; i < items.Length; i++)
+            {
+                inv_drawProcess(items[i], i, Constants.invItemBorderColor);
+            }
+
+            inv_drawDescription(items[0]);
+            inv_drawDescription(items[0]);
+
+            while (true)
+            {
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.Escape:
+                        return -1;
+
+                    case ConsoleKey.LeftArrow:
+                        if (--invSelItem == -1) invSelItem = items.Length;
+
+                        invDidDescDraw = false;
+                        MakeBlackSpace(invDescription);
+
+                        for (int i = 0; i < items.Length; i++)
+                        {
+                            if (inv_collides(invDescription, invDItems[i]))
+                            {
+                                drawInvItem(items[i], Constants.invItemBorderColor, invDItems[i].pos);
+                            }
+                        }
+
+                        drawInvItem(items[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].pos);
+                        inv_drawDescription(items[invSelItem]);
+                        inv_drawDescription(items[invSelItem]);
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (++invSelItem == items.Length) invSelItem = 0;
+
+                        invDidDescDraw = false;
+                        MakeBlackSpace(invDescription);
+
+                        for (int i = 0; i < items.Length; i++)
+                        {
+                            if (inv_collides(invDescription, invDItems[i]))
+                            {
+                                drawInvItem(items[i], Constants.invItemBorderColor, invDItems[i].pos);
+                            }
+                        }
+
+                        drawInvItem(items[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].pos);
+                        inv_drawDescription(items[invSelItem]);
+                        inv_drawDescription(items[invSelItem]);
+                        break;
+
+                    case ConsoleKey.Enter:
+                        invPrevPoint = new Point();
+                        return selected[invSelItem];
+                }
             }
         }
 
@@ -174,7 +276,7 @@ namespace Super_ForeverAloneInThaDungeon
             Console.Write(down);
         }
 
-        void inv_drawDescription()
+        void inv_drawDescription(InventoryItem item = null)
         {
             // if this needs to change, make sure the background changes too
             if (invDidDescDraw)
@@ -182,7 +284,7 @@ namespace Super_ForeverAloneInThaDungeon
                 MakeBlackSpace(invDescription);
             }
 
-            InventoryItem item = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem];
+            if (item == null) item = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem];
             int itemInnerWidth = item.image.GetLength(1);
 
             bool lefty = invDItems[invSelItem].pos.X + Constants.invDescriptionWidth >= tiles.GetLength(0);
@@ -546,7 +648,7 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 if (inv_collides(item, invDItems[i]))
                 {
-                    drawInvItem(p.inventory[i], i == invSelItem ? Constants.invSelItemBorderColor : Constants.invItemBorderColor, invDItems[i].pos);
+                    drawInvItem(p.inventory[i], Constants.invItemBorderColor, invDItems[i].pos);
                 }
             }
         }

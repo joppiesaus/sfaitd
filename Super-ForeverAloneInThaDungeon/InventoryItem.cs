@@ -26,7 +26,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         // adds more info to this item
-        // do not use too much, because it will call array.resize.
+        // DO NOT USE WHEN NOT NEEDED, because it will call array.resize.
         public void AddAdditionalInfo(IIAI info)
         {
             Array.Resize(ref extraInfo, extraInfo.Length + 1);
@@ -142,6 +142,17 @@ namespace Super_ForeverAloneInThaDungeon
         public virtual bool Interact(ref Player p, int itemIndex, ref object target)
         {
             return ((ItemInventoryItem)p.inventory[itemIndex]).item.Interact(ref p, ref target);
+        }
+    }
+
+    class InventoryActionSelect : InventoryAction
+    {
+        public override string Action { get { return "Select"; } }
+        public override string Description { get { return "Select this item"; } }
+
+        public override bool Act(ref Player p, int itemIndex)
+        {
+            throw new NotImplementedException("Do not use the method Act in InventoryActionSelect!");
         }
     }
 
