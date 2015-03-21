@@ -9,7 +9,7 @@ namespace Super_ForeverAloneInThaDungeon
         {
             SelectDirection,
             CombineTwo,
-            Select,
+            SelectItem,
         }
 
         public abstract string Action { get; }
@@ -115,7 +115,19 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-    class InventoryActionSelect : InventoryAction
+    abstract class InventoryActionSelect : InventoryActionInteract
+    {
+        public Func<InventoryItem, bool> filterFunc;
+
+        public InventoryActionSelect(Func<InventoryItem, bool> filterFunction)
+            : base(PreExecuteCommand.SelectItem)
+        {
+            this.filterFunc = filterFunction;
+        }
+    }
+
+
+    class InventoryActionGraphicalSelect : InventoryAction
     {
         public override string Action { get { return "Select"; } }
         public override string Description { get { return "Select this item"; } }
@@ -126,12 +138,32 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-    // Unfinished
-    class InventoryActionCombine : InventoryActionInteract
-    {
-        public override string Action { get { return "Combine"; } }
-        public override string Description { get { return "Combine two of the same type"; } }
 
-        public Func<InventoryItem, bool> filterFunction;
+    
+
+    class InventoryActionCombineScroll : InventoryActionSelect
+    {
+        public override string Action { get { return "Merge"; } }
+        public override string Description { get { return "Combine this scroll with another one"; } }
+
+        public InventoryActionCombineScroll() : base(delegate(InventoryItem i) { return i is EffectItem; }) { }
+
+        public override bool Interact(ref Player p, int itemIndex, ref object target)
+        {
+            if ((int)target == itemIndex)
+            {
+                Game.Message("You can't merge the scroll with itself!");
+                return false;
+            }
+
+            EffectItem a = (EffectItem)p.inventory[itemIndex];
+            EffectItem b = (EffectItem)p.inventory[(int)target];
+
+            a.effects = a.effects.Merge(b.effects);
+
+            p.RemoveInventoryItem((int)target);
+
+            return false;
+        }
     }
 }

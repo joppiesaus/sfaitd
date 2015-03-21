@@ -15,7 +15,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             // I have no idea what I'm doing
             int chance = 999;
-            int less = 7;
+            int less = 8;
             while (Game.ran.Next(0, 999) < chance)
             {
                 less *= 9;
@@ -131,7 +131,6 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 eff[i] = Generate();
             }
-
             return eff;
         }
     }

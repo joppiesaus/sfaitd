@@ -60,6 +60,10 @@ namespace Super_ForeverAloneInThaDungeon
             AddInventoryItem(Constants.sword);
             AddInventoryItem(Constants.swedishMatches);
             AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
         }
 
         public bool AddInventoryItem(InventoryItem item)

@@ -4,7 +4,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
 {
     abstract class SpellEffect
     {
-        protected int value;
+        public int value;
 
         public abstract string Name { get; }
         public abstract string HelpDescription { get; }
@@ -88,7 +88,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
     class MaxHealthBoost : SpellEffect
     {
         public override string Name { get { return "Enhanced Body"; } }
-        public override string HelpDescription { get { return "Player's max health is increased by the value"; } }
+        public override string HelpDescription { get { return "Creature's max health is increased by the value"; } }
 
         public MaxHealthBoost(int val) : base(val) { }
 
@@ -103,7 +103,7 @@ namespace Super_ForeverAloneInThaDungeon.Spells
     class Heal : SpellEffect
     {
         public override string Name { get { return "Heal"; } }
-        public override string HelpDescription { get { return "Players's health is increased by the value"; } }
+        public override string HelpDescription { get { return "Creatures's health is increased by the value"; } }
 
         public override ConsoleColor LabelColor { get { return ConsoleColor.Red; } }
 

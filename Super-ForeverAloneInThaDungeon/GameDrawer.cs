@@ -25,7 +25,7 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.CursorLeft = 0;
                 Console.CursorTop++;
 
-                drawOnce(Console.WindowWidth * 2);
+                drawEmptySpaceOnce(Console.BufferWidth * 2);
                 drawOnceAfterInit = false;
             }
 
@@ -103,10 +103,12 @@ namespace Super_ForeverAloneInThaDungeon
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
-        void drawOnce(int amount)
+        void drawEmptySpaceOnce(int amount)
         {
             Point orgin = new Point(Console.CursorLeft, Console.CursorTop);
-            for (int i = 0; i < amount; i++) Console.Write(' ');
+            char[] buf = new char[amount];
+            for (int i = 0; i < amount; i++) buf[i] = ' ';
+            Console.Write(buf);
             Console.SetCursorPosition(orgin.X, orgin.Y);
         }
 

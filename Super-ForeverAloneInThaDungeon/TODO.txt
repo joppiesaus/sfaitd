@@ -1,4 +1,6 @@
 ﻿next:
+* fix wrong actions when merging two scrolls
+
 * Weapon enchantments
 * fix spears and other stuff
 * Effects(fire, strength...) that last a few moves	(update methods too)
@@ -67,3 +69,5 @@ DONE:
 * highscores!
 * higher hit likelyness
 * hit likelyness dependent on creatures
+* FIX THE STUPID STUPID SILLY STUPID MERGE AND COMPRESS BUG
+* FIX THAT SELECTION STUFF

@@ -66,12 +66,6 @@ namespace Super_ForeverAloneInThaDungeon
             new InventoryItem("Empty", "Empty", new char[,] {{'\\',' ',' ',' ',' ',' ','/'},{' ','\\',' ',' ',' ','/',' '},{' ',' ','\\',' ','/',' ',' '},{' ',' ',' ','X',' ',' ',' '},
 	        { ' ',' ','/',' ','\\',' ',' ' },{ ' ','/',' ',' ',' ','\\',' ' },{ '/',' ',' ',' ',' ',' ','\\'}}, ConsoleColor.DarkRed),};*/
 
-
-        public static readonly char[,] emptyScrollImage = new char[,] { {' ','_','_','_','_','_','_','_','_','_','_',' ',' ',' ',' ',' ' },
-            { '(',')','_','_','_','_','_','_','_','_','_',')',' ',' ',' ',' ' },{ ' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ',' ' },
-	        { ' ',' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ' },{ ' ',' ',' ','\\','_','_','_','_','_','_','_','_','_','_','\\',' ' },
-	        { ' ',' ',' ','(',')','_','_','_','_','_','_','_','_','_','_',')'} };
-
         // ranged weapons
         public static readonly WeaponItem spear = new WeaponItem(new Spear(),
             "The spear is a weapon with short range you can throw to creatures. It's very effective against big creatures!",
@@ -247,7 +241,10 @@ namespace Super_ForeverAloneInThaDungeon
 
         public static char[,] GenerateRandomScrollImage()
         {
-            char[,] img = emptyScrollImage;
+            char[,] img = new char[,] { {' ','_','_','_','_','_','_','_','_','_','_',' ',' ',' ',' ',' ' },
+            { '(',')','_','_','_','_','_','_','_','_','_',')',' ',' ',' ',' ' },{ ' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ',' ' },
+	        { ' ',' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ' },{ ' ',' ',' ','\\','_','_','_','_','_','_','_','_','_','_','\\',' ' },
+	        { ' ',' ',' ','(',')','_','_','_','_','_','_','_','_','_','_',')'} };
 
             // Write random text in the scroll's image
             // THE NUMBERS MASON

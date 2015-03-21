@@ -7,14 +7,24 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public SpellEffect[] effects;
 
-        public EffectItem(string _name, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx = null, InventoryAction[] addActions = null)
+        public EffectItem(string _name, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx/*, InventoryAction[] addActions = null*/)
         {
             this.name = _name;
             this.description = desc;
             this.image = img;
             this.color = clr;
 
-            this.effects = fx;
+            if (fx == null)
+            {
+                this.effects = new SpellEffect[] { };
+            }
+            else
+            {
+                // WORKS: this.effects = fx = Extensions.Compress(fx);
+                // DOESN'T WORK: this.effects = Extensions.Compress(fx); (reference doesn't get updated)
+                // https://msdn.microsoft.com/en-us/library/s6938f28.aspx
+                this.effects = fx = Extensions.Compress(fx);
+            }
 
             extraInfo = new IIAI[fx.Length + 1];
             extraInfo[0] = new IIAIH("Effects", ConsoleColor.Magenta);
@@ -24,7 +34,8 @@ namespace Super_ForeverAloneInThaDungeon
                 extraInfo[i + 1] = fx[i].GenerateInventoryInfo();
             }
 
-            if (addActions == null)
+            this.actions = new InventoryAction[] { new InventoryActionCast(), new InventoryActionCombineScroll(), new InventoryActionDrop() };
+            /*if (addActions == null)
             {
                 this.actions = new InventoryAction[] { new InventoryActionCast(), new InventoryActionDrop() };
             }
@@ -38,7 +49,7 @@ namespace Super_ForeverAloneInThaDungeon
                 }
 
                 this.actions[addActions.Length] = new InventoryActionDrop();
-            }
+            }*/
         }
     }
 

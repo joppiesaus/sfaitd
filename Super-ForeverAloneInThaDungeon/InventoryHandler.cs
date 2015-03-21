@@ -116,7 +116,7 @@ namespace Super_ForeverAloneInThaDungeon
             for (int i = 0; i < items.Length; i++)
             {
                 items[i] = p.inventory[selected[i]];
-                items[i].actions = new InventoryAction[] { new InventoryActionSelect() };
+                items[i].actions = new InventoryAction[] { new InventoryActionGraphicalSelect() };
             }
 
             inv_drawProcess(items[0], 0, Constants.invSelItemBorderColor);
@@ -183,6 +183,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             invDidDescDraw = false;
             invPrevPoint = new Point();
+            invLowestY = 0;
             return ret;
         }
 
@@ -556,6 +557,8 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 InventoryActionInteract action = (InventoryActionInteract)p.inventory[invSelItem].actions[invActionSel];
 
+                object target;
+
                 switch (action.command)
                 {
                     case InventoryAction.PreExecuteCommand.SelectDirection:
@@ -568,7 +571,7 @@ namespace Super_ForeverAloneInThaDungeon
                         {
                             Point targetPoint = new Point(playerPos.X + dir.X, playerPos.Y + dir.Y);
 
-                            object target = tiles[targetPoint.X, targetPoint.Y];
+                            target = tiles[targetPoint.X, targetPoint.Y];
                             if (action.Interact(ref p, invSelItem, ref target))
                             {
                                 p.RemoveInventoryItem(invSelItem);
@@ -580,6 +583,21 @@ namespace Super_ForeverAloneInThaDungeon
 
                             draw();
                         }
+                        break;
+
+                    case InventoryAction.PreExecuteCommand.SelectItem:
+                        clearInventoryScreen();
+                        Message("Select item");
+                        drawInfoBar();
+
+                        int sel = invSelItem;
+                        target = selectInventoryItem(filterInventoryItems(((InventoryActionSelect)action).filterFunc));
+                        if ((int)target != -1) action.Interact(ref p, sel, ref target);
+
+                        clearInventoryScreen();
+                        drawInfoBar();
+
+                        drawInventory();
                         break;
                 }
             }
@@ -607,9 +625,18 @@ namespace Super_ForeverAloneInThaDungeon
                     drawInventory(invSelItem);
                 }
 
-                drawInfoBar();
                 drawInventory();
+                drawInfoBar();
             }
+        }
+
+        void clearInventoryScreen()
+        {
+            Console.Clear();
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            Console.CursorTop = tiles.GetLength(1);
+            drawEmptySpaceOnce(Console.BufferWidth * 2);
+            invDidDescDraw = false;
         }
 
         void inv_changeSelectedItem(int to)
