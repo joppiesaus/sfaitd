@@ -65,7 +65,7 @@
     }
 
 
-    // BUG: Can cause collisions if things change in the middle while this is active
+    // WARNING: Can cause collisions if things change in the middle while this is active
     class TemporaryEffectAllImmune : TemporaryEffectBeginEnd
     {
         ushort before;

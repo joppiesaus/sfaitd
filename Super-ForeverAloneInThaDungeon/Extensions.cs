@@ -65,7 +65,8 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 c[i + a.Length] = b[i];
             }
-            return Compress(c);
+            c = Compress(c);
+            return c;
         }
     }
 }

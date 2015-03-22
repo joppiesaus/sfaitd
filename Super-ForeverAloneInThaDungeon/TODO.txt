@@ -1,5 +1,6 @@
 ﻿next:
-* fix wrong actions when merging two scrolls
+* ballance stupid effects
+* add different effects too
 
 * Weapon enchantments
 * fix spears and other stuff
@@ -71,3 +72,4 @@ DONE:
 * hit likelyness dependent on creatures
 * FIX THE STUPID STUPID SILLY STUPID MERGE AND COMPRESS BUG
 * FIX THAT SELECTION STUFF
+* fix wrong actions when merging two scrolls

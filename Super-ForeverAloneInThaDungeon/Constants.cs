@@ -235,8 +235,8 @@ namespace Super_ForeverAloneInThaDungeon
         public static string GenerateRandomName()
         {
             return Game.ran.Next(0, 3) == 0 ?
-                namefwords[Game.ran.Next(namefwords.Length)] + " " + nameswords[Game.ran.Next(nameswords.Length)] :
-                namewords[Game.ran.Next(namewords.Length)];
+                namewords[Game.ran.Next(namewords.Length)] :
+                "the " + namefwords[Game.ran.Next(namefwords.Length)] + " " + nameswords[Game.ran.Next(nameswords.Length)];
         }
 
         public static char[,] GenerateRandomScrollImage()

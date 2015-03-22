@@ -7,6 +7,7 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public SpellEffect[] effects;
 
+        // NO SUPPORT FOR ADDITIONAL IIAI's YET
         public EffectItem(string _name, string desc, char[,] img, ConsoleColor clr, SpellEffect[] fx/*, InventoryAction[] addActions = null*/)
         {
             this.name = _name;
@@ -26,15 +27,8 @@ namespace Super_ForeverAloneInThaDungeon
                 this.effects = fx = Extensions.Compress(fx);
             }
 
-            extraInfo = new IIAI[fx.Length + 1];
-            extraInfo[0] = new IIAIH("Effects", ConsoleColor.Magenta);
-
-            for (int i = 0; i < fx.Length; i++)
-            {
-                extraInfo[i + 1] = fx[i].GenerateInventoryInfo();
-            }
-
             this.actions = new InventoryAction[] { new InventoryActionCast(), new InventoryActionCombineScroll(), new InventoryActionDrop() };
+            GenerateIIAI();
             /*if (addActions == null)
             {
                 this.actions = new InventoryAction[] { new InventoryActionCast(), new InventoryActionDrop() };
@@ -50,6 +44,18 @@ namespace Super_ForeverAloneInThaDungeon
 
                 this.actions[addActions.Length] = new InventoryActionDrop();
             }*/
+        }
+
+        // in case you update the effects, you need to update that aswell.
+        public void GenerateIIAI()
+        {
+            extraInfo = new IIAI[effects.Length + 1];
+            extraInfo[0] = new IIAIH("Effects", ConsoleColor.Magenta);
+
+            for (int i = 0; i < effects.Length; i++)
+            {
+                extraInfo[i + 1] = effects[i].GenerateInventoryInfo();
+            }
         }
     }
 

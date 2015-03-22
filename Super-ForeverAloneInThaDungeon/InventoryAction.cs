@@ -160,6 +160,8 @@ namespace Super_ForeverAloneInThaDungeon
             EffectItem b = (EffectItem)p.inventory[(int)target];
 
             a.effects = a.effects.Merge(b.effects);
+            a.GenerateIIAI();
+            a.image = Constants.GenerateRandomScrollImage();
 
             p.RemoveInventoryItem((int)target);
 
