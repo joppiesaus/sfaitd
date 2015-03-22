@@ -116,7 +116,6 @@ namespace Super_ForeverAloneInThaDungeon
             for (int i = 0; i < items.Length; i++)
             {
                 items[i] = p.inventory[selected[i]];
-                items[i].actions = new InventoryAction[] { new InventoryActionGraphicalSelect() };
             }
 
             inv_drawProcess(items[0], 0, Constants.invSelItemBorderColor);
@@ -125,8 +124,10 @@ namespace Super_ForeverAloneInThaDungeon
                 inv_drawProcess(items[i], i, Constants.invItemBorderColor);
             }
 
-            inv_drawDescription(items[0]);
-            inv_drawDescription(items[0]);
+            InventoryAction[] actions = new InventoryAction[] { new InventoryActionGraphicalSelect() };
+
+            inv_drawDescription(items[0].description, items[0].image, items[0].extraInfo, actions);
+            inv_drawDescription(items[0].description, items[0].image, items[0].extraInfo, actions);
 
             int ret = -2;
 
@@ -153,8 +154,8 @@ namespace Super_ForeverAloneInThaDungeon
                         }
 
                         drawInvItem(items[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].pos);
-                        inv_drawDescription(items[invSelItem]);
-                        inv_drawDescription(items[invSelItem]);
+                        inv_drawDescription(items[invSelItem].description, items[invSelItem].image, items[invSelItem].extraInfo, actions);
+                        inv_drawDescription(items[invSelItem].description, items[invSelItem].image, items[invSelItem].extraInfo, actions);
                         break;
                     case ConsoleKey.RightArrow:
                         if (++invSelItem == items.Length) invSelItem = 0;
@@ -171,8 +172,8 @@ namespace Super_ForeverAloneInThaDungeon
                         }
 
                         drawInvItem(items[invSelItem], Constants.invSelItemBorderColor, invDItems[invSelItem].pos);
-                        inv_drawDescription(items[invSelItem]);
-                        inv_drawDescription(items[invSelItem]);
+                        inv_drawDescription(items[invSelItem].description, items[invSelItem].image, items[invSelItem].extraInfo, actions);
+                        inv_drawDescription(items[invSelItem].description, items[invSelItem].image, items[invSelItem].extraInfo, actions);
                         break;
 
                     case ConsoleKey.Enter:
@@ -276,7 +277,13 @@ namespace Super_ForeverAloneInThaDungeon
             Console.Write(down);
         }
 
-        void inv_drawDescription(InventoryItem item = null)
+        void inv_drawDescription()
+        {
+            InventoryItem i = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem];
+            inv_drawDescription(i.description, i.image, i.extraInfo, i.actions);
+        }
+
+        void inv_drawDescription(string idescription, char[,] iimage, IIAI[] iextraInfo, InventoryAction[] iactions)
         {
             // if this needs to change, make sure the background changes too
             if (invDidDescDraw)
@@ -284,8 +291,7 @@ namespace Super_ForeverAloneInThaDungeon
                 MakeBlackSpace(invDescription);
             }
 
-            if (item == null) item = ((Player)tiles[playerPos.X, playerPos.Y]).inventory[invSelItem];
-            int itemInnerWidth = item.image.GetLength(1);
+            int itemInnerWidth = iimage.GetLength(1);
 
             bool lefty = invDItems[invSelItem].pos.X + Constants.invDescriptionWidth >= tiles.GetLength(0);
             int originX = lefty ? invDItems[invSelItem].pos.X - Constants.invDescriptionWidth + itemInnerWidth + 2 : invDItems[invSelItem].pos.X;
@@ -331,7 +337,7 @@ namespace Super_ForeverAloneInThaDungeon
             Console.CursorLeft = originX;
 
             // draw the description
-            string[] description = Constants.GenerateReadableString(item.description, Constants.invDescriptionWidth - 4);
+            string[] description = Constants.GenerateReadableString(idescription, Constants.invDescriptionWidth - 4);
             for (int y = 0; y < description.Length; y++)
             {
                 Console.Write(Constants.yWall);
@@ -356,24 +362,24 @@ namespace Super_ForeverAloneInThaDungeon
             Console.CursorLeft = originX;
 
             // draw additional info
-            if (item.extraInfo != null)
+            if (iextraInfo != null)
             {
                 int valLoc = 0; // global location of the values displayed
 
                 // calculate the max distance so everything looks neat
-                for (int i = 0; i < item.extraInfo.Length; i++)
-                    if (item.extraInfo[i] is IIAID && item.extraInfo[i].label.Length > valLoc) valLoc = item.extraInfo[i].label.Length;
+                for (int i = 0; i < iextraInfo.Length; i++)
+                    if (iextraInfo[i] is IIAID && iextraInfo[i].label.Length > valLoc) valLoc = iextraInfo[i].label.Length;
 
                 valLoc += originX + 4;
 
-                for (int i = 0; i < item.extraInfo.Length; i++)
+                for (int i = 0; i < iextraInfo.Length; i++)
                 {
                     Console.Write(Constants.yWall);
 
                     // If'its
-                    if (item.extraInfo[i] is IIAID)
+                    if (iextraInfo[i] is IIAID)
                     {
-                        IIAID itemInfo = (IIAID)item.extraInfo[i];
+                        IIAID itemInfo = (IIAID)iextraInfo[i];
 
                         Console.CursorLeft++;
                         Console.ForegroundColor = itemInfo.lColor;
@@ -383,7 +389,7 @@ namespace Super_ForeverAloneInThaDungeon
                         Console.ForegroundColor = itemInfo.vColor;
                         Console.Write(itemInfo.value);
                     }
-                    else if (item.extraInfo[i] is IIAIH)
+                    else if (iextraInfo[i] is IIAIH)
                     {
                         // Add an extra line
                         Console.CursorLeft = originX + Constants.invDescriptionWidth - 1;
@@ -392,7 +398,7 @@ namespace Super_ForeverAloneInThaDungeon
                         Console.CursorLeft = originX;
                         Console.Write(Constants.yWall);
 
-                        IIAIH header = (IIAIH)item.extraInfo[i];
+                        IIAIH header = (IIAIH)iextraInfo[i];
 
                         // relative location
                         int relativeLoc = (Constants.invDescriptionWidth - 4) / 2 - header.label.Length / 2;
@@ -422,8 +428,8 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         Console.CursorLeft++;
 
-                        Console.ForegroundColor = item.extraInfo[i].lColor;
-                        Console.Write(item.extraInfo[i].label);
+                        Console.ForegroundColor = iextraInfo[i].lColor;
+                        Console.Write(iextraInfo[i].label);
                     }
                     
 
@@ -443,7 +449,7 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.CursorLeft = originX;
             }
 
-            for (int i = 0; i < item.actions.Length; i++)
+            for (int i = 0; i < iactions.Length; i++)
             {
                 Console.Write(Constants.yWall);
 
@@ -457,13 +463,13 @@ namespace Super_ForeverAloneInThaDungeon
                     Console.CursorLeft += 2;
 
                     Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.Write(item.actions[i].Action);
+                    Console.Write(iactions[i].Action);
 
                     Console.CursorLeft += 2;
 
                     int x = Console.CursorLeft;
                     string[] desc = Constants.GenerateReadableString(
-                        item.actions[i].Description,
+                        iactions[i].Description,
                         Constants.invDescriptionWidth - (x - originX) - 2
                     );
 
@@ -499,7 +505,7 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     Console.CursorLeft += 4;
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(item.actions[i].Action);
+                    Console.Write(iactions[i].Action);
                 }
 
                 Console.ForegroundColor = Constants.invSelItemBorderColor;
