@@ -9,9 +9,9 @@ namespace Super_ForeverAloneInThaDungeon
         public bool attackable = false;
 
         // Name in the form of "the Snake attacked you"
-        public virtual string InlineName()
+        public virtual string InlineName
         {
-            return "the " + this.tiletype;
+            get { return "the " + this.tiletype; }
         }
 
         public virtual void Attack(ref Tile target, AttackMode aMode)
@@ -79,11 +79,19 @@ namespace Super_ForeverAloneInThaDungeon
         {
         }
 
-        public virtual void SetOnFire()
+        /// <summary>
+        /// Sets this object on fire
+        /// 0 = not/already burning
+        /// 1 = burning
+        /// 2 = not burning because of immunity
+        /// </summary>
+        /// <returns>If on fire</returns>
+        public virtual byte SetOnFire(short amount = 1)
         {
             destroyed = true;
-            // !UNSAFE!
+            // !UNSAFE! TEMPORARY SHIZZZZZZZZ
             Game.Message("You burned away " + tiletype.ToString() + '!');
+            return 1;
         }
     }
 }

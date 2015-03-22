@@ -258,8 +258,8 @@ namespace Super_ForeverAloneInThaDungeon
                 for (int x = where.X; x <= end.X; x++)
                     for (int y = where.Y; y <= end.Y; y++)
                     {
-                        if (ran.Next(0, 25) == 0) tiles[x, y] = new Snake(ran.Next(0, 3));
-                        else if (ran.Next(0, 25) == 0) tiles[x, y] = new Goblin(ran.Next(0, 2));
+                        if (ran.Next(0, 200) == 0) tiles[x, y] = new Snake(ran.Next(0, 3));
+                        else if (ran.Next(0, 250) == 0) tiles[x, y] = new Goblin(ran.Next(0, 2));
                         else tiles[x, y].setTile(TileType.Air);
                     }
             }
@@ -271,8 +271,8 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         if (ran.Next(0, 40) == 0) tiles[x, y] = new Money(ran.Next(1, 6));
                         else if (ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple());
-                        else if (ran.Next(0, 800) < 2) tiles[x, y] = new Snake();
-                        else if (ran.Next(0, 1000) < 2) tiles[x, y] = new Goblin();
+                        else if (ran.Next(0, 800) < 3) tiles[x, y] = new Snake();
+                        else if (ran.Next(0, 1000) < 3) tiles[x, y] = new Goblin();
                         else if (ran.Next(0, 1250) == 0) tiles[x, y] = new Chest();
                         else tiles[x, y].setTile(TileType.Air);
                     }

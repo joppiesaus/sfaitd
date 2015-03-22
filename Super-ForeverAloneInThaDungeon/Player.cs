@@ -37,9 +37,9 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
 
-        public override string InlineName()
+        public override string InlineName
         {
-            return "you";
+            get { return "you"; }
         }
 
         public Player()
@@ -57,13 +57,7 @@ namespace Super_ForeverAloneInThaDungeon
             hitLikelyness = 400;
 
             AddInventoryItem(Constants.dagger);
-            AddInventoryItem(Constants.sword);
             AddInventoryItem(Constants.swedishMatches);
-            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
-            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
-            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
-            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
-            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple()).GenerateInvItem()));
         }
 
         public bool AddInventoryItem(InventoryItem item)
@@ -144,7 +138,7 @@ namespace Super_ForeverAloneInThaDungeon
                 if (weapon.enchantments.Length > 0)
                     for (int i = 0; i < weapon.enchantments.Length; i++)
                     {
-                        weapon.enchantments[i].Apply(ref target);
+                        weapon.enchantments[i].Apply(ref target, this);
                     }
             }
         }

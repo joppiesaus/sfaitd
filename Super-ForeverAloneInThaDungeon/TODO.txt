@@ -1,8 +1,9 @@
 ﻿next:
 * ballance stupid effects
-* add different effects too
+* add different effects to scroll too!
 
 * Weapon enchantments
+* Creatures should have weapons too
 * fix spears and other stuff
 * Effects(fire, strength...) that last a few moves	(update methods too)
 * method that handles interaction (like chests) between things?
@@ -12,6 +13,7 @@
 
 * 2easy4me
 * balance leveling
+* CREATIVITY
 
 
 * weapon enchantments

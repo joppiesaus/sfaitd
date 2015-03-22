@@ -6,12 +6,18 @@
         public ushort moves;
         public short amount;
 
+        /// <param name="count">How many moves the effect should last</param>
+        /// <param name="_amount">How many</param>
         public TemporaryEffect(ushort count, short _amount = 0)
         {
             moves = count;
             amount = _amount;
         }
 
+        /// <summary>
+        /// Apply the temporary effect to the creature. Called every move.
+        /// </summary>
+        /// <param name="c">Target</param>
         public abstract void Act(ref Creature c);
     }
 

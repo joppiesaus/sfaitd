@@ -22,6 +22,7 @@ namespace Super_ForeverAloneInThaDungeon
 
     class Creature : WorldObject
     {
+        // I like SCREAMING_CAPSLOCK
         const byte EFFECT_CAPACITY = 100;
 
         TemporaryEffect[] tEffects = new TemporaryEffect[EFFECT_CAPACITY];
@@ -257,6 +258,18 @@ namespace Super_ForeverAloneInThaDungeon
             return true;
         }
 
+        /// <summary>
+        /// Checks if a temporaryeffect is in the array
+        /// </summary>
+        /// <param name="type">Type of temporary effect</param>
+        /// <returns>index in array or -1 if not found</returns>
+        public int HasTemporaryEffect(Type type)
+        {
+            for (ushort i = 0; i < nTeffects; i++)
+                if (tEffects[i].GetType() == type) return i;
+            return -1;
+        }
+
         void removeTemporaryEffect(ushort i)
         {
             tEffects[i] = tEffects[nTeffects - 1];
@@ -265,12 +278,27 @@ namespace Super_ForeverAloneInThaDungeon
         #endregion
 
         #region special attacks
-
         /* All these method assume you call the EventRegister! */
-
-        public override void SetOnFire()
+        public override byte SetOnFire(short amount)
         {
-            AddTemporaryEffect(new TemporaryEffectBurn((ushort)Game.ran.Next(8, 13), 1));
+            if (HasImmunity(CreatureElement.Fire))
+            {
+                return 2;
+            }
+            else
+            {
+                int n = HasTemporaryEffect(typeof(TemporaryEffectBurn));
+                if (n == -1)
+                {
+                    AddTemporaryEffect(new TemporaryEffectBurn((ushort)Game.ran.Next(8, 11 + amount * 2), amount));
+                    return 1;
+                }
+                else
+                {
+                    tEffects[n].moves = Math.Max(tEffects[n].moves, (ushort)Game.ran.Next(8, 11 + amount * 2));
+                    return 0;
+                }
+            }
         }
         #endregion
 

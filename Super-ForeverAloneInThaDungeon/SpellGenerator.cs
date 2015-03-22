@@ -13,14 +13,10 @@ namespace Super_ForeverAloneInThaDungeon
         {
             byte count = 1;
 
-            // I have no idea what I'm doing
-            int chance = 999;
-            int less = 8;
-            while (Game.ran.Next(0, 999) < chance)
+            int chance = 8;
+            while (Game.ran.Next(0, 1700) > chance)
             {
-                less *= 9;
-                less -= 7 * count;
-                chance -= less;
+                chance = chance * chance - 3 * chance - 1;
                 count++;
             }
 

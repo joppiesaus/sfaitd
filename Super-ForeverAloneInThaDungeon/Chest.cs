@@ -26,7 +26,7 @@ namespace Super_ForeverAloneInThaDungeon
                 switch (Game.ran.Next(0, 3))
                 {
                     case 0:
-                        items[i] = Constants.dagger;
+                        items[i] = Constants.sword;
                         break;
                     case 1:
                         items[i] = Constants.spear;

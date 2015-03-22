@@ -49,6 +49,42 @@ namespace Super_ForeverAloneInThaDungeon
                     redrawNoMatterWhatState();
                     return;
 
+                case "UNYIELD":
+                    if (args.Length > 0)
+                    {
+                        Player p = ((Player)tiles[playerPos.X, playerPos.Y]);
+                        WeaponItem i = null;
+                        bool did = false;
+
+                        switch (args[0].ToLower())
+                        {
+                            case "melee":
+                                i = p.mWeaponItem;
+                                did = true;
+                                break;
+                            case "ranged":
+                                i = p.rWeaponItem;
+                                did = true;
+                                break;
+                        }
+
+                        if (i != null)
+                        {
+                            p.AddInventoryItem(i);
+                            Game.Message("You unyielded " + i.weapon.name);
+                            i = null;
+                        }
+                        else if (did)
+                        {
+                            Game.Message("You don't have a " + args[0] + " weapon!");
+                        }
+                        else
+                        {
+                            Game.Message("Specify which type weapon you want to unyield(e.g. unyield melee)");
+                        }
+                    }
+                    break;
+
                 case "ME":
                     if (args.Length > 0)
                     {

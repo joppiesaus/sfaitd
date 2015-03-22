@@ -7,7 +7,7 @@ namespace Super_ForeverAloneInThaDungeon.Enchantments
         public abstract string Name { get; }
         public abstract string HelpDescription { get; }
 
-        int value;
+        public int value;
 
         public ItemEnchantment() { }
         public ItemEnchantment(int val)
@@ -15,7 +15,7 @@ namespace Super_ForeverAloneInThaDungeon.Enchantments
             this.value = val;
         }
 
-        public abstract void Apply(ref WorldObject obj);
+        public abstract void Apply(ref WorldObject obj, WorldObject caller);
 
         public virtual IIAI GenerateInventoryInfo()
         {
@@ -28,10 +28,26 @@ namespace Super_ForeverAloneInThaDungeon.Enchantments
         public override string Name { get { return "Fire Aspect"; } }
         public override string HelpDescription { get { return "Makes target able to set things on fire"; } }
 
-        public override void Apply(ref WorldObject obj)
+        public ItemEnchantmentFire(short val = 1) { this.value = val; }
+
+        public override void Apply(ref WorldObject obj, WorldObject caller)
         {
-            obj.SetOnFire();
-            EventRegister.RegisterFire("you", obj);
+            switch (obj.SetOnFire((short)value))
+            {
+                case 1:
+                    EventRegister.RegisterFire(caller.InlineName, obj);
+                    break;
+                case 2:
+                    if (caller is Player)
+                    {
+                        Game.Message("You try to set " + obj.InlineName + " on fire, but it's immune to it!");
+                    }
+                    else
+                    {
+                        Game.Message("The " + obj.InlineName + " tried to set you on fire, but you're immune to it!");
+                    }
+                    break;
+            }
         }
     }
 }
