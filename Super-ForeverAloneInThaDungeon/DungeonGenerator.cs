@@ -2,6 +2,7 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
+    // All old code!
     partial class Game
     {
         // Keep in mind that maxvalue is the maxvalue + 1 at all times!
@@ -140,7 +141,8 @@ namespace Super_ForeverAloneInThaDungeon
             tiles[playerPos.X, playerPos.Y] = p;
         }
 
-        // *scottisch accent* for moar info, gowto doubleudoubleudoubleudotfunction1dotnlslashpslashsfaitdslashinfoslashSARBdotPNG
+        // *scottisch accent* for moar info, gowto doubleudoubleudoubleudotfunction1dotnlslashpslashsfaitdslashinfoslashSARBdotpng
+        // (http://function1.nl/p/sfaitd/info/SARB.png)
         Room generateRoom(Point p, Point size, byte dir, bool doorAtP = true, bool placeMatters = true)
         {
             Room r;
@@ -271,8 +273,9 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         if (ran.Next(0, 40) == 0) tiles[x, y] = new Money(ran.Next(1, 6));
                         else if (ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple());
+                        else if (ran.Next(0, 666) == 0) tiles[x, y] = new Grunt();
                         else if (ran.Next(0, 800) < 3) tiles[x, y] = new Snake();
-                        else if (ran.Next(0, 1000) < 3) tiles[x, y] = new Goblin();
+                        else if (ran.Next(0, 900) < 2) tiles[x, y] = new Goblin();
                         else if (ran.Next(0, 1250) == 0) tiles[x, y] = new Chest();
                         else tiles[x, y].setTile(TileType.Air);
                     }

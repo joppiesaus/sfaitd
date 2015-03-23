@@ -213,6 +213,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+#region move modes
         public virtual void OnPlayerDiscovery()
         {
             moveMode = CreatureMoveMode.FollowPlayer;
@@ -226,6 +227,7 @@ namespace Super_ForeverAloneInThaDungeon
         public virtual void OnPlayerAttack()
         {
         }
+#endregion
 
         /// <summary>
         /// Updates this creature.
@@ -313,7 +315,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
         public void RemoveWeakness(CreatureElement weakness)
         {
-            weaknesses ^= (ushort)weakness;
+            weaknesses &= (ushort)((ushort)weakness ^ ushort.MaxValue);
         }
 
         public bool HasImmunity(CreatureElement immunity)
@@ -326,7 +328,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
         public void RemoveImmunity(CreatureElement immunity)
         {
-            immunities ^= (ushort)immunity;
+            immunities &= (ushort)((ushort)immunity ^ ushort.MaxValue);
         }
         #endregion
     }
@@ -385,7 +387,40 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override ushort GetXp()
         {
-            return (ushort)(Game.ran.Next(0, 2 + maxHealth / 10 + damage.Y - damage.X));
+            return (ushort)(Game.ran.Next(0, 1 + maxHealth / 10 + damage.Y - damage.X));
+        }
+    }
+
+    class Grunt : Creature
+    {
+        public Grunt()
+        {
+            money = Game.ran.Next(1, 4);
+            health = maxHealth = Game.ran.Next(3, 5);
+            searchRange = 3;
+            tiletype = TileType.Grunt;
+            drawChar = Constants.chars[6];
+            color = ConsoleColor.Gray;
+            damage = new Point(1, 2);
+            moveMode = CreatureMoveMode.Stationary;
+            hitLikelyness = (ushort)Game.ran.Next(600, 800);
+        }
+
+        public override ushort GetXp()
+        {
+            return (ushort)Game.ran.Next(Game.ran.Next(0, 2), 2);
+        }
+
+        public override void OnPlayerDiscovery()
+        {
+        }
+        public override void OnPlayerAttack()
+        {
+            moveMode = CreatureMoveMode.FollowPlayer;
+        }
+        public override void OnPlayerLeave()
+        {
+            moveMode = CreatureMoveMode.Random;
         }
     }
 }

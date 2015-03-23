@@ -23,6 +23,9 @@ namespace Super_ForeverAloneInThaDungeon
             yWallToXWallBothSides = _g(202);
             yWallWithRightXWall = _g(204);
             yWallWithLeftXWall = _g(185);
+            xDoor = _g(179);
+            yDoor = _g(196);
+
 
             chars = new char[] { _g(166), // scrollChar
                 _g(30),                   // startChar
@@ -30,6 +33,8 @@ namespace Super_ForeverAloneInThaDungeon
                 _g(147),                  // goblinChar
                 _g(16),                   // >ish char
                 _g(220),                  // chestChar
+                _g(148),                  // gruntChar
+                _g(254),                  // broken door char
             };
         }
 
@@ -45,7 +50,7 @@ namespace Super_ForeverAloneInThaDungeon
         public static readonly Encoding enc = Encoding.GetEncoding(437);
 
         public readonly static char[] chars; // used to display special characters, like a scroll.
-        public readonly static char yWall, xWall, lupWall, ldownWall, rupWall, rdownWall, lSplitWall, rSplitWall, yWallToXWallBothSides, yWallWithRightXWall, yWallWithLeftXWall;
+        public readonly static char yWall, xWall, lupWall, ldownWall, rupWall, rdownWall, lSplitWall, rSplitWall, yWallToXWallBothSides, yWallWithRightXWall, yWallWithLeftXWall, xDoor, yDoor;
 
         public static readonly string[] dungeonNameParts = new string[] { "Prisons", "Dungeon", "Tunnels", "Chamber", "Tombs", "Cells", "Lair", "Cave", "Catacombs", "Caverns" };
         public readonly static string[] namefwords = new string[] { "Witty", "Ancient", "Evil", "Heartless", "Furious", "Screaming", "Mighty", "Infamous", "Loved", "Isolated", "Withered", "Magic", "Undead", "Mystic", "Dark", "Black", "Creepy" };

@@ -143,6 +143,12 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+        public override void Attack(ref Tile target, AttackMode attackMode = AttackMode.Melee)
+        {
+            base.Attack(ref target, attackMode);
+            if (target is Creature) ((Creature)target).OnPlayerAttack();
+        }
+
         public void levelUp()
         {
 

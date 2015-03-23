@@ -6,6 +6,7 @@ namespace Super_ForeverAloneInThaDungeon
     enum TileType
     {
         None,
+        Other,
         Air,
         Wall,
         Money,
@@ -16,6 +17,7 @@ namespace Super_ForeverAloneInThaDungeon
         Snake,
         Goblin,
         Wizzard,
+        Grunt,
         Chest,
         Up,
         Down

@@ -64,6 +64,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Creature.cs" />
+    <Compile Include="Door.cs" />
     <Compile Include="DungeonGenerator.cs" />
     <Compile Include="EventRegister.cs" />
     <Compile Include="Extensions.cs" />

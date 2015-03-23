@@ -2,6 +2,10 @@
 * ballance stupid effects
 * add different effects to scroll too!
 
+* HOW DO I HANDLE ALL THESE DIFFERENT SPELLLSSS
+
+* test and implement doors
+* enhance the level generator, with different levels and stuff!
 * Weapon enchantments
 * Creatures should have weapons too
 * fix spears and other stuff
