@@ -77,11 +77,13 @@
     <Compile Include="GameClasses.cs" />
     <Compile Include="InventoryItemAdditionalInfo.cs" />
     <Compile Include="ItemEnchantment.cs" />
+    <Compile Include="MonsterSpawner.cs" />
     <Compile Include="Pickupable.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="PopupWindow.cs" />
     <Compile Include="Room.cs" />
+    <Compile Include="RoomPlanner.cs" />
     <Compile Include="Scroll.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

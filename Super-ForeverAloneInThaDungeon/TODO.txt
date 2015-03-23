@@ -1,9 +1,9 @@
 ﻿next:
+* rewrite room and creature generation stuff
+* Multiple types of rooms!
 * ballance stupid effects
 * add different effects to scroll too!
-
 * HOW DO I HANDLE ALL THESE DIFFERENT SPELLLSSS
-
 * test and implement doors
 * enhance the level generator, with different levels and stuff!
 * Weapon enchantments
@@ -12,6 +12,7 @@
 * Effects(fire, strength...) that last a few moves	(update methods too)
 * method that handles interaction (like chests) between things?
 * Fix issue #1
+* secret passages!
 
 * You can't attack objects
 

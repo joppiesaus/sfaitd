@@ -20,7 +20,8 @@ namespace Super_ForeverAloneInThaDungeon
         Grunt,
         Chest,
         Up,
-        Down
+        Down,
+        Door
     }
 
     class Tile

@@ -2,6 +2,20 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
+    class CorridorConstruct
+    {
+        public Point origin;
+        public byte length, direction;
+        public sbyte beginIsDungeon = -1, endIsDungeon = -1; // Directions relative to the dungeon wall(0 for up of the room). -1 for nothing.
+    }
+
+    class Dimension2D
+    {
+        public Point where, end;
+        public Dimension2D() { }
+        public Dimension2D(Point w, Point e) { where = w; end = e; }
+    }
+
     partial class Game
     {
         // used for Breadth-First Search (Node)

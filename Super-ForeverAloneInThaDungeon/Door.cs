@@ -72,7 +72,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
-        /// true for x, false for y
+        /// true for x(up or down), false for y(left or right)
         /// </summary>
         public bool Orientation
         {
@@ -97,7 +97,7 @@ namespace Super_ForeverAloneInThaDungeon
             this.walkable = true;
             this.color = ConsoleColor.DarkYellow;
             this.notLightenChar = this.drawChar = x ? Constants.xDoor : Constants.yDoor;
-            this.tiletype = TileType.Other;
+            this.tiletype = TileType.Door;
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace Super_ForeverAloneInThaDungeon
             hitLikelyness = 400;
 
             AddInventoryItem(Constants.dagger);
-            AddInventoryItem(Constants.swedishMatches);
+            //AddInventoryItem(Constants.swedishMatches);
         }
 
         public bool AddInventoryItem(InventoryItem item)

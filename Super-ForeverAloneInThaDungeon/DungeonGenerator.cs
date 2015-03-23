@@ -2,109 +2,237 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    // All old code!
     partial class Game
     {
-        // Keep in mind that maxvalue is the maxvalue + 1 at all times!
-        Room[] createDungeons(ushort howManyRooms, Room size,
-            int cSpawnTries = 100, int bSpawnTries = 100, byte corrMinLength = 5, byte corrMaxLength = 15,
-            byte cbMinLength = 5, byte cbMaxLength = 10)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nRooms"></param>
+        /// <param name="roomDims">Max size of an room. x axis is where, y axis is end</param>
+        /// <returns></returns>
+        Room[] generateDungeons(ushort nRooms)
         {
-            Point spawnRoomGenPoint = new Point(tiles.GetLength(0) / 2 + ran.Next(-10, 5), tiles.GetLength(1) / 2 + ran.Next(-10, 5));
-            Room spawnRoom = new Room(spawnRoomGenPoint, new Point(spawnRoomGenPoint.X + ran.Next(4, 12), spawnRoomGenPoint.Y + ran.Next(4, 8)));
-            spawnRoom.appendName();
-            generateRoom(spawnRoom);
+            Room[] dungeons = new Room[nRooms];
 
-            Room[] dungeons = new Room[howManyRooms + 1];
-            dungeons[0] = spawnRoom;
-            int a = 1;
+            // Start with one dungeon where the player spawns.
+            dungeons[0] = new Room(
+                new Point(
+                    tiles.GetLength(0) / 2 + ran.Next(-15, 16),
+                    tiles.GetLength(1) / 2 + ran.Next(-15, 16)
+                )
+            );
+            dungeons[0].AppendName();
+            dungeons[0].Generate(ref tiles);
 
-            for (int i = 0; i < howManyRooms; i++)
+            for (ushort currentRoom = 1; currentRoom < nRooms;)
             {
-                Room r;
-                Point cWhere = new Point(-1, -1);
-                int cEnd = 0;
-                Point[] corrP = { };
-                byte dir = 0;
+                // Current corridor construction
+                CorridorConstruct cc = null;
 
-                bool fail = true;
-                for (int t = 0; t < cSpawnTries; t++) // cSpawnTries: how many tries to generate a corridor on a random wall
+                // Corridor adding
+                while (true) // If not possible... heheheheheheheh
                 {
-                    r = dungeons[ran.Next(0, a)]; // 0,a --> owl eyes?
-                    dir = (byte)ran.Next(0, 4);
-                    cWhere = getRandomWallPoint(r, dir);
+                    // 1: Pick any wall of any room
+                    cc = dungeons[ran.Next(0, currentRoom)].GetRandomCorridorBuildPoint();
 
-                    corrP = getCorridorPoints(cWhere, dir, ran.Next(corrMinLength, corrMaxLength)); // corrMinLength, corrMaxLength: Length of corridor
-
-                    if (corrP == null) continue;
-                    cEnd = corrP.Length - 1;
-
-                    if (!corrP[cEnd].Same(-1, -1))
+                    // 2: Check if possible, if not, try again
+                    cc.length = (byte)ran.Next(6, 16);
+                    if (canBuildCorridorHere(cc))
                     {
-                        fail = false;
+                        // Don't add the corridor yet - there may be a case where it's surrounded by other rooms.
+                        cc.beginIsDungeon = (sbyte)cc.direction;
                         break;
                     }
                 }
 
-                if (fail) break;
 
-                // Algorithm:
-                // 1: Check if there's room for both corridor and the room itself
-                // 2: Build both if so.
-                //      when building, build the corridor needed.
-                // goto 1
-                int highestIndex = 0;
-                for (int t = 0; t < bSpawnTries; t++) // bSpawnTries: How many tries to attach a room on a corridor
+                // Feature adding
+
+                // Add a room to the corridor
+                for (byte d = 0; d < 5; d++)
                 {
-                    int cIndex = ran.Next(0, corrP.Length);
-                    Point connPoint = corrP[cIndex];
+                    // Choose a random point & direction for a path from the corridor to a new room
+                    CorridorConstruct pathToRoom = new CorridorConstruct();
+                    pathToRoom.direction = cc.direction > 1 ? (byte)ran.Next(0, 2) : (byte)ran.Next(1, 3);
+                    pathToRoom.length = (byte)ran.Next(3, 8);
 
+                    Point pathToRoomIncrement = getIncrementByDirection(pathToRoom.direction);
+                    pathToRoom.origin = new Point(
+                        cc.origin.X + ran.Next(1, cc.length) * pathToRoomIncrement.X,
+                        cc.origin.Y + ran.Next(1, cc.length) * pathToRoomIncrement.Y
+                    );
 
-                    byte[] nDirArr = getPossibleCorridorDirections(dir);
-                    byte nDir;
+                    if (!canBuildCorridorHere(pathToRoom)) { continue; }
 
-                    if (cEnd == cIndex)
+                    Room room = roomPlanner.GetRoom();
+
+                    // If room can be build, build corridor, room, and path.
+                    if (connectRoomToPath(ref room, ref pathToRoom, pathToRoomIncrement))
                     {
-                        nDir = getOppositeDirection(dir);
-                    }
-                    else nDir = nDirArr[ran.Next(0, nDirArr.Length)];
+                        room.Generate(ref tiles);
+                        constructCorridor(pathToRoom);
+                        constructCorridor(cc);
 
-
-                    // cbMinLength, cbMaxLength: Length of connection between room and corridor
-                    Point[] cPoints = getCorridorPoints(connPoint, getOppositeDirection(nDir), ran.Next(cbMinLength, cbMaxLength));
-                    if (cPoints == null) continue;
-
-                    // new Point(ran.Next(4, 19), ran.Next(5, 15))
-                    // size: size of room
-                    Room toBuild = generateRoom(cPoints[cPoints.Length - 1], new Point(ran.Next(size.where.X, size.where.Y), ran.Next(size.end.X, size.end.Y)), nDir, true, true);
-
-                    if (toBuild != null)
-                    {
-                        if (cIndex > highestIndex) highestIndex = cIndex;
-
-                        //Array.Resize(ref corrP, highestIndex + 1);
-                        generateCorridor(corrP, highestIndex + 1);
-                        dungeons[a] = toBuild;
-                        generateCorridor(cPoints, cPoints.Length);
-
-                        a++;
-
-                        if (a == dungeons.Length)
-                        {
-                            i = howManyRooms;
-                            break;
-                        }
+                        room.AppendName();
+                        dungeons[currentRoom++] = room;
+                        break;
                     }
                 }
             }
 
-            if (a != dungeons.Length) Array.Resize(ref dungeons, a);
-
-            // Add exit
-            Point p = getRandomPointInRoom(dungeons[ran.Next(0, dungeons.Length)]);
-            tiles[p.X, p.Y] = new Tile(TileType.Down);
-
             return dungeons;
+        }
+
+        void makeRandomDoorAt(Point p, sbyte dir)
+        {
+            /* 1/4  spawning
+             * if
+             * if 1/5
+             *      1/2 locked but kickable
+             *      1/2 open
+             * else
+             *      1/3 not locked not kickable
+             */
+            if (Game.ran.Next(0, 4) != 0)
+            {
+                Door door = new Door(dir > 1 ? true : false);
+                //door.SlamInFaceOf(peter);
+
+                if (Game.ran.Next(0, 5) != 0)
+                {
+                    if (Game.ran.Next(0, 3) == 0)
+                    {
+                        door.Kickable = false;
+                    }
+                }
+                else if (Game.ran.Next(0, 2) == 0)
+                {
+                    door.Locked = true;
+                }
+                else
+                {
+                    door.Open = true;
+                }
+
+                tiles[p.X, p.Y] = door;
+            }
+        }
+
+        void constructCorridor(CorridorConstruct c)
+        {
+            Point increment = getIncrementByDirection(c.direction);
+            for (byte i = 0; i < c.length; i++)
+                tiles[c.origin.X + increment.X * i, c.origin.Y + increment.Y * i] = new Tile(TileType.Corridor);
+            if (c.beginIsDungeon != -1)
+            {
+                makeRandomDoorAt(c.origin, c.beginIsDungeon);
+            }
+            if (c.endIsDungeon != -1)
+            {
+                makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
+            }
+        }
+
+        /// <summary>
+        /// Checks if a room can be build on a path from a corridor
+        /// </summary>
+        bool connectRoomToPath(ref Room r, ref CorridorConstruct construct, Point increment)
+        {
+            Point p = new Point(construct.origin.X + increment.X * construct.length, construct.origin.Y + increment.Y * construct.length);
+
+            for (byte i = 0; i < 8; i++)
+            {
+                Point size = new Point(
+                    Game.ran.Next(r.GenerationSize.where.X, r.GenerationSize.where.Y),
+                    Game.ran.Next(r.GenerationSize.end.X, r.GenerationSize.end.Y)
+                );
+
+                switch (construct.direction)
+                {
+                    default:
+                        int mSize = ran.Next(1, size.X);
+                        r.Construct(
+                            new Point(p.X - mSize, p.Y),
+                            new Point(p.X + size.X - mSize, p.Y + size.Y));
+                        break;
+                    case 1:
+                        mSize = ran.Next(1, size.X);
+                        r.Construct(
+                            new Point(p.X - mSize, p.Y - size.Y),
+                            new Point(p.X + size.X - mSize, p.Y));
+                        break;
+                    case 2:
+                        mSize = ran.Next(1, size.Y);
+                        r.Construct(
+                            new Point(p.X, p.Y - mSize),
+                            new Point(p.X + size.X, p.Y + size.Y - mSize));
+                        break;
+                    case 3:
+                        mSize = ran.Next(1, size.Y);
+                        r.Construct(
+                            new Point(p.X - size.X, p.Y - mSize),
+                            new Point(p.X, p.Y + size.Y - mSize));
+                        break;
+                }
+
+                if (canRoomBeBuild(r))
+                {
+                    construct.endIsDungeon = (sbyte)construct.direction;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if corridor can be build
+        /// </summary>
+        bool canBuildCorridorHere(CorridorConstruct c)
+        {
+            Point increment = getIncrementByDirection(c.direction);
+
+            if (!isInScreen(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length))) return false;
+
+            for (byte i = c.length; i > 1; i--)
+            {
+                if (tiles[c.origin.X + increment.X * i, c.origin.Y + increment.Y * i].tiletype != TileType.None) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if room can be build
+        /// </summary>
+        bool canRoomBeBuild(Room r)
+        {
+            // Check corners and middle
+            if (r.where.X < 0 ||
+                r.end.X >= tiles.GetLength(0) ||
+                r.where.Y < 0 ||
+                r.end.Y >= tiles.GetLength(1) ||
+                tiles[r.where.X, r.where.Y].tiletype != TileType.None ||
+                tiles[r.end.X, r.where.Y].tiletype != TileType.None ||
+                tiles[r.where.X, r.end.Y].tiletype != TileType.None ||
+                tiles[r.end.X, r.end.Y].tiletype != TileType.None ||
+                tiles[r.where.X + (r.end.X - r.where.X) / 2, r.where.Y + (r.end.Y - r.where.Y) / 2].tiletype != TileType.None) return false;
+
+            // Check vertical walls
+            for (int y = r.where.Y + 1; y < r.end.Y; y++)
+            {
+                if (tiles[r.where.X, y].tiletype != TileType.None ||
+                    tiles[r.end.X, y].tiletype != TileType.None) return false;
+            }
+
+            // Check horizontal walls
+            for (int x = r.where.X + 1; x < r.end.X; x++)
+            {
+                if (tiles[x, r.where.Y].tiletype != TileType.None ||
+                    tiles[x, r.end.Y].tiletype != TileType.None) return false;
+            }
+
+            // I am pretty sure there's no dungeon here
+            // Everything needs to be connected, that's why I'm sure even thought not everything is checked.
+            return true;
         }
 
         void setDungeonToEmpty()
@@ -112,14 +240,6 @@ namespace Super_ForeverAloneInThaDungeon
             for (int a = 0; a < tiles.GetLength(0); a++)
                 for (int b = 0; b < tiles.GetLength(1); b++)
                     tiles[a, b] = new Tile(noneTile);
-        }
-
-        bool canRoomBePlaced(Room r)
-        {
-            if (!isInScreen(r.where) || !isInScreen(r.end)) return false;
-            for (int x = r.where.X; x <= r.end.X; x++) for (int y = r.where.Y; y <= r.end.Y; y++)
-                    if (tiles[x, y].tiletype != noneTile) return false;
-            return true;
         }
 
         void spawnPlayerInRoom(Room r, Player p)
@@ -141,153 +261,7 @@ namespace Super_ForeverAloneInThaDungeon
             tiles[playerPos.X, playerPos.Y] = p;
         }
 
-        // *scottisch accent* for moar info, gowto doubleudoubleudoubleudotfunction1dotnlslashpslashsfaitdslashinfoslashSARBdotpng
-        // (http://function1.nl/p/sfaitd/info/SARB.png)
-        Room generateRoom(Point p, Point size, byte dir, bool doorAtP = true, bool placeMatters = true)
-        {
-            Room r;
-
-            // This switch has a point
-            switch (dir)
-            {
-                default:
-                    int mSize = ran.Next(1, size.X);
-                    r = new Room(
-                        new Point(p.X - mSize, p.Y),
-                        new Point(p.X + size.X - mSize, p.Y + size.Y));
-                    break;
-                case 1:
-                    mSize = ran.Next(1, size.X);
-                    r = new Room(
-                        new Point(p.X - mSize, p.Y - size.Y),
-                        new Point(p.X + size.X - mSize, p.Y));
-                    break;
-                case 2:
-                    mSize = ran.Next(1, size.Y);
-                    r = new Room(
-                        new Point(p.X, p.Y - mSize),
-                        new Point(p.X + size.X, p.Y + size.Y - mSize));
-                    break;
-                case 3:
-                    mSize = ran.Next(1, size.Y);
-                    r = new Room(
-                        new Point(p.X - size.X, p.Y - mSize),
-                        new Point(p.X, p.Y + size.Y - mSize));
-                    break;
-            }
-
-            if (placeMatters)
-            {
-                if (canRoomBePlaced(r)) generateRoom(r);
-                else return null;
-            }
-            else generateRoom(r);
-
-            if (doorAtP) tiles[p.X, p.Y] = new Tile(TileType.Corridor);
-
-
-            r.appendName();
-            return r;
-        }
-
-        void generateRoom(Room r)
-        {
-            Point where = r.where;
-            Point end = r.end;
-
-            // horizontal
-            for (int i = where.X; i <= end.X; i++)
-            {
-                tiles[i, where.Y] = new Wall(Constants.xWall);
-                tiles[i, end.Y] = new Wall(Constants.xWall);
-            }
-
-            // vertical
-            for (int i = where.Y; i <= end.Y; i++)
-            {
-                tiles[where.X, i] = new Wall(Constants.yWall);
-                tiles[end.X, i] = new Wall(Constants.yWall);
-            }
-
-            // corners
-            tiles[where.X, where.Y].drawChar = Constants.lupWall;
-            tiles[where.X, end.Y].drawChar = Constants.ldownWall;
-            tiles[end.X, where.Y].drawChar = Constants.rupWall;
-            tiles[end.X, end.Y].drawChar = Constants.rdownWall;
-
-            // you could stuff this in the "corners", but for the sake of readiabilty I didn't.
-            where.X++;
-            where.Y++;
-            end.X--;
-            end.Y--;
-
-
-            // fill in rooms
-            // (needs to be better in future)
-            if (ran.Next(0, 50) == 0)
-            {
-                // treasure room
-                for (int x = where.X; x <= end.X; x++)
-                    for (int y = where.Y; y <= end.Y; y++)
-                    {
-                        if (ran.Next(0, 20) == 0) tiles[x, y] = new Money(ran.Next(1, 7));
-                        else if (ran.Next(0, 33) == 0)
-                        {
-                            switch (ran.Next(0, 5))
-                            {
-                                case 0:
-                                case 1:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateRandomSpellEffects(ran.Next(2, 6)));
-                                    break;
-                                case 2:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleUncommon(ran.Next(1, 5)));
-                                    break;
-                                case 3:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleRare(ran.Next(1, 4)));
-                                    break;
-                                case 4:
-                                    tiles[x, y] = new Scroll(SpellGenerator.GenerateMultipleCommon(ran.Next(3, 8)));
-                                    break;
-                            }
-                        }
-                        else if (ran.Next(0, 500) == 0) tiles[x, y] = new Snake();
-                        else tiles[x, y].setTile(TileType.Air);
-                    }
-            }
-            else if (ran.Next(0, 150) == 0)
-            {
-                // enemy room
-                for (int x = where.X; x <= end.X; x++)
-                    for (int y = where.Y; y <= end.Y; y++)
-                    {
-                        if (ran.Next(0, 200) == 0) tiles[x, y] = new Snake(ran.Next(0, 3));
-                        else if (ran.Next(0, 250) == 0) tiles[x, y] = new Goblin(ran.Next(0, 2));
-                        else tiles[x, y].setTile(TileType.Air);
-                    }
-            }
-            else
-            {
-                // "normal" room
-                for (int x = where.X; x <= end.X; x++)
-                    for (int y = where.Y; y <= end.Y; y++)
-                    {
-                        if (ran.Next(0, 40) == 0) tiles[x, y] = new Money(ran.Next(1, 6));
-                        else if (ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple());
-                        else if (ran.Next(0, 666) == 0) tiles[x, y] = new Grunt();
-                        else if (ran.Next(0, 800) < 3) tiles[x, y] = new Snake();
-                        else if (ran.Next(0, 900) < 2) tiles[x, y] = new Goblin();
-                        else if (ran.Next(0, 1250) == 0) tiles[x, y] = new Chest();
-                        else tiles[x, y].setTile(TileType.Air);
-                    }
-            }
-        }
-
-        Point getRandomPointInRoom(Room r)
-        {
-            return new Point(ran.Next(++r.where.X, r.end.X), ran.Next(++r.where.Y, r.end.Y));
-        }
-
-        byte getOppositeDirection(byte dir)
+        static byte getOppositeDirection(byte dir)
         {
             switch (dir)
             {
@@ -298,7 +272,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        byte[] getPossibleCorridorDirections(byte dir)
+        static byte[] getPossibleCorridorDirections(byte dir)
         {
             switch (dir)
             {
@@ -308,7 +282,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        Point getIncrementByDirection(byte dir)
+        static Point getIncrementByDirection(byte dir)
         {
             switch (dir)
             {
@@ -319,41 +293,9 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        Point[] getCorridorPoints(Point p, byte dir, int howMany)
-        {
-            if (!isInScreen(p)) return null;
-
-            Point d = getIncrementByDirection(dir);
-            Point current = p;
-            Point[] points = new Point[howMany];
-
-            for (int i = 0; i < howMany; i++)
-            {
-                points[i] = current;
-                current.X += d.X;
-                current.Y += d.Y;
-            }
-
-            // Current is now the max, so we can easyally check if everything is right!
-            if (!isInScreen(current)) return null;
-
-            // Skip first one because that one is usually a wall, that needs to be replaced.
-            for (int i = 1; i < howMany; i++)
-                if (tiles[points[i].X, points[i].Y].tiletype != noneTile) return null;
-
-            return points;
-        }
-
-        void generateCorridor(Point[] p, int max, TileType t = TileType.Corridor)
-        {
-            for (int i = 0; i < max; i++)
-                tiles[p[i].X, p[i].Y] = new Tile(t);
-        }
-
         Room getDungeonAt(Point p)
         {
             // not effecient
-            // I wish I had pointers in C#
             for (int i = 0; i < rooms.Length; i++)
                 if (p.X >= rooms[i].where.X && p.X <= rooms[i].end.X && p.Y >= rooms[i].where.Y && p.Y <= rooms[i].end.Y) return rooms[i];
             return null;
@@ -365,7 +307,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <param name="r">Boxs to sitz in</param>
         /// <param name="direction">Favoritez direction to lie down: 0 = up, 1 = down, 2 = left, 3 = right</param>
         /// <returns>How happy catz is!</returns>
-        Point getRandomWallPoint(Room r, byte direction)
+        static Point getRandomWallPoint(Room r, byte direction)
         {
             switch (direction)
             {

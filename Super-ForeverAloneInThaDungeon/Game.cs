@@ -28,6 +28,8 @@ namespace Super_ForeverAloneInThaDungeon
         uint currentFloor = 0;
 
         // Environment
+        MonsterSpawner monsterSpawner;
+        RoomPlanner roomPlanner = new RoomPlanner();
         Room[] rooms;
         Tile[,] tiles; // Ode to the mighty comma!
         ushort[,] scores; // For enemys searching the player
@@ -77,10 +79,14 @@ namespace Super_ForeverAloneInThaDungeon
 
             while (true)
             {
+                currentFloor++;
                 setDungeonToEmpty();
 
+                roomPlanner.Update(currentFloor);
+
                 // tweak this
-                rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
+                //rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
+                rooms = generateDungeons(3);
 
                 spawnPlayerInRoom(rooms[ran.Next(0, rooms.Length)], p);
 
@@ -88,7 +94,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                 if (disableFight) p.walkable = false;
 
-                currentFloor++;
+                
 
                 // Make sure the dungeon starts nice and clean
                 // MAKE EFFECIENTER???
