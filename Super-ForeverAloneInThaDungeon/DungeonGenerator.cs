@@ -5,11 +5,10 @@ namespace Super_ForeverAloneInThaDungeon
     partial class Game
     {
         /// <summary>
-        /// 
+        /// Generates dungeons using the default algorithm
         /// </summary>
-        /// <param name="nRooms"></param>
-        /// <param name="roomDims">Max size of an room. x axis is where, y axis is end</param>
-        /// <returns></returns>
+        /// <param name="nRooms">Number of rooms</param>
+        /// <returns>Array of dungeons</returns>
         Room[] generateDungeons(ushort nRooms)
         {
             Room[] dungeons = new Room[nRooms];
@@ -125,11 +124,11 @@ namespace Super_ForeverAloneInThaDungeon
                 tiles[c.origin.X + increment.X * i, c.origin.Y + increment.Y * i] = new Tile(TileType.Corridor);
             if (c.beginIsDungeon != -1)
             {
-                //makeRandomDoorAt(c.origin, c.beginIsDungeon);
+                makeRandomDoorAt(c.origin, c.beginIsDungeon);
             }
             if (c.endIsDungeon != -1)
             {
-                //makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
+                makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
             }
         }
 
