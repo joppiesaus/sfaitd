@@ -17,8 +17,8 @@ namespace Super_ForeverAloneInThaDungeon
             // Start with one dungeon where the player spawns.
             dungeons[0] = new Room(
                 new Point(
-                    tiles.GetLength(0) / 2 + ran.Next(-15, 16),
-                    tiles.GetLength(1) / 2 + ran.Next(-15, 16)
+                    tiles.GetLength(0) / 2 + ran.Next(-10, 11),
+                    tiles.GetLength(1) / 2 + ran.Next(-10, 11)
                 )
             );
             dungeons[0].AppendName();
@@ -53,13 +53,14 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     // Choose a random point & direction for a path from the corridor to a new room
                     CorridorConstruct pathToRoom = new CorridorConstruct();
-                    pathToRoom.direction = cc.direction > 1 ? (byte)ran.Next(0, 2) : (byte)ran.Next(1, 3);
+                    pathToRoom.direction = cc.direction > 1 ? (byte)ran.Next(0, 2) : (byte)ran.Next(2, 4);
                     pathToRoom.length = (byte)ran.Next(3, 8);
 
                     Point pathToRoomIncrement = getIncrementByDirection(pathToRoom.direction);
+                    Point ccIncrement = getIncrementByDirection(cc.direction);
                     pathToRoom.origin = new Point(
-                        cc.origin.X + ran.Next(1, cc.length) * pathToRoomIncrement.X,
-                        cc.origin.Y + ran.Next(1, cc.length) * pathToRoomIncrement.Y
+                        cc.origin.X + ran.Next(1, cc.length) * ccIncrement.X,
+                        cc.origin.Y + ran.Next(1, cc.length) * ccIncrement.Y
                     );
 
                     if (!canBuildCorridorHere(pathToRoom)) { continue; }
@@ -70,8 +71,8 @@ namespace Super_ForeverAloneInThaDungeon
                     if (connectRoomToPath(ref room, ref pathToRoom, pathToRoomIncrement))
                     {
                         room.Generate(ref tiles);
-                        constructCorridor(pathToRoom);
-                        constructCorridor(cc);
+                        constructCorridor(pathToRoom, pathToRoomIncrement);
+                        constructCorridor(cc, ccIncrement);
 
                         room.AppendName();
                         dungeons[currentRoom++] = room;
@@ -118,18 +119,17 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        void constructCorridor(CorridorConstruct c)
+        void constructCorridor(CorridorConstruct c, Point increment)
         {
-            Point increment = getIncrementByDirection(c.direction);
             for (byte i = 0; i < c.length; i++)
                 tiles[c.origin.X + increment.X * i, c.origin.Y + increment.Y * i] = new Tile(TileType.Corridor);
             if (c.beginIsDungeon != -1)
             {
-                makeRandomDoorAt(c.origin, c.beginIsDungeon);
+                //makeRandomDoorAt(c.origin, c.beginIsDungeon);
             }
             if (c.endIsDungeon != -1)
             {
-                makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
+                //makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
             }
         }
 
@@ -138,7 +138,10 @@ namespace Super_ForeverAloneInThaDungeon
         /// </summary>
         bool connectRoomToPath(ref Room r, ref CorridorConstruct construct, Point increment)
         {
-            Point p = new Point(construct.origin.X + increment.X * construct.length, construct.origin.Y + increment.Y * construct.length);
+            Point p = new Point(
+                construct.origin.X + increment.X * (construct.length - 1),
+                construct.origin.Y + increment.Y * (construct.length - 1)
+            );
 
             for (byte i = 0; i < 8; i++)
             {
@@ -147,33 +150,7 @@ namespace Super_ForeverAloneInThaDungeon
                     Game.ran.Next(r.GenerationSize.end.X, r.GenerationSize.end.Y)
                 );
 
-                switch (construct.direction)
-                {
-                    default:
-                        int mSize = ran.Next(1, size.X);
-                        r.Construct(
-                            new Point(p.X - mSize, p.Y),
-                            new Point(p.X + size.X - mSize, p.Y + size.Y));
-                        break;
-                    case 1:
-                        mSize = ran.Next(1, size.X);
-                        r.Construct(
-                            new Point(p.X - mSize, p.Y - size.Y),
-                            new Point(p.X + size.X - mSize, p.Y));
-                        break;
-                    case 2:
-                        mSize = ran.Next(1, size.Y);
-                        r.Construct(
-                            new Point(p.X, p.Y - mSize),
-                            new Point(p.X + size.X, p.Y + size.Y - mSize));
-                        break;
-                    case 3:
-                        mSize = ran.Next(1, size.Y);
-                        r.Construct(
-                            new Point(p.X - size.X, p.Y - mSize),
-                            new Point(p.X, p.Y + size.Y - mSize));
-                        break;
-                }
+                r.ConnectToCorridorConstruct(p, size, construct.direction);
 
                 if (canRoomBeBuild(r))
                 {

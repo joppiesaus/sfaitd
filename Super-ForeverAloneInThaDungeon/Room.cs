@@ -26,11 +26,10 @@ namespace Super_ForeverAloneInThaDungeon
         /// </summary>
         public Room(Point pos)
         {
-            this.where = pos;
-            this.end = new Point(
-                pos.X + Game.ran.Next(GenerationSize.where.X, GenerationSize.where.Y),
-                pos.Y + Game.ran.Next(GenerationSize.end.X, GenerationSize.end.Y)
-            );
+            int width = Game.ran.Next(GenerationSize.where.X, GenerationSize.where.Y);
+            int height = Game.ran.Next(GenerationSize.end.X, GenerationSize.end.Y);
+            this.where = new Point(pos.X - width / 2, pos.Y - height / 2);
+            this.end = new Point(pos.X + width / 2, pos.Y + height / 2);
         }
 
         /// <summary>
@@ -138,6 +137,37 @@ namespace Super_ForeverAloneInThaDungeon
                     else if (Game.ran.Next(0, 800) < 3) tiles[x, y] = new Snake();
                     else if (Game.ran.Next(0, 900) < 2) tiles[x, y] = new Goblin();
                     else if (Game.ran.Next(0, 1250) == 0) tiles[x, y] = new Chest();
+                }
+        }
+
+        public void ConnectToCorridorConstruct(Point p, Point size, byte direction)
+        {
+            switch (direction)
+                {
+                    default: // down
+                        int offset = Game.ran.Next(1, size.X);
+                        Construct(
+                            new Point(p.X - offset, p.Y),
+                            new Point(p.X + size.X - offset, p.Y + size.Y));
+                        break;
+                    case 0: // up
+                        offset = Game.ran.Next(1, size.X);
+                        Construct(
+                            new Point(p.X - offset, p.Y - size.Y),
+                            new Point(p.X + size.X - offset, p.Y));
+                        break;
+                    case 3: // right
+                        offset = Game.ran.Next(1, size.Y);
+                        Construct(
+                            new Point(p.X, p.Y - offset),
+                            new Point(p.X + size.X, p.Y + size.Y - offset));
+                        break;
+                    case 2: // left
+                        offset = Game.ran.Next(1, size.Y);
+                        Construct(
+                            new Point(p.X - size.X, p.Y - offset),
+                            new Point(p.X, p.Y + size.Y - offset));
+                        break;
                 }
         }
 
