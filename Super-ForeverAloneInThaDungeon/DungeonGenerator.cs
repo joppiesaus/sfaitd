@@ -128,7 +128,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
             if (c.endIsDungeon != -1)
             {
-                makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
+                makeRandomDoorAt(new Point(c.origin.X + increment.X * (c.length - 1), c.origin.Y + increment.Y * (c.length - 1)), c.endIsDungeon);
             }
         }
 
