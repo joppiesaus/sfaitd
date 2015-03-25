@@ -2,7 +2,8 @@
 
 namespace Super_ForeverAloneInThaDungeon
 {
-    class MonsterSpawner
+    class CreatureSpawner
     {
+
     }
 }

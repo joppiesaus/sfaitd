@@ -52,6 +52,17 @@ namespace Super_ForeverAloneInThaDungeon
         // Likelyness of getting hit in a form of a penalty
         public short? hitPenalty = null; // 1000 = max, 0 = min
 
+
+        public virtual Throwable RangedWeapon
+        {
+            get { return null; }
+        }
+        public virtual Weapon MeleeWeapon
+        {
+            get { return null; }
+        }
+
+
         public Creature()
         {
             walkable = true;

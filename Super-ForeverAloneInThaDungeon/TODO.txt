@@ -1,4 +1,6 @@
 ﻿next:
+* fix weird movement creatures
+
 * chest stuff
 * level with monster spawner and room planner stuffz
 
@@ -7,12 +9,9 @@
 * Multiple types of rooms!
 * ballance stupid effects
 * add different effects to scroll too!
-* HOW DO I HANDLE ALL THESE DIFFERENT SPELLLSSS
-* test and implement doors
 * enhance the level generator, with different levels and stuff!
 * Weapon enchantments
 * Creatures should have weapons too
-* fix spears and other stuff
 * Effects(fire, strength...) that last a few moves	(update methods too)
 * method that handles interaction (like chests) between things?
 * Fix issue #1
@@ -84,3 +83,5 @@ DONE:
 * FIX THE STUPID STUPID SILLY STUPID MERGE AND COMPRESS BUG
 * FIX THAT SELECTION STUFF
 * fix wrong actions when merging two scrolls
+* fix spears
+* test and implement doors

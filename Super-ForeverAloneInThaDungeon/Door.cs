@@ -114,13 +114,21 @@ namespace Super_ForeverAloneInThaDungeon
             if (Kickable)
             {
                 // 1/4 it won't go open even if it's possible,
-                // 1/2 it opens(so it's closable)
+                // 1/2 if
+                //     2/3 it opens(so it's closable)
                 // 1/4 it breaks
                 switch (Game.ran.Next(0, 4))
                 {
                     case 0:
-                        Game.Message("The door broke into pieces.");
-                        this.destroyed = true;
+                        if (Game.ran.Next(0, 3) == 0)
+                        {
+                            Game.Message("The door broke into pieces!");
+                            this.destroyed = true;
+                        }
+                        else
+                        {
+                            Game.Message("WHAAAM");
+                        }
                         return;
                     case 1:
                     case 2:
@@ -159,7 +167,7 @@ namespace Super_ForeverAloneInThaDungeon
                 else
                 {
                     this.Toggle();
-                    Game.Message("You opened the door.");
+                    Game.Message("You opened the door");
                     return true;
                 }
             }

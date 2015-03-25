@@ -28,8 +28,6 @@ namespace Super_ForeverAloneInThaDungeon
         uint currentFloor = 0;
 
         // Environment
-        MonsterSpawner monsterSpawner;
-        RoomPlanner roomPlanner = new RoomPlanner();
         Room[] rooms;
         Tile[,] tiles; // Ode to the mighty comma!
         ushort[,] scores; // For enemys searching the player
@@ -142,10 +140,11 @@ namespace Super_ForeverAloneInThaDungeon
                         default:
                             if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
                             {
-                                state = State.Throwing;
-                                continue;
+                                attackRanged(askDirection(), ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon, playerPos);
+                                //state = State.Throwing;
+                                //continue;
                             }
-                            doNotCallDraw = true;
+                            //doNotCallDraw = true;
                             break;
                     }
 
@@ -442,6 +441,24 @@ namespace Super_ForeverAloneInThaDungeon
             }
 
             Message("I don't see any creature there!");*/
+        }
+
+
+        void attackRanged(Point direction, Throwable t, Point origin)
+        {
+            Point curPoint = origin;
+            for (byte i = 0; i < t.range; i++)
+            {
+                curPoint.X += direction.X;
+                curPoint.Y += direction.Y;
+
+                if (isInScreen(curPoint) && tiles[curPoint.X, curPoint.Y] is WorldObject)
+                {
+                    ((Creature)tiles[origin.X, origin.Y]).Attack(ref tiles[curPoint.X, curPoint.Y], AttackMode.Ranged);
+                    return;
+                }
+            }
+            Message("Nothing to target!");
         }
 
         void generateScoreGrid(Point p)

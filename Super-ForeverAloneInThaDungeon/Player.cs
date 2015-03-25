@@ -8,15 +8,15 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryItem[] inventory = new InventoryItem[Constants.invCapacity];
 
-        public WeaponItem rWeaponItem;//= Constants.spear;
+        public WeaponItem rWeaponItem = Constants.spear;
         public WeaponItem mWeaponItem;// = Constants.dagger;
 
         // "holding" weapons
-        public Throwable RangedWeapon
+        public override Throwable RangedWeapon
         {
             get { return rWeaponItem == null ? null : (Throwable)rWeaponItem.weapon; }
         }
-        public Weapon MeleeWeapon
+        public override Weapon MeleeWeapon
         {
             get { return mWeaponItem == null ? null : mWeaponItem.weapon; }
         }
