@@ -80,6 +80,11 @@ namespace Super_ForeverAloneInThaDungeon
                 }
             }
 
+            for (ushort i = 0; i < nRooms; i++)
+            {
+                dungeons[i].Sprinkle(ref tiles, null, currentFloor);
+            }
+
             return dungeons;
         }
 
@@ -111,7 +116,7 @@ namespace Super_ForeverAloneInThaDungeon
                 }
                 else
                 {
-                    door.Open = true;
+                    door.Toggle();
                 }
 
                 tiles[p.X, p.Y] = door;

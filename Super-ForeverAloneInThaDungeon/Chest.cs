@@ -16,10 +16,23 @@ namespace Super_ForeverAloneInThaDungeon
             this.contents = cont == null ? GenerateRandomLoot(Game.ran.Next(Game.ran.Next(0, 2), 4)) : cont;
         }
 
+        protected override Tile GenerateDrop()
+        {
+            return contents.Length > 0 ? new ItemPickupable(contents[Game.ran.Next(0, contents.Length)]) : new Tile(TileType.Air);
+        }
+
         public override void Kick()
         {
-            // TODO: Implement
-            // It should have a 1/3rd chance to break and drop an random pickubable item on the ground
+            // 1/3 chance to break and drop an random pickubable item on the ground
+            if (Game.ran.Next(0, 3) == 0)
+            {
+                Game.Message("You kicked " + this.InlineName + ", it breaks!");
+                destroyed = true;
+            }
+            else
+            {
+                Game.Message("You kicked " + this.InlineName);
+            }
         }
 
         public static InventoryItem[] GenerateRandomLoot(int n)

@@ -18,6 +18,28 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
+    class ItemPickupable : Pickupable
+    {
+        public InventoryItem item;
+
+        public ItemPickupable()
+        {
+            this.drawChar = Constants.chars[8];
+            this.replaceTile = TileType.Air;
+        }
+        public ItemPickupable(InventoryItem _item)
+        {
+            this.drawChar = Constants.chars[8];
+            this.replaceTile = TileType.Air;
+            this.item = _item;
+        }
+
+        public override InventoryItem GenerateInvItem()
+        {
+            return item;
+        }
+    }
+
     class Money : Pickupable
     {
         public short money;
