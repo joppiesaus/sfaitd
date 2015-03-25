@@ -123,6 +123,7 @@ namespace Super_ForeverAloneInThaDungeon
                         case ConsoleKey.OemPeriod: ReadCommand(); doNotCallDraw = true; break;
                         case ConsoleKey.Escape: Environment.Exit(0); break;
                         case ConsoleKey.R: return;
+                        case ConsoleKey.K: tryKick(); break;
                         case ConsoleKey.LeftArrow: toAdd.X--; break;
                         case ConsoleKey.RightArrow: toAdd.X++; break;
                         case ConsoleKey.UpArrow: toAdd.Y--; break;
@@ -233,6 +234,14 @@ namespace Super_ForeverAloneInThaDungeon
                                     }
 
                                     c.contents = items;
+                                }
+                            }
+                            else if (preCopy.tiletype == TileType.Door)
+                            {
+                                Door door = (Door)preCopy;
+                                if (!door.Open)
+                                {
+                                    abort = !((Door)preCopy).TryOpen();
                                 }
                             }
                             else if (preCopy.tiletype == TileType.Down) return;
@@ -669,6 +678,38 @@ namespace Super_ForeverAloneInThaDungeon
         string getDefaultMessage()
         {
             return playerPos.ToString();
+        }
+        #endregion
+
+        #region player thinggies
+        Point askDirection()
+        {
+            Message("Which direction?");
+            drawInfoBar();
+            Point p = Constants.GetDirectionByKey(Console.ReadKey().Key);
+            if (p.Same(0, 0))
+            {
+                Message("Never mind.");
+                drawInfoBar();
+            }
+            return p;
+        }
+
+        void tryKick()
+        {
+            Point dir = askDirection();
+            if (!dir.Same(0, 0))
+            {
+                Tile t = tiles[playerPos.X + dir.X, playerPos.Y + dir.Y];
+                if (t is WorldObject)
+                {
+                    ((WorldObject)t).Kick();
+                }
+                else
+                {
+                    Message("Nothing to kick there");
+                }
+            }
         }
         #endregion
 

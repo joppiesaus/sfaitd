@@ -16,6 +16,11 @@ namespace Super_ForeverAloneInThaDungeon
             this.contents = cont == null ? GenerateRandomLoot(Game.ran.Next(Game.ran.Next(0, 2), 4)) : cont;
         }
 
+        public override void Kick()
+        {
+            // TODO: Implement
+            // It should have a 1/3rd chance to break and drop an random pickubable item on the ground
+        }
 
         public static InventoryItem[] GenerateRandomLoot(int n)
         {

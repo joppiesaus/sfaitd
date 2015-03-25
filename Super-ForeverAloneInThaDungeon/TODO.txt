@@ -1,4 +1,8 @@
 ﻿next:
+* chest stuff
+* level with monster spawner and room planner stuffz
+
+
 * rewrite room and creature generation stuff
 * Multiple types of rooms!
 * ballance stupid effects

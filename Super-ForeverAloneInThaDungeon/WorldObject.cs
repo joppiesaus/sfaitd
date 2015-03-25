@@ -80,6 +80,14 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
+        /// Kick this object. Player-only.
+        /// </summary>
+        public virtual void Kick()
+        {
+            Game.Message("You kicked " + InlineName + ", but no effect.");
+        }
+
+        /// <summary>
         /// Sets this object on fire
         /// 0 = not/already burning
         /// 1 = burning

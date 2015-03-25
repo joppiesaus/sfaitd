@@ -17,6 +17,10 @@ namespace Super_ForeverAloneInThaDungeon
         {
             Game.Message(string.Format("{0} got killed by {1}!", to.InlineName, by).CapitalizeFirstLetter()); 
         }
+        public static void RegisterPlayerKillBy(WorldObject to, string what)
+        {
+            Game.Message(string.Format("You " + what, to.InlineName));
+        }
 
         public static void RegisterFire(string from, WorldObject to)
         {

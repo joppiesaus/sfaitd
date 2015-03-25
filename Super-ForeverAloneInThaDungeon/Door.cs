@@ -103,7 +103,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Player-only
         /// </summary>
-        public void Kick()
+        public override void Kick()
         {
             if (Open)
             {
@@ -140,7 +140,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Try to open the door. Player-only.
         /// </summary>
-        public void TryOpen()
+        public bool TryOpen()
         {
             if (Locked)
             {
@@ -160,8 +160,10 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     this.Toggle();
                     Game.Message("You opened the door.");
+                    return true;
                 }
             }
+            return false;
         }
 
         /// <summary>
@@ -170,9 +172,10 @@ namespace Super_ForeverAloneInThaDungeon
         public void Toggle()
         {
             Locked = false;
-            Open.Invert();
-            Orientation.Invert();
-            drawChar = notLightenChar = Orientation ? Constants.xWall : Constants.yWall;
+            Open ^= true; // invert open/close. Can't call toggle.
+            Orientation ^= true;
+            drawChar = notLightenChar = Orientation ? Constants.xDoor : Constants.yDoor;
+            needsToBeDrawn = true;
         }
 
         /// <summary>
@@ -181,7 +184,7 @@ namespace Super_ForeverAloneInThaDungeon
         protected override Tile GenerateDrop()
         {
             Tile t = new Tile(TileType.Air);
-            t.drawChar = notLightenChar = Constants.chars[7];
+            t.drawChar = t.notLightenChar = Constants.chars[7];
             t.color = ConsoleColor.DarkYellow;
             return t;
         }

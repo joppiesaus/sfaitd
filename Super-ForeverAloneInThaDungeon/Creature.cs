@@ -72,6 +72,18 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+        public override void Kick()
+        {
+            if (DoDirectDamage(1))
+            {
+                EventRegister.RegisterPlayerKillBy(this, "kicked {0} to death!");
+            }
+            else
+            {
+                Game.Message("You kicked " + this.InlineName + '.');
+            }
+        }
+
         /// <summary>
         /// Attacks this creature
         /// </summary>

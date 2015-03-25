@@ -58,8 +58,8 @@ namespace Super_ForeverAloneInThaDungeon
                     Point pathToRoomIncrement = getIncrementByDirection(pathToRoom.direction);
                     Point ccIncrement = getIncrementByDirection(cc.direction);
                     pathToRoom.origin = new Point(
-                        cc.origin.X + ran.Next(1, cc.length) * ccIncrement.X,
-                        cc.origin.Y + ran.Next(1, cc.length) * ccIncrement.Y
+                        cc.origin.X + ran.Next(1, cc.length + 1) * ccIncrement.X,
+                        cc.origin.Y + ran.Next(1, cc.length + 1) * ccIncrement.Y
                     );
 
                     if (!canBuildCorridorHere(pathToRoom)) { continue; }
@@ -85,7 +85,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         void makeRandomDoorAt(Point p, sbyte dir)
         {
-            /* 1/4  spawning
+            /* 2/3  spawning
              * if
              * if 1/5
              *      1/2 locked but kickable
@@ -93,7 +93,7 @@ namespace Super_ForeverAloneInThaDungeon
              * else
              *      1/3 not locked not kickable
              */
-            if (Game.ran.Next(0, 4) != 0)
+            if (Game.ran.Next(0, 3) != 0)
             {
                 Door door = new Door(dir > 1 ? true : false);
                 //door.SlamInFaceOf(peter);
@@ -120,7 +120,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         void constructCorridor(CorridorConstruct c, Point increment)
         {
-            for (byte i = 0; i < c.length; i++)
+            for (byte i = 0; i <= c.length; i++)
                 tiles[c.origin.X + increment.X * i, c.origin.Y + increment.Y * i] = new Tile(TileType.Corridor);
             if (c.beginIsDungeon != -1)
             {
@@ -128,7 +128,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
             if (c.endIsDungeon != -1)
             {
-                makeRandomDoorAt(new Point(c.origin.X + increment.X * (c.length - 1), c.origin.Y + increment.Y * (c.length - 1)), c.endIsDungeon);
+                makeRandomDoorAt(new Point(c.origin.X + increment.X * c.length, c.origin.Y + increment.Y * c.length), c.endIsDungeon);
             }
         }
 
@@ -138,8 +138,8 @@ namespace Super_ForeverAloneInThaDungeon
         bool connectRoomToPath(ref Room r, ref CorridorConstruct construct, Point increment)
         {
             Point p = new Point(
-                construct.origin.X + increment.X * (construct.length - 1),
-                construct.origin.Y + increment.Y * (construct.length - 1)
+                construct.origin.X + increment.X * construct.length,
+                construct.origin.Y + increment.Y * construct.length
             );
 
             for (byte i = 0; i < 8; i++)

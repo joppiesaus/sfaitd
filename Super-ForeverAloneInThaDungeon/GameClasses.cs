@@ -4,8 +4,8 @@ namespace Super_ForeverAloneInThaDungeon
 {
     class CorridorConstruct
     {
-        public Point origin;
-        public byte length, direction;
+        public Point origin; // where it should start
+        public byte length, direction; // length is actually length - 1, for calculation reasons.
         public sbyte beginIsDungeon = -1, endIsDungeon = -1; // Directions relative to the dungeon wall(0 for up of the room). -1 for nothing.
     }
 
