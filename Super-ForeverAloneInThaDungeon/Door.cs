@@ -94,7 +94,8 @@ namespace Super_ForeverAloneInThaDungeon
         {
             this.Orientation = x;
 
-            this.walkable = true;
+            this.walkable = false;
+            this.transparent = false;
             this.color = ConsoleColor.DarkYellow;
             this.notLightenChar = this.drawChar = x ? Constants.xDoor : Constants.yDoor;
             this.tiletype = TileType.Door;
@@ -183,6 +184,8 @@ namespace Super_ForeverAloneInThaDungeon
             Open ^= true; // invert open/close. Can't call toggle.
             Orientation ^= true;
             drawChar = notLightenChar = Orientation ? Constants.xDoor : Constants.yDoor;
+            walkable.Invert();
+            transparent = walkable;
             needsToBeDrawn = true;
         }
 

@@ -7,6 +7,7 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public bool destroyed = false;
         public bool attackable = false;
+        public bool transparent = true;
 
         // Name in the form of "the Snake attacked you"
         public virtual string InlineName
