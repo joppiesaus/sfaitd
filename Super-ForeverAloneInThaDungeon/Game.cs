@@ -378,7 +378,7 @@ namespace Super_ForeverAloneInThaDungeon
                             {
                                 ((Creature)tiles[x, y]).Attack(ref tiles[playerPos.X, playerPos.Y]);
                             }
-                            else if (!(tiles[p.X, p.Y] is Creature))
+                            else //if (!(tiles[p.X, p.Y] is Creature)) // 
                             {
                                 Tile preCopy = tiles[p.X, p.Y]; // target tile
 
