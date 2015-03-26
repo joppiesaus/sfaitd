@@ -4,6 +4,7 @@
 * chest stuff
 * level with monster spawner and room planner stuffz
 
+* find an effecienter way to handle chances
 
 * rewrite room and creature generation stuff
 * Multiple types of rooms!

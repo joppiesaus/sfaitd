@@ -28,6 +28,7 @@ namespace Super_ForeverAloneInThaDungeon
         uint currentFloor = 0;
 
         // Environment
+        LevelPlanner level;
         Room[] rooms;
         Tile[,] tiles; // Ode to the mighty comma!
         ushort[,] scores; // For enemys searching the player

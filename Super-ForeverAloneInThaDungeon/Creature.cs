@@ -65,7 +65,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public Creature()
         {
-            walkable = true;
+            walkable = false;
             attackable = true;
         }
 

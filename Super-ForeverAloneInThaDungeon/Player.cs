@@ -53,6 +53,7 @@ namespace Super_ForeverAloneInThaDungeon
             drawChar = '☺';
             color = ConsoleColor.Magenta;
             damage = new Point(3, 0); // x is the strength
+            walkable = true;
 
             hitLikelyness = 400;
 
