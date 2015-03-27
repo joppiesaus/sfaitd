@@ -31,7 +31,10 @@ namespace Super_ForeverAloneInThaDungeon.Levels
 
     class CreatureSpawner
     {
+        // Format: x/t. Every "empty" tile will have an chance P of spawning target creature.
         public ICreatureEntry[] initialEntries;
+
+        // Format: x/t. A room is selected, your creature will have a P chance of spawning in the room. Otherwise, other creature.
         public ICreatureEntry[] spawnEntries;
 
         public ushort spawnRate = 10;

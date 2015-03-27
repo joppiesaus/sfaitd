@@ -133,9 +133,9 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     if (Game.ran.Next(0, 40) == 0) tiles[x, y] = new Money(Game.ran.Next(1, 6));
                     else if (Game.ran.Next(0, 909) == 0) tiles[x, y] = new Scroll(SpellGenerator.GenerateMultiple());
-                    else if (Game.ran.Next(0, 666) == 0) tiles[x, y] = new Grunt();
-                    else if (Game.ran.Next(0, 800) < 3) tiles[x, y] = new Snake();
-                    else if (Game.ran.Next(0, 900) < 2) tiles[x, y] = new Goblin();
+                    //else if (Game.ran.Next(0, 666) == 0) tiles[x, y] = new Grunt();
+                    //else if (Game.ran.Next(0, 800) < 3) tiles[x, y] = new Snake();
+                    //else if (Game.ran.Next(0, 900) < 2) tiles[x, y] = new Goblin();
                     else if (Game.ran.Next(0, 1250) == 0) tiles[x, y] = new Chest();
                 }
         }
@@ -171,6 +171,9 @@ namespace Super_ForeverAloneInThaDungeon
                 }
         }
 
+        /// <summary>
+        /// Gets a random point in this room
+        /// </summary>
         public Point GetRandomPointInRoom()
         {
             return new Point(
@@ -179,14 +182,17 @@ namespace Super_ForeverAloneInThaDungeon
             );
         }
 
-
-        public Room Clone()
+        /// <summary>
+        /// Attemps to spawn special creatures in this room on every CreatureSpawner.Update check
+        /// </summary>
+        /// <returns>If something spawned</returns>
+        public virtual bool SpawnRoomCreature()
         {
-            return (Room)this.MemberwiseClone();
+            return false;
         }
     }
 
-    class TreasureRoom : Room
+    class RoomTreasureRoom : Room
     {
         public override void Sprinkle(ref Tile[,] tiles, Player p, uint floor)
         {

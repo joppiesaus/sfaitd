@@ -184,7 +184,7 @@ namespace Super_ForeverAloneInThaDungeon
             Open ^= true; // invert open/close. Can't call toggle.
             Orientation ^= true;
             drawChar = notLightenChar = Orientation ? Constants.xDoor : Constants.yDoor;
-            walkable.Invert();
+            walkable ^= true;
             transparent = walkable;
             needsToBeDrawn = true;
         }

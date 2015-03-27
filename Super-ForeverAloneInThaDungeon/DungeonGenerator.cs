@@ -64,7 +64,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                     if (!canBuildCorridorHere(pathToRoom)) { continue; }
 
-                    Room room = roomPlanner.GetRoom();
+                    Room room = level.roomPlanner.GetRoom();
 
                     // If room can be build, build corridor, room, and path.
                     if (connectRoomToPath(ref room, ref pathToRoom, pathToRoomIncrement))

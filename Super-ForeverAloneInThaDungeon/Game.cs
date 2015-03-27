@@ -28,7 +28,7 @@ namespace Super_ForeverAloneInThaDungeon
         uint currentFloor = 0;
 
         // Environment
-        LevelPlanner level;
+        LevelPlanner level = new LevelPlanner();
         Room[] rooms;
         Tile[,] tiles; // Ode to the mighty comma!
         ushort[,] scores; // For enemys searching the player
@@ -81,7 +81,7 @@ namespace Super_ForeverAloneInThaDungeon
                 currentFloor++;
                 setDungeonToEmpty();
 
-                roomPlanner.Update(currentFloor);
+                level.UpdateSystems(currentFloor);
 
                 // tweak this
                 //rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
@@ -142,10 +142,7 @@ namespace Super_ForeverAloneInThaDungeon
                             if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
                             {
                                 attackRanged(askDirection(), ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon, playerPos);
-                                //state = State.Throwing;
-                                //continue;
                             }
-                            //doNotCallDraw = true;
                             break;
                     }
 
@@ -314,27 +311,6 @@ namespace Super_ForeverAloneInThaDungeon
                         }
                 }
                 #endregion
-                #region Throwing state
-                else if (state == State.Throwing)
-                {
-                    Message("Which direction?");
-                    draw();
-                    Player p = (Player)tiles[playerPos.X, playerPos.Y];
-                    Throwable t = p.RangedWeapon;
-
-                    switch (Console.ReadKey().Key)
-                    {
-                        // Think backwards here: If you need to go UP in an ARRAY, what do you need to do?
-                        case ConsoleKey.UpArrow: handleThrowable(0, -1, p.RangedWeapon, ref p); break;
-                        case ConsoleKey.DownArrow: handleThrowable(0, 1, p.RangedWeapon, ref p); break;
-                        case ConsoleKey.LeftArrow: handleThrowable(-1, 0, p.RangedWeapon, ref p); break;
-                        case ConsoleKey.RightArrow: handleThrowable(1, 0, p.RangedWeapon, ref p); break;
-                    }
-
-                    draw();
-                    state = State.Default;
-                }
-                #endregion
             }
         }
 
@@ -378,7 +354,7 @@ namespace Super_ForeverAloneInThaDungeon
                             {
                                 ((Creature)tiles[x, y]).Attack(ref tiles[playerPos.X, playerPos.Y]);
                             }
-                            else //if (!(tiles[p.X, p.Y] is Creature)) // 
+                            else //if (!(tiles[p.X, p.Y] is Creature)) // for 
                             {
                                 Tile preCopy = tiles[p.X, p.Y]; // target tile
 
@@ -413,35 +389,6 @@ namespace Super_ForeverAloneInThaDungeon
             {
                 gameOver();
             }
-        }
-
-        // TODO: Make accesable for enemys too
-        // TODO: Rewrite
-        void handleThrowable(sbyte x, sbyte y, Throwable t, ref Player p)
-        {
-            /*Point curPoint = playerPos;
-            for (byte i = 0; i < t.range; i++) // Just saved you 24 bit of RAM!
-            {
-                curPoint.X += x;
-                curPoint.Y += y;
-
-                if (isInScreen(curPoint)) if (tiles[curPoint.X, curPoint.Y] is Creature)
-                    {
-                        int dmg = ran.Next(t.damage.X, t.damage.Y + 1);
-
-                        //message = string.Format("{0} {1} with the Spear", Constants.getPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype);
-                        Message(string.Format("{0} {1} with the {2}", Constants.GetPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
-
-                        Creature c = (Creature)tiles[curPoint.X, curPoint.Y];
-                        if (c.DoDirectDamage(dmg, ref tiles[curPoint.X, curPoint.Y]))
-                            onDead(ref p, c);
-
-                        processMonsters();
-                        return;
-                    }
-            }
-
-            Message("I don't see any creature there!");*/
         }
 
 
