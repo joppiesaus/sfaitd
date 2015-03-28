@@ -34,7 +34,7 @@ namespace Super_ForeverAloneInThaDungeon.Levels
         // Format: x/t. Every "empty" tile will have an chance P of spawning target creature.
         public ICreatureEntry[] initialEntries;
 
-        // Format: x/t. A room is selected, your creature will have a P chance of spawning in the room. Otherwise, other creature.
+        // Format: x/t. A room is selected, your creature will have a P chance of spawning in the room.
         public ICreatureEntry[] spawnEntries;
 
         public ushort spawnRate = 10;
@@ -59,12 +59,34 @@ namespace Super_ForeverAloneInThaDungeon.Levels
                                 }
         }
 
-        public void Update(ref Tile[,] tiles)
+        public void Update(Room[] rooms, ref Tile[,] tiles)
         {
             if (++currentRate >= spawnRate)
             {
-
                 currentRate = 0;
+
+                Room room = rooms[Game.ran.Next(0, rooms.Length)];
+                Creature c = room.SpawnRoomCreature();
+                
+                if (c == null)
+                {
+                    for (int i = 0; i < spawnEntries.Length; i++)
+                    {
+                        if (Game.ran.Next(0, spawnEntries[i].Chance.Y) <= spawnEntries[i].Chance.X)
+                        {
+                            c = spawnEntries[i].CreatureToSpawn();
+                            break;
+                        }
+                    }
+
+                    if (c == null) return;
+                }
+
+                Point p = room.GetRandomValidPointInRoom(tiles);
+
+                Tile t = tiles[p.X, p.Y];
+                c.lastTile = t;
+                tiles[p.X, p.Y] = c;
             }
         }
     }

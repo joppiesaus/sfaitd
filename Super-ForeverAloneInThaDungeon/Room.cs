@@ -183,12 +183,31 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
+        /// Gets a valid walkable tile position in room
+        /// </summary>
+        public Point GetRandomValidPointInRoom(Tile[,] tiles)
+        {
+            Point p;
+
+            do
+            {
+                p = new Point(
+                    Game.ran.Next(where.X + 1, end.X),
+                    Game.ran.Next(where.Y + 1, end.Y)
+                );
+            }
+            while (tiles[p.X, p.Y].walkable);
+
+            return p;
+        }
+
+        /// <summary>
         /// Attemps to spawn special creatures in this room on every CreatureSpawner.Update check
         /// </summary>
         /// <returns>If something spawned</returns>
-        public virtual bool SpawnRoomCreature()
+        public virtual Creature SpawnRoomCreature()
         {
-            return false;
+            return null;
         }
     }
 
