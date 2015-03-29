@@ -196,15 +196,15 @@ namespace Super_ForeverAloneInThaDungeon
                     Game.ran.Next(where.Y + 1, end.Y)
                 );
             }
-            while (tiles[p.X, p.Y].walkable);
+            while (!tiles[p.X, p.Y].walkable);
 
             return p;
         }
 
         /// <summary>
-        /// Attemps to spawn special creatures in this room on every CreatureSpawner.Update check
+        /// Tries to spawn a creature.
         /// </summary>
-        /// <returns>If something spawned</returns>
+        /// <returns>A creature that needs to be spawned, otherwise null</returns>
         public virtual Creature SpawnRoomCreature()
         {
             return null;

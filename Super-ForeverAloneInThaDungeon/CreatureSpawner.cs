@@ -9,23 +9,29 @@ namespace Super_ForeverAloneInThaDungeon.Levels
         Creature CreatureToSpawn();
     }
 
-    class CreatureEntry<T> : ICreatureEntry where T : Creature, new()
+    class CreatureEntry<T> : ICreatureEntry where T : Creature
     {
+        int lvl = 0;
         Point chance;
         public Point Chance { get { return chance; } } // 0 is a chance too!
 
-        public CreatureEntry(Point _chance)
+        public CreatureEntry(Point _chance, int level = 0)
         {
             this.chance = _chance;
+            this.lvl = level;
         }
-        public CreatureEntry(int chance, int outof)
+        public CreatureEntry(int chance, int outof, int level = 0)
         {
             this.chance = new Point(chance, outof);
+            this.lvl = level;
         }
 
         public Creature CreatureToSpawn()
         {
-            return new T();
+            return (T)Activator.CreateInstance(typeof(T), new object[] { lvl });
+            //                  ^ I don't like this method.
+            //                    I just want to do new T(lvl);
+            //                    Gawd how do I solve this problem? Delegates suck.
         }
     }
 
@@ -37,7 +43,7 @@ namespace Super_ForeverAloneInThaDungeon.Levels
         // Format: x/t. A room is selected, your creature will have a P chance of spawning in the room.
         public ICreatureEntry[] spawnEntries;
 
-        public ushort spawnRate = 10;
+        public ushort spawnRate = 20;
         ushort currentRate = 0;
 
         public void SprinkleSpawn(Room[] rooms, ref Tile[,] tiles)
@@ -45,8 +51,8 @@ namespace Super_ForeverAloneInThaDungeon.Levels
             // Do you even nest bro
             // (oh man sooo ineffecieentt)
             for (int i = 0; i < rooms.Length; i++)
-                for (int x = rooms[i].where.X + 1; i < rooms[i].end.X; x++)
-                    for (int y = rooms[i].where.Y + 1; i < rooms[i].end.Y; y++)
+                for (int x = rooms[i].where.X + 1; x < rooms[i].end.X; x++)
+                    for (int y = rooms[i].where.Y + 1; y < rooms[i].end.Y; y++)
                         if (tiles[x, y].walkable)
                             for (int j = 0; j < initialEntries.Length; j++)
                                 if (Game.ran.Next(0, initialEntries[j].Chance.Y) <= initialEntries[j].Chance.X)

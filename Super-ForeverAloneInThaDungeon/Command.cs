@@ -85,6 +85,27 @@ namespace Super_ForeverAloneInThaDungeon
                     }
                     break;
 
+                case "CLOSE":
+                    Point dir = askDirection();
+                    if (!dir.Same(0, 0))
+                    {
+                        dir.Add(playerPos);
+                        if (tiles[dir.X, dir.Y] is Door)
+                        {
+                            Door door = (Door)tiles[dir.X, dir.Y];
+                            if (door.Open)
+                            {
+                                door.Toggle();
+                                Game.Message("You closed the door");
+                            }
+                            else
+                            {
+                                Game.Message("That door is already closed.");
+                            }
+                        }
+                    }
+                    break;
+
                 case "ME":
                     if (args.Length > 0)
                     {

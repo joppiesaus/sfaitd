@@ -23,6 +23,12 @@
         {
             return "Point { X: " + X + " Y: " + Y + " }";
         }
+
+        public void Add(Point p)
+        {
+            X += p.X;
+            Y += p.Y;
+        }
     }
 
     class DisplayItem

@@ -63,7 +63,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
 
-        public Creature()
+        public Creature(int lvl = 0)
         {
             walkable = false;
             attackable = true;
@@ -361,7 +361,6 @@ namespace Super_ForeverAloneInThaDungeon
     class Snake : Creature
     {
         public Snake(int lvl = 0)
-            : base()
         {
             health = maxHealth = Game.ran.Next(6, 10) + lvl;
             money = Game.ran.Next(1, 5); 
@@ -390,7 +389,6 @@ namespace Super_ForeverAloneInThaDungeon
     class Goblin : Creature
     {
         public Goblin(int lvl = 0)
-            : base()
         {
             money = Game.ran.Next(2, 7);
             health = maxHealth = Game.ran.Next(8, 13) + lvl;
@@ -416,15 +414,15 @@ namespace Super_ForeverAloneInThaDungeon
 
     class Grunt : Creature
     {
-        public Grunt()
+        public Grunt(int lvl = 0) :base()
         {
             money = Game.ran.Next(1, 4);
-            health = maxHealth = Game.ran.Next(3, 5);
+            health = maxHealth = Game.ran.Next(3 + lvl / 2, 5 + lvl);
             searchRange = 3;
             tiletype = TileType.Grunt;
             drawChar = Constants.chars[6];
             color = ConsoleColor.Gray;
-            damage = new Point(1, 2);
+            damage = new Point(1, 2 + lvl / 2);
             moveMode = CreatureMoveMode.Stationary;
             hitLikelyness = (ushort)Game.ran.Next(600, 800);
         }

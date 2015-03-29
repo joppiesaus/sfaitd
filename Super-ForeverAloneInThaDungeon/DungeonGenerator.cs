@@ -85,6 +85,8 @@ namespace Super_ForeverAloneInThaDungeon
                 dungeons[i].Sprinkle(ref tiles, null, currentFloor);
             }
 
+            level.creatureSpawner.SprinkleSpawn(dungeons, ref tiles);
+
             return dungeons;
         }
 

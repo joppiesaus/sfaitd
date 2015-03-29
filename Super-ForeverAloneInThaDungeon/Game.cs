@@ -81,7 +81,7 @@ namespace Super_ForeverAloneInThaDungeon
                 currentFloor++;
                 setDungeonToEmpty();
 
-                level.UpdateSystems(currentFloor);
+                level.UpdateSystems((int)currentFloor);
 
                 // tweak this
                 //rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
@@ -233,12 +233,13 @@ namespace Super_ForeverAloneInThaDungeon
                                     c.contents = items;
                                 }
                             }
-                            else if (preCopy.tiletype == TileType.Door)
+                            else if (preCopy is Door)
                             {
                                 Door door = (Door)preCopy;
                                 if (!door.Open)
                                 {
-                                    abort = !((Door)preCopy).TryOpen();
+                                    ((Door)preCopy).TryOpen();
+                                    abort = true;
                                 }
                             }
                             else if (preCopy.tiletype == TileType.Down) return;
@@ -319,6 +320,8 @@ namespace Super_ForeverAloneInThaDungeon
         /// </summary>
         void update()
         {
+            level.creatureSpawner.Update(rooms, ref tiles);
+
             for (int x = 0; x < tiles.GetLength(0); x++)
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
