@@ -141,7 +141,7 @@ namespace Super_ForeverAloneInThaDungeon
                         default:
                             if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
                             {
-                                attackRanged(askDirection(), ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon, playerPos);
+                                playerAttackRanged(askDirection(), ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon, playerPos);
                             }
                             break;
                     }
@@ -334,6 +334,7 @@ namespace Super_ForeverAloneInThaDungeon
                         if (obj.destroyed)
                         {
                             obj.Drop(ref tiles[x, y]);
+                            continue;
                         }
 
                         obj.Update();
@@ -365,7 +366,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 WorldObject target = (WorldObject)tiles[playerPos.X, playerPos.Y];
                                 ((Creature)tiles[x, y]).Attack(ref target);
                             }
-                            else //if (!(tiles[p.X, p.Y] is Creature)) // for 
+                            else
                             {
                                 Tile preCopy = tiles[p.X, p.Y]; // target tile
 
@@ -403,7 +404,11 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
 
-        void attackRanged(Point direction, Throwable t, Point origin)
+        /// <summary>
+        /// Attemps a ranged attack in a specific direction.
+        /// </summary>
+        /// <returns>If target was found</returns>
+        bool attackRanged(Point direction, Throwable t, Point origin)
         {
             Point curPoint = origin;
             for (byte i = 0; i < t.range; i++)
@@ -415,10 +420,31 @@ namespace Super_ForeverAloneInThaDungeon
                 {
                     WorldObject target = (WorldObject)tiles[curPoint.X, curPoint.Y];
                     t.Attack((Creature)tiles[origin.X, origin.Y], ref target);
-                    return;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Sorry, couldn't come up with a better method!
+        bool playerAttackRanged(Point direction, Throwable t, Point origin)
+        {
+            Point curPoint = origin;
+            for (byte i = 0; i < t.range; i++)
+            {
+                curPoint.X += direction.X;
+                curPoint.Y += direction.Y;
+
+                if (isInScreen(curPoint) && tiles[curPoint.X, curPoint.Y] is WorldObject)
+                {
+                    WorldObject target = (WorldObject)tiles[curPoint.X, curPoint.Y];
+                    t.Attack((Creature)tiles[origin.X, origin.Y], ref target);
+                    if (target is Creature) ((Creature)target).OnPlayerAttack();
+                    return true;
                 }
             }
             Message("Nothing to target!");
+            return false;
         }
 
         void generateScoreGrid(Point p)
@@ -542,8 +568,6 @@ namespace Super_ForeverAloneInThaDungeon
             switch (c.moveMode)
             {
                 case CreatureMoveMode.FollowPlayer:
-                    Point preferredDir = new Point(playerPos.X + (x > playerPos.X ? -1 : 1), playerPos.Y + (y > playerPos.Y ? 1 : -1));
-
                     Point[] points = new Point[] {
                         // diagonal moves
                         new Point(x - 1, y - 1),
@@ -568,11 +592,6 @@ namespace Super_ForeverAloneInThaDungeon
                             least = scores[points[i].X, points[i].Y];
                             n = i;
                         }
-                    }
-
-                    if (scores[preferredDir.X, preferredDir.Y] <= least)
-                    {
-                        return preferredDir;
                     }
 
                     if (n != 0xff)

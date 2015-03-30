@@ -18,7 +18,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             creatureSpawner.initialEntries = new ICreatureEntry[]
             {
-                new CreatureEntry<Snake>(1, 400, floor),
+                new CreatureEntry<Snake>(1, (int)(444 - Math.Log(floor * 8, 2) * 5), floor),
                 new CreatureEntry<Goblin>(2, 900, floor),
                 new CreatureEntry<Grunt>(1, 666, floor)
             };

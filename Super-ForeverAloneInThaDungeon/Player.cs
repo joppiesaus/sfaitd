@@ -58,6 +58,7 @@ namespace Super_ForeverAloneInThaDungeon
             hitLikelyness = 400;
 
             AddInventoryItem(Constants.dagger);
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple())).GenerateInvItem());
             //AddInventoryItem(Constants.swedishMatches);
         }
 
