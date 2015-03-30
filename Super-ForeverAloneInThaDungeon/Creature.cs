@@ -186,14 +186,10 @@ namespace Super_ForeverAloneInThaDungeon
             return Game.ran.Next(damage.X, damage.Y + 1);
         }
 
-        
-        /// <param name="target"></param>
-        /// <param name="attackMode"></param>
+        // If you change this method, don't forget to change Throwable.Attack if neccesary!
         public override void Attack(ref WorldObject target)
         {
             Creature t = (Creature)target;
-
-            int dmg = 0;
 
             if (Game.ran.Next(0, 1001) <= hitLikelyness - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
             {
@@ -202,25 +198,57 @@ namespace Super_ForeverAloneInThaDungeon
                     return;
                 }
 
-                AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
 
-                if (MeleeWeapon == null) dmg = GetDamage();
-                else MeleeWeapon.AmplifyAttack(this, ref target, ref dmg);
+                int dmg = 0;
+
+                if (MeleeWeapon == null)
+                {
+                    dmg = GetDamage();
+
+                    AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                    t.DoDirectDamage(dmg);
+
+                    EventRegister.RegisterAttack(this, t, dmg);
+
+                    if (t.destroyed)
+                    {
+                        goto OnKill; // Gah, I wish I'd knew earlier about these "goto statements"!
+                    }
+                }
+                else
+                {
+                    dmg = GetDamage();
+                    MeleeWeapon.DoDamage(ref dmg);
+
+                    AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                    t.DoDirectDamage(dmg);
+
+                    EventRegister.RegisterAttack(this, t, dmg);
+
+                    if (t.destroyed)
+                    {
+                        goto OnKill;
+                    }
+
+                    MeleeWeapon.ApplyWeaponEffects(this, ref target, ref dmg);
+                }
+                return;
             }
-
-            EventRegister.RegisterAttack(this, t, dmg);
-
-            t.DoDirectDamage(dmg);
-
-            if (t.destroyed)
+            else
             {
-                EventRegister.RegisterKill(this, t);
-
-                OnKill(t);
-
-                Tile tile = (Tile)target;
-                t.Drop(ref tile);
+                EventRegister.RegisterAttack(this, t, 0);
+                return;
             }
+
+        OnKill: // but what if sigarrete is not kill?
+            EventRegister.RegisterKill(this, t);
+
+            OnKill(t);
+
+            Tile tile = (Tile)target;
+            t.Drop(ref tile);
         }
 
 
@@ -385,7 +413,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override ushort GetXp()
         {
-            return (ushort)Game.ran.Next(0, damage.X / 2 + maxHealth / 5);
+            return (ushort)Game.ran.Next(Game.ran.Next(0, 2), damage.X / 2 + maxHealth / 5);
         }
     }
 
@@ -432,7 +460,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override ushort GetXp()
         {
-            return (ushort)Game.ran.Next(Game.ran.Next(0, 2), 2);
+            return (ushort)Game.ran.Next(0, 2);
         }
 
         public override void OnPlayerDiscovery()

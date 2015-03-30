@@ -16,10 +16,12 @@ namespace Super_ForeverAloneInThaDungeon
                 new RoomEntry<Room>(new Point(0, 0))
             };
 
+            floor--;
+
             creatureSpawner.initialEntries = new ICreatureEntry[]
             {
-                new CreatureEntry<Snake>(1, (int)(444 - Math.Log(floor * 8, 2) * 5), floor),
-                new CreatureEntry<Goblin>(2, 900, floor),
+                new CreatureEntry<Snake>(1, (int)(444 - Math.Log(floor * 8 + 1, 2) * 5), floor / 2),
+                new CreatureEntry<Goblin>(2, 900, floor / 2),
                 new CreatureEntry<Grunt>(1, 666, floor)
             };
 
@@ -30,7 +32,7 @@ namespace Super_ForeverAloneInThaDungeon
                 new CreatureEntry<Grunt>(0, 2, floor)
             };
 
-            creatureSpawner.spawnRate = (ushort)(22 - Math.Max(Math.Log((Math.Max(floor - 1, 0) / 2.5f) * 8, 2) * 1.7, 0));
+            creatureSpawner.spawnRate = (ushort)(22 - Math.Max(Math.Log((Math.Max(floor, 0) / 2.5f) * 8, 2) * 1.7, 0));
         }
 	}
 }

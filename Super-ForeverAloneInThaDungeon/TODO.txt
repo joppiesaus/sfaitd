@@ -12,6 +12,7 @@ BUGS:
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
 * You can't attack objects
 ? Enchantments are always players
+? When you have an enchantment/effect killing a creature, OnKill isn't called.
 
 IDEAS:
 x Locked doors

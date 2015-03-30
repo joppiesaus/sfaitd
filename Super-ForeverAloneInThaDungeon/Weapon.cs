@@ -71,10 +71,19 @@ namespace Super_ForeverAloneInThaDungeon
             enchantments[enchantments.Length - 1] = enc;
         }
 
-        public void AmplifyAttack(Thing caller, ref WorldObject target, ref int dmg)
+        /// <summary>
+        /// Call this when you need to damage the target.
+        /// </summary>
+        public void DoDamage(ref int dmg)
         {
             dmg += Game.ran.Next(damage.X, damage.Y + 1);
+        }
 
+        /// <summary>
+        /// Call this to apply additional effects to the target
+        /// </summary>
+        public void ApplyWeaponEffects(Thing caller, ref WorldObject target, ref int dmg)
+        {
             for (int i = 0; i < enchantments.Length; i++)
             {
                 enchantments[i].Apply(ref target, caller);
@@ -104,8 +113,6 @@ namespace Super_ForeverAloneInThaDungeon
         {
             Creature t = (Creature)target;
 
-            int dmg = 0;
-
             if (Game.ran.Next(0, 1001) <= hitChance - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
             {
                 if (t.TryDefend(AttackMode.Ranged))
@@ -113,22 +120,31 @@ namespace Super_ForeverAloneInThaDungeon
                     return;
                 }
 
-                AmplifyAttack((Thing)caller, ref target, ref dmg);
+
+                int dmg = 0;
+
+                DoDamage(ref dmg);
                 caller.AmplifyAttack(ref target, ref dmg, AttackMode.Ranged);
+
+                t.DoDirectDamage(dmg);
+
+                EventRegister.RegisterAttack(this, t, dmg);
+
+                if (t.destroyed)
+                {
+                    EventRegister.RegisterKill(this, t);
+
+                    caller.OnKill(t);
+
+                    Tile tile = (Tile)target;
+                    t.Drop(ref tile);
+                }
+
+                ApplyWeaponEffects((Thing)caller, ref target, ref dmg);
             }
-
-            EventRegister.RegisterAttack(this, t, dmg);
-
-            t.DoDirectDamage(dmg);
-
-            if (t.destroyed)
+            else
             {
-                EventRegister.RegisterKill(this, t);
-
-                caller.OnKill(t);
-
-                Tile tile = (Tile)target;
-                t.Drop(ref tile);
+                EventRegister.RegisterAttack(this, t, 0);
             }
         }
     }
