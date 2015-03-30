@@ -103,11 +103,6 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        public override int GetDamage(AttackMode aMode)
-        {
-            return aMode == AttackMode.Melee ? damage.X : 0;
-        }
-
         public override void Drop(ref Tile t)
         {
             // Stop making InvalidCastOperation happen
@@ -125,28 +120,19 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        public override void AmplifyAttack(ref WorldObject target, ref int damage, AttackMode aMode)
+        public override int GetDamage()
         {
-            amplifyAttack(ref target, ref damage, aMode == AttackMode.Melee ? MeleeWeapon : RangedWeapon);
+            return damage.X;
         }
 
-        void amplifyAttack(ref WorldObject target, ref int damage, Weapon weapon)
+        public override void AmplifyAttack(ref WorldObject target, ref int dmg, AttackMode mode)
         {
-            if (weapon != null)
-            {
-                damage += Game.ran.Next(weapon.damage.X, weapon.damage.Y + 1);
-
-                if (weapon.enchantments.Length > 0)
-                    for (int i = 0; i < weapon.enchantments.Length; i++)
-                    {
-                        weapon.enchantments[i].Apply(ref target, this);
-                    }
-            }
+            if (mode == AttackMode.Melee && MeleeWeapon == null) dmg += this.damage.X;
         }
 
-        public override void Attack(ref Tile target, AttackMode attackMode = AttackMode.Melee)
+        public override void Attack(ref WorldObject target)
         {
-            base.Attack(ref target, attackMode);
+            base.Attack(ref target);
             if (target is Creature) ((Creature)target).OnPlayerAttack();
         }
 

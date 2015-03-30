@@ -1,4 +1,7 @@
 ﻿next:
+* BALANCEEEEE
+* FINIISSSH
+* LOOOSSS
 * fix weird movement creatures
 
 * chest stuff

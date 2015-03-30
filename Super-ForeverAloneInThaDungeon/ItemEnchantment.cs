@@ -15,7 +15,7 @@ namespace Super_ForeverAloneInThaDungeon.Enchantments
             this.value = val;
         }
 
-        public abstract void Apply(ref WorldObject obj, WorldObject caller);
+        public abstract void Apply(ref WorldObject obj, Thing caller);
 
         public virtual IIAI GenerateInventoryInfo()
         {
@@ -30,7 +30,7 @@ namespace Super_ForeverAloneInThaDungeon.Enchantments
 
         public ItemEnchantmentFire(short val = 1) { this.value = val; }
 
-        public override void Apply(ref WorldObject obj, WorldObject caller)
+        public override void Apply(ref WorldObject obj, Thing caller)
         {
             switch (obj.SetOnFire((short)value))
             {

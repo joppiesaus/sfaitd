@@ -34,15 +34,6 @@ namespace Super_ForeverAloneInThaDungeon.Levels
     {
         public IRoomEntry[] entries;
 
-        /*public void Update(uint floor)
-        {
-            entries = new IRoomEntry[]
-            {
-                new RoomEntry<TreasureRoom>(new Point(0, 30)),
-                new RoomEntry<Room>(new Point(0, 1))
-            };
-        }*/
-
         public Room GetRoom()
         {
             for (int i = 0; i < entries.Length - 1; i++)

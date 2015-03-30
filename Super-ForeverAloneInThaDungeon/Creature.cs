@@ -157,7 +157,6 @@ namespace Super_ForeverAloneInThaDungeon
         /// When attacking, creatures can defend
         /// </summary>
         /// <remarks>This function ALSO HANDLES MESSAGES WHEN BLOCKED.</remarks>
-        /// <param name="Game.ran">Random input</param>
         /// <returns>If it defended or not</returns>
         public virtual bool TryDefend(AttackMode aMode)
         {
@@ -165,16 +164,10 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
-        /// When attacking, initiative can amplify it's attack(think of potions, weapons, etc)
+        /// When attacking, initiative can amplify it's attack(think of potions, etc). Weapons have a seperate method for that.
         /// </summary>
-        /// <param name="Game.ran">Random input</param>
-        public virtual void AmplifyAttack(ref WorldObject target, ref int damage, AttackMode aMode)
+        public virtual void AmplifyAttack(ref WorldObject target, ref int dmg, AttackMode mode)
         {
-        }
-
-        public virtual int GetDamage(AttackMode mode)
-        {
-            return Game.ran.Next(damage.X, damage.Y + 1);
         }
 
         /// <summary>
@@ -185,7 +178,18 @@ namespace Super_ForeverAloneInThaDungeon
         {
         }
 
-        public override void Attack(ref Tile target, AttackMode attackMode = AttackMode.Melee)
+        /// <summary>
+        /// Gets the damage dealt by hand by this creature.
+        /// </summary>
+        public virtual int GetDamage()
+        {
+            return Game.ran.Next(damage.X, damage.Y + 1);
+        }
+
+        
+        /// <param name="target"></param>
+        /// <param name="attackMode"></param>
+        public override void Attack(ref WorldObject target)
         {
             Creature t = (Creature)target;
 
@@ -193,17 +197,15 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (Game.ran.Next(0, 1001) <= hitLikelyness - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
             {
-                if (t.TryDefend(attackMode))
+                if (t.TryDefend(AttackMode.Melee))
                 {
                     return;
                 }
-                else
-                {
-                    dmg = GetDamage(attackMode);
-                }
 
-                WorldObject wo = (WorldObject)target;
-                AmplifyAttack(ref wo, ref dmg, attackMode);
+                AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                if (MeleeWeapon == null) dmg = GetDamage();
+                else MeleeWeapon.AmplifyAttack(this, ref target, ref dmg);
             }
 
             EventRegister.RegisterAttack(this, t, dmg);
@@ -216,7 +218,8 @@ namespace Super_ForeverAloneInThaDungeon
 
                 OnKill(t);
 
-                t.Drop(ref target);
+                Tile tile = (Tile)target;
+                t.Drop(ref tile);
             }
         }
 

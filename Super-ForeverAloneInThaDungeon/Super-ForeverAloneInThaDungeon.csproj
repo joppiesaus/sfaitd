@@ -90,6 +90,7 @@
     <Compile Include="SpellEffect.cs" />
     <Compile Include="SpellGenerator.cs" />
     <Compile Include="TemporaryEffect.cs" />
+    <Compile Include="Thing.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Weapon.cs" />
     <Compile Include="WorldObject.cs" />

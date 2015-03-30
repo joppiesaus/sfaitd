@@ -10,12 +10,15 @@ namespace Super_ForeverAloneInThaDungeon
         public bool transparent = true;
 
         // Name in the form of "the Snake attacked you"
-        public virtual string InlineName
+        public override string InlineName
         {
             get { return "the " + this.tiletype; }
         }
 
-        public virtual void Attack(ref Tile target, AttackMode aMode)
+        /// <summary>
+        /// Melee-attacks the target object.
+        /// </summary>
+        public virtual void Attack(ref WorldObject target)
         {
             // TODO: Register attack?
         }

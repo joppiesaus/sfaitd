@@ -25,12 +25,12 @@ namespace Super_ForeverAloneInThaDungeon
 
             creatureSpawner.spawnEntries = new ICreatureEntry[]
             {
-                new CreatureEntry<Snake>(1, 4, floor / 2),
-                new CreatureEntry<Goblin>(1, 5, floor / 2),
-                new CreatureEntry<Grunt>(1, 4, floor)
+                new CreatureEntry<Snake>(0, 2, floor / 2),
+                new CreatureEntry<Goblin>(0, 3, floor / 2),
+                new CreatureEntry<Grunt>(0, 2, floor)
             };
 
-            creatureSpawner.spawnRate = (ushort)(21 - Math.Log((Math.Max(floor, 0) - 1) * 9, 2) * 1.8);
+            creatureSpawner.spawnRate = (ushort)(22 - Math.Max(Math.Log((Math.Max(floor - 1, 0) / 2.5f) * 8, 2) * 1.7, 0));
         }
 	}
 }

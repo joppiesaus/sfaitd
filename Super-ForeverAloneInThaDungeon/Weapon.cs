@@ -46,7 +46,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-    class Weapon
+    class Weapon : Thing
     {
         public ItemEnchantment[] enchantments = null;
 
@@ -71,16 +71,27 @@ namespace Super_ForeverAloneInThaDungeon
             enchantments[enchantments.Length - 1] = enc;
         }
 
+        public void AmplifyAttack(Thing caller, ref WorldObject target, ref int dmg)
+        {
+            dmg += Game.ran.Next(damage.X, damage.Y + 1);
+
+            for (int i = 0; i < enchantments.Length; i++)
+            {
+                enchantments[i].Apply(ref target, caller);
+            }
+        }
+
         public override string ToString()
         {
             return name;
         }
 
-        public int Attack(ref Creature c)
+        public override string InlineName
         {
-            int beginHealth = c.health;
-
-            return 0;
+            get
+            {
+                return "the " + name;
+            }
         }
     }
 
@@ -88,6 +99,38 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public ushort hitChance;
         public byte range;
+
+        public void Attack(Creature caller, ref WorldObject target)
+        {
+            Creature t = (Creature)target;
+
+            int dmg = 0;
+
+            if (Game.ran.Next(0, 1001) <= hitChance - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
+            {
+                if (t.TryDefend(AttackMode.Ranged))
+                {
+                    return;
+                }
+
+                AmplifyAttack((Thing)caller, ref target, ref dmg);
+                caller.AmplifyAttack(ref target, ref dmg, AttackMode.Ranged);
+            }
+
+            EventRegister.RegisterAttack(this, t, dmg);
+
+            t.DoDirectDamage(dmg);
+
+            if (t.destroyed)
+            {
+                EventRegister.RegisterKill(this, t);
+
+                caller.OnKill(t);
+
+                Tile tile = (Tile)target;
+                t.Drop(ref tile);
+            }
+        }
     }
 
 

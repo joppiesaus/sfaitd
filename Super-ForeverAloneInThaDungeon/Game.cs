@@ -166,7 +166,8 @@ namespace Super_ForeverAloneInThaDungeon
                             // TODO: if preCopy is WorldObject && isAttackable
                             if (preCopy is Creature)
                             {
-                                p.Attack(ref tiles[toCheck.X, toCheck.Y]);
+                                WorldObject target = (WorldObject)tiles[toCheck.X, toCheck.Y];
+                                p.Attack(ref target);
                                 abort = true;
                             }
                             else if (preCopy.tiletype == TileType.Money)
@@ -329,6 +330,12 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         WorldObject obj = (WorldObject)tiles[x, y];
 
+                        // Check before and after the update. It may be already destroyed!
+                        if (obj.destroyed)
+                        {
+                            obj.Drop(ref tiles[x, y]);
+                        }
+
                         obj.Update();
 
                         if (obj.destroyed)
@@ -355,7 +362,8 @@ namespace Super_ForeverAloneInThaDungeon
                         {
                             if (tiles[p.X, p.Y].tiletype == TileType.Player)
                             {
-                                ((Creature)tiles[x, y]).Attack(ref tiles[playerPos.X, playerPos.Y]);
+                                WorldObject target = (WorldObject)tiles[playerPos.X, playerPos.Y];
+                                ((Creature)tiles[x, y]).Attack(ref target);
                             }
                             else //if (!(tiles[p.X, p.Y] is Creature)) // for 
                             {
@@ -405,7 +413,8 @@ namespace Super_ForeverAloneInThaDungeon
 
                 if (isInScreen(curPoint) && tiles[curPoint.X, curPoint.Y] is WorldObject)
                 {
-                    ((Creature)tiles[origin.X, origin.Y]).Attack(ref tiles[curPoint.X, curPoint.Y], AttackMode.Ranged);
+                    WorldObject target = (WorldObject)tiles[curPoint.X, curPoint.Y];
+                    t.Attack((Creature)tiles[origin.X, origin.Y], ref target);
                     return;
                 }
             }
