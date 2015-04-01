@@ -6,6 +6,7 @@ namespace Super_ForeverAloneInThaDungeon
     enum TileType
     {
         None,
+        Other,
         Air,
         Wall,
         Money,
@@ -16,12 +17,14 @@ namespace Super_ForeverAloneInThaDungeon
         Snake,
         Goblin,
         Wizzard,
+        Grunt,
         Chest,
         Up,
-        Down
+        Down,
+        Door
     }
 
-    class Tile
+    class Tile : Thing
     {
         public char drawChar;
         public bool walkable = false;
@@ -90,13 +93,21 @@ namespace Super_ForeverAloneInThaDungeon
                 }
         }
 
+        public override string InlineName
+        {
+            get
+            {
+                return this.tiletype.ToString();
+            }
+        }
+
         public override string ToString()
         {
             return drawChar.ToString();
         }
     }
 
-
+    
 
     class Wall : Tile
     {

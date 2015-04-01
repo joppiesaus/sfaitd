@@ -9,8 +9,25 @@ namespace Super_ForeverAloneInThaDungeon
         Stationary
     }
 
-    class Creature : Tile
+    enum AttackMode
     {
+        Melee, Ranged
+    }
+
+    enum CreatureElement
+    {
+        Fire = 1,
+        Magic = 2,
+    }
+
+    class Creature : WorldObject
+    {
+        // I like SCREAMING_CAPSLOCK
+        const byte EFFECT_CAPACITY = 100;
+
+        TemporaryEffect[] tEffects = new TemporaryEffect[EFFECT_CAPACITY];
+        ushort nTeffects = 0;
+
         public bool processed = false;
 
         public int maxHealth = 0;
@@ -24,6 +41,8 @@ namespace Super_ForeverAloneInThaDungeon
         bool playerInRange = false;
         public CreatureMoveMode moveMode = CreatureMoveMode.Random; // how the creature behaves
 
+        public ushort weaknesses, immunities = 0;
+
 
         public Tile lastTile = new Tile(TileType.Air);
 
@@ -31,51 +50,91 @@ namespace Super_ForeverAloneInThaDungeon
         public ushort hitLikelyness = 0;
 
         // Likelyness of getting hit in a form of a penalty
-        short? hitPenalty = null; // 1000 = max, 0 = min
-        public bool HasHitPenalty
-        {
-            get { return hitPenalty != null; }
-        }
-        public short HitPenalty
-        {
-            get { return HasHitPenalty ? (short)hitPenalty : (short)0; }
-            set { this.hitPenalty = value; }
-        }
+        public short? hitPenalty = null; // 1000 = max, 0 = min
 
 
-        public Creature()
+        public virtual Throwable RangedWeapon
         {
-            walkable = true;
+            get { return null; }
+        }
+        public virtual Weapon MeleeWeapon
+        {
+            get { return null; }
         }
 
-        // Include if (t is Pickupable) when you need to do multiple checks!
-        public void onTileEncounter(ref Tile t)
+
+        public Creature(int lvl = 0)
+        {
+            walkable = false;
+            attackable = true;
+        }
+
+        protected override Tile GenerateDrop()
+        {
+            return new Money(this.money);
+        }
+
+        public void OnTileEncounter(ref Tile t)
         {
             if (t.tiletype == TileType.Money)
             {
                 money += ((Money)t).money;
-                t = new Tile(((Pickupable)t).replaceTile);
+                t = ((Pickupable)t).replaceTile;
+            }
+        }
+
+        public override void Kick()
+        {
+            if (DoDirectDamage(1))
+            {
+                EventRegister.RegisterPlayerKillBy(this, "kicked {0} to death!");
+            }
+            else
+            {
+                Game.Message("You kicked " + this.InlineName + '.');
             }
         }
 
         /// <summary>
         /// Attacks this creature
         /// </summary>
-        /// <param name="dmg">Damage</param>
-        /// <param name="t">"Grave" tile, place for drops</param>
         /// <returns>Creature is dead</returns>
-        public bool doDamage(int dmg, ref Tile t)
+        public override bool DoDirectDamage(int dmg)
         {
             health -= dmg;
 
             if (health <= 0)
             {
-                t = new Money(this.money);
-                ((Pickupable)t).replaceTile = lastTile.tiletype;
-                t.needsToBeDrawn = true;
+                destroyed = true;
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Makes creature drop all it's stuff and replace itself, dead or alive.
+        /// </summary>
+        /// <param name="t">"Grave" tile, place for drops</param>
+        public override void Drop(ref Tile t)
+        {
+            // probably both always will be true
+            bool lighten = t.lighten;
+            bool discovered = lighten || t.discovered;
+
+            t = GenerateDrop();
+
+            if (t is Pickupable)
+            {
+                ((Pickupable)t).replaceTile = lastTile;
+            }
+            else if (t == null)
+            {
+                t = lastTile;
+            }
+
+            t.discovered = discovered;
+            t.lighten = lighten;
+            t.needsToBeDrawn = true;
         }
 
         /// <summary>
@@ -94,24 +153,102 @@ namespace Super_ForeverAloneInThaDungeon
             return h;
         }
 
-        public int hit(ref Random ran, ref Player p)
+        /// <summary>
+        /// When attacking, creatures can defend
+        /// </summary>
+        /// <remarks>This function ALSO HANDLES MESSAGES WHEN BLOCKED.</remarks>
+        /// <returns>If it defended or not</returns>
+        public virtual bool TryDefend(AttackMode aMode)
         {
-            if (ran.Next(0, 1001) > hitLikelyness - p.HitPenalty)
-            {
-                return 0;
-            }
-
-            int dmg = ran.Next(damage.X, damage.Y + 1);
-
-            Tile t = (Tile)p;
-            if (p.doDamage(dmg, ref t)) p = null;
-
-            return dmg;
+            return false;
         }
 
-        public virtual ushort getXp(ref Random ran)
+        /// <summary>
+        /// When attacking, initiative can amplify it's attack(think of potions, etc). Weapons have a seperate method for that.
+        /// </summary>
+        public virtual void AmplifyAttack(ref WorldObject target, ref int dmg, AttackMode mode)
         {
-            return 0;
+        }
+
+        /// <summary>
+        /// When the creature killed something, this is called
+        /// </summary>
+        /// <param name="target">Target creature which is killed</param>
+        public virtual void OnKill(Creature target)
+        {
+        }
+
+        /// <summary>
+        /// Gets the damage dealt by hand by this creature.
+        /// </summary>
+        public virtual int GetDamage()
+        {
+            return Game.ran.Next(damage.X, damage.Y + 1);
+        }
+
+        // If you change this method, don't forget to change Throwable.Attack if neccesary!
+        public override void Attack(ref WorldObject target)
+        {
+            Creature t = (Creature)target;
+
+            if (Game.ran.Next(0, 1001) <= hitLikelyness - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
+            {
+                if (t.TryDefend(AttackMode.Melee))
+                {
+                    return;
+                }
+
+
+                int dmg = 0;
+
+                if (MeleeWeapon == null)
+                {
+                    dmg = GetDamage();
+
+                    AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                    t.DoDirectDamage(dmg);
+
+                    EventRegister.RegisterAttack(this, t, dmg);
+
+                    if (t.destroyed)
+                    {
+                        goto OnKill; // Gah, I wish I'd knew earlier about these "goto statements"!
+                    }
+                }
+                else
+                {
+                    dmg = GetDamage();
+                    MeleeWeapon.DoDamage(ref dmg);
+
+                    AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                    t.DoDirectDamage(dmg);
+
+                    EventRegister.RegisterAttack(this, t, dmg);
+
+                    if (t.destroyed)
+                    {
+                        goto OnKill;
+                    }
+
+                    MeleeWeapon.ApplyWeaponEffects(this, ref target, ref dmg);
+                }
+                return;
+            }
+            else
+            {
+                EventRegister.RegisterAttack(this, t, 0);
+                return;
+            }
+
+        OnKill: // but what if sigarrete is not kill?
+            EventRegister.RegisterKill(this, t);
+
+            OnKill(t);
+
+            Tile tile = (Tile)target;
+            t.Drop(ref tile);
         }
 
 
@@ -130,6 +267,7 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+#region move modes
         public virtual void OnPlayerDiscovery()
         {
             moveMode = CreatureMoveMode.FollowPlayer;
@@ -143,17 +281,120 @@ namespace Super_ForeverAloneInThaDungeon
         public virtual void OnPlayerAttack()
         {
         }
+#endregion
+
+        /// <summary>
+        /// Updates this creature.
+        /// </summary>
+        /// <remarks>DON'T FORGET to call base.update in other variants!</remarks>
+        public override void Update()
+        {
+            for (ushort i = 0; i < nTeffects; i++)
+            {
+                // You can't pass in this as a reference, because it's a keyword, not a variable.
+                // You can do it with reference classes however.
+                Creature sillycompiler = this;
+                tEffects[i].Act(ref sillycompiler);
+
+                // Try it yourself:
+                //bool diditwork = Object.ReferenceEquals(sillycompiler, this);
+
+
+                // I present to you: Code art!
+                if ( 0==-- tEffects[i].moves)
+                    removeTemporaryEffect(i);
+            }
+        }
+
+        #region temporary effects
+        public bool AddTemporaryEffect(TemporaryEffect effect)
+        {
+            if (nTeffects == EFFECT_CAPACITY) return false;
+            tEffects[nTeffects++] = effect;
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if a temporaryeffect is in the array
+        /// </summary>
+        /// <param name="type">Type of temporary effect</param>
+        /// <returns>index in array or -1 if not found</returns>
+        public int HasTemporaryEffect(Type type)
+        {
+            for (ushort i = 0; i < nTeffects; i++)
+                if (tEffects[i].GetType() == type) return i;
+            return -1;
+        }
+
+        void removeTemporaryEffect(ushort i)
+        {
+            tEffects[i] = tEffects[nTeffects - 1];
+            tEffects[nTeffects--] = null;
+        }
+        #endregion
+
+        #region special attacks
+        /* All these method assume you call the EventRegister! */
+        public override byte SetOnFire(short amount)
+        {
+            if (HasImmunity(CreatureElement.Fire))
+            {
+                return 2;
+            }
+            else
+            {
+                int n = HasTemporaryEffect(typeof(TemporaryEffectBurn));
+                if (n == -1)
+                {
+                    AddTemporaryEffect(new TemporaryEffectBurn((ushort)Game.ran.Next(8, 11 + amount * 2), amount));
+                    return 1;
+                }
+                else
+                {
+                    tEffects[n].moves = Math.Max(tEffects[n].moves, (ushort)Game.ran.Next(8, 11 + amount * 2));
+                    return 0;
+                }
+            }
+        }
+        #endregion
+
+        #region conditionals
+        public bool HasWeakness(CreatureElement weakness)
+        {
+            return ((weaknesses & (ushort)weakness) == (ushort)weakness);
+        }
+        public void AddWeakness(CreatureElement weakness)
+        {
+            weaknesses |= (ushort)weakness;
+        }
+        public void RemoveWeakness(CreatureElement weakness)
+        {
+            weaknesses &= (ushort)((ushort)weakness ^ ushort.MaxValue);
+        }
+
+        public bool HasImmunity(CreatureElement immunity)
+        {
+            return ((immunities & (ushort)immunity) == (ushort)immunity);
+        }
+        public void AddImmunity(CreatureElement immunity)
+        {
+            immunities |= (ushort)immunity;
+        }
+        public void RemoveImmunity(CreatureElement immunity)
+        {
+            immunities &= (ushort)((ushort)immunity ^ ushort.MaxValue);
+        }
+        #endregion
     }
 
 
 
     class Snake : Creature
     {
-        public Snake(ref Random ran, int lvl = 0)
-            : base()
+        public Snake(int lvl = 0)
         {
-            health = maxHealth = ran.Next(6, 10) + lvl;
-            money = ran.Next(1, 5); 
+            health = maxHealth = Game.ran.Next(6, 10) + lvl;
+            money = Game.ran.Next(1, 5); 
             tiletype = TileType.Snake;
             drawChar = 'S';
             color = ConsoleColor.DarkGreen;
@@ -167,27 +408,26 @@ namespace Super_ForeverAloneInThaDungeon
             }
             else hitLikelyness = 900;
 
-            hitLikelyness += (ushort)ran.Next(-20, 21);
+            hitLikelyness += (ushort)Game.ran.Next(-20, 21);
         }
 
-        public override ushort getXp(ref Random ran)
+        public override ushort GetXp()
         {
-            return (ushort)ran.Next(0, damage.X / 2 + maxHealth / 5);
+            return (ushort)Game.ran.Next(Game.ran.Next(0, 2), damage.X / 2 + maxHealth / 5);
         }
     }
 
     class Goblin : Creature
     {
-        public Goblin(ref Random ran, int lvl = 0)
-            : base()
+        public Goblin(int lvl = 0)
         {
-            money = ran.Next(2, 7);
-            health = maxHealth = ran.Next(8, 13) + lvl;
+            money = Game.ran.Next(2, 7);
+            health = maxHealth = Game.ran.Next(8, 13) + lvl;
             searchRange = (ushort)(6 + lvl / 3);
             tiletype = TileType.Goblin;
             drawChar = Constants.chars[3];
             color = ConsoleColor.DarkRed;
-            damage = new Point(2 + lvl, 4 + lvl + ran.Next(0, lvl));
+            damage = new Point(2 + lvl, 4 + lvl + Game.ran.Next(0, lvl));
             
             if (lvl <= 8)
             {
@@ -197,9 +437,42 @@ namespace Super_ForeverAloneInThaDungeon
             else hitLikelyness = 800;
         }
 
-        public override ushort getXp(ref Random ran)
+        public override ushort GetXp()
         {
-            return (ushort)(ran.Next(0, 2 + maxHealth / 10 + damage.Y - damage.X));
+            return (ushort)(Game.ran.Next(0, 1 + maxHealth / 10 + damage.Y - damage.X));
+        }
+    }
+
+    class Grunt : Creature
+    {
+        public Grunt(int lvl = 0) :base()
+        {
+            money = Game.ran.Next(1, 4);
+            health = maxHealth = Game.ran.Next(3 + lvl / 2, 5 + lvl);
+            searchRange = 3;
+            tiletype = TileType.Grunt;
+            drawChar = Constants.chars[6];
+            color = ConsoleColor.Gray;
+            damage = new Point(1, 2 + lvl / 2);
+            moveMode = CreatureMoveMode.Stationary;
+            hitLikelyness = (ushort)Game.ran.Next(600, 800);
+        }
+
+        public override ushort GetXp()
+        {
+            return (ushort)Game.ran.Next(0, 2);
+        }
+
+        public override void OnPlayerDiscovery()
+        {
+        }
+        public override void OnPlayerAttack()
+        {
+            moveMode = CreatureMoveMode.FollowPlayer;
+        }
+        public override void OnPlayerLeave()
+        {
+            moveMode = CreatureMoveMode.Random;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Super_ForeverAloneInThaDungeon.Spells;
 
 namespace Super_ForeverAloneInThaDungeon
 {
@@ -24,6 +23,9 @@ namespace Super_ForeverAloneInThaDungeon
             yWallToXWallBothSides = _g(202);
             yWallWithRightXWall = _g(204);
             yWallWithLeftXWall = _g(185);
+            xDoor = _g(179);
+            yDoor = _g(196);
+
 
             chars = new char[] { _g(166), // scrollChar
                 _g(30),                   // startChar
@@ -31,6 +33,9 @@ namespace Super_ForeverAloneInThaDungeon
                 _g(147),                  // goblinChar
                 _g(16),                   // >ish char
                 _g(220),                  // chestChar
+                _g(148),                  // gruntChar
+                _g(254),                  // broken door char
+                _g(207),                  // pickupable item char
             };
         }
 
@@ -46,7 +51,7 @@ namespace Super_ForeverAloneInThaDungeon
         public static readonly Encoding enc = Encoding.GetEncoding(437);
 
         public readonly static char[] chars; // used to display special characters, like a scroll.
-        public readonly static char yWall, xWall, lupWall, ldownWall, rupWall, rdownWall, lSplitWall, rSplitWall, yWallToXWallBothSides, yWallWithRightXWall, yWallWithLeftXWall;
+        public readonly static char yWall, xWall, lupWall, ldownWall, rupWall, rdownWall, lSplitWall, rSplitWall, yWallToXWallBothSides, yWallWithRightXWall, yWallWithLeftXWall, xDoor, yDoor;
 
         public static readonly string[] dungeonNameParts = new string[] { "Prisons", "Dungeon", "Tunnels", "Chamber", "Tombs", "Cells", "Lair", "Cave", "Catacombs", "Caverns" };
         public readonly static string[] namefwords = new string[] { "Witty", "Ancient", "Evil", "Heartless", "Furious", "Screaming", "Mighty", "Infamous", "Loved", "Isolated", "Withered", "Magic", "Undead", "Mystic", "Dark", "Black", "Creepy" };
@@ -63,23 +68,45 @@ namespace Super_ForeverAloneInThaDungeon
         public readonly static char[] rlangChars = new char[] { 'a', 'o', 'e', 'u', 'j', 'k', 'n', 'q', 'p', 'w',
             _g(230), _g(208), _g(244), _g(255), _g(232), _g(209), _g(190), _g(207)  };
 
-        public readonly static InventoryItem[] invItems = {
+        /*public readonly static InventoryItem[] invItems = {
             new InventoryItem("Empty", "Empty", new char[,] {{'\\',' ',' ',' ',' ',' ','/'},{' ','\\',' ',' ',' ','/',' '},{' ',' ','\\',' ','/',' ',' '},{' ',' ',' ','X',' ',' ',' '},
-	        { ' ',' ','/',' ','\\',' ',' ' },{ ' ','/',' ',' ',' ','\\',' ' },{ '/',' ',' ',' ',' ',' ','\\'}}, ConsoleColor.DarkRed),};
+	        { ' ',' ','/',' ','\\',' ',' ' },{ ' ','/',' ',' ',' ','\\',' ' },{ '/',' ',' ',' ',' ',' ','\\'}}, ConsoleColor.DarkRed),};*/
 
-
+        // ranged weapons
         public static readonly WeaponItem spear = new WeaponItem(new Spear(),
             "The spear is a weapon with short range you can throw to creatures. It's very effective against big creatures!",
             new char[,] { {' ',' ',' ',' ',' ','/','|' },{ ' ',' ',' ',' ','/',' ','|' },
             { ' ',' ',' ',' ','/','/',' ' },{ ' ',' ',' ','/','/',' ',' ' },{ ' ',' ','/','/',' ',' ',' ' },{ ' ','/','/',' ',' ',' ',' '} });
+
+        // melee weapons
         public static readonly WeaponItem dagger = new WeaponItem(new Dagger(),
-            "A simple knife!", new char[,] { { ' ', '_', '_', '_', '_', '_', '.', '_', '_', ' ' }, { ' ', '`', '-', '-', '-', '-', ';', '=', '=', '\'' } });
+            "A simple knife!", new char[,] { {' ','_','_','_','_','_','.','_','_',' ' }, { ' ','`','-','-','-','-',';','=','=','\'' } });
+
+        public static readonly WeaponItem sword = new WeaponItem(new Sword(), "A sword", new char[,] { {' ',' ','/','\\',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },
+        { ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ ' ',' ','|','|',' ',' ' },{ 'o','=','=','=','=','o' },{ ' ',' ',')','(',' ',' ' },
+        { ' ',' ','(',')',' ',' '} }, ConsoleColor.White);
+
+        // items
+        public static readonly ItemInventoryItem swedishMatches = new ItemInventoryItem(new SwedishMatches(), "Swedish matches manufactured at Uddevalla to set everything on fire with!", 
+            new char[,] { {'(',')','=','=','=','=','=','=','=','=','='} }, ConsoleColor.Red);
 
 
         public const string invFullMsg = "Inventory full!";
 
         #region methods
-        public static bool[,] generateCircle(int radius)
+        public static Point GetDirectionByKey(ConsoleKey key)
+        {
+            switch (key)
+            {
+                case ConsoleKey.UpArrow: return new Point(0, -1);
+                case ConsoleKey.DownArrow: return new Point(0, 1);
+                case ConsoleKey.LeftArrow: return new Point(-1, 0);
+                case ConsoleKey.RightArrow: return new Point(1, 0);
+            }
+            return new Point(0, 0);
+        }
+
+        public static bool[,] GenerateCircle(int radius)
         {
             // http://webstaff.itn.liu.se/~stegu/circle/circlealgorithm.pdf
             int x = 0;
@@ -119,41 +146,36 @@ namespace Super_ForeverAloneInThaDungeon
             return circle;
         }
 
-        public static string getPDamageInWords(int dmg, ref Random ran)
+        public static string GetCreatureDamageInWords(int dmg)
         {
-            if (dmg == 0)
-            {
-                switch (ran.Next(0, 4))
-                {
-                    default: return "you missed";
-                    case 1: return "you barely missed";
-                    case 2: return "you completely missed";
-                }
-            }
-            else if (dmg < 5) return ran.Next(0, 2) == 1 ? "you did a simple hit on" : "you did a minor hit on";
-            else if (dmg < 10) return "you did a great hit on";
-            else return ran.Next(0, 2) == 1 ? "you did a great hit on" : "you injured";
-        }
-
-        public static string getCDamageInWords(int dmg, ref Random ran)
-        {
-            if (dmg < 0) return "has healed you with " + dmg;
+            if (dmg < 0) return "healed " + dmg + " to";
             else if (dmg == 0)
             {
-                switch (ran.Next(0, 4))
+                switch (Game.ran.Next(0, 4))
                 {
-                    default: return "missed you";
-                    case 1: return "barely missed you";
-                    case 2: return "completely missed you";
+                    default: return "missed";
+                    case 1: return "barely missed";
+                    case 2: return "completely missed";
+                    case 3: return "didn't hit";
                 }
             }
-            else if (dmg < 5) return ran.Next(0, 2) == 1 ? "did a simple hit on you" : "did a minor hit on you";
-            else if (dmg < 10) return "did a great hit on you";
-            else return ran.Next(0, 2) == 1 ? "did a critical hit on you" : "injured you";
+            else if (dmg < 6) return Game.ran.Next(0, 2) == 1 ? "did a simple hit on" : "did a minor hit on";
+            else return Game.ran.Next(0, 2) == 1 ? "did a great hit on" : "injured";
+        }
+
+        public static string GetCreatureBlockMessage()
+        {
+            switch (Game.ran.Next(0, 2))
+            {
+                default:
+                    return "blocked";
+                case 1:
+                    return "blocked brutely";
+            }
         }
 
         // makes a string break into pieces
-        public static string[] generateReadableString(string input, int lineLength)
+        public static string[] GenerateReadableString(string input, int lineLength)
         {
             string[] sInput = input.Split(' ');
             string[] lines = new string[sInput.Length/*input.Length / lineLength + 4*/];
@@ -169,8 +191,6 @@ namespace Super_ForeverAloneInThaDungeon
                         if (currentLine.Length + sInput[i].Length + 1 <= lineLength) currentLine += ' ';
                         else
                         {
-                            // GOD DAMNIT! NEED TO DO IT TWICE
-                            //lines[a] = fillUpEmptySpace(currentLine, lineLength);
                             lines[a] = currentLine;
                             a++;
                             currentLine = "";
@@ -187,7 +207,6 @@ namespace Super_ForeverAloneInThaDungeon
                 }
                 else
                 {
-                    //lines[a] = fillUpEmptySpace(currentLine, lineLength);
                     lines[a] = currentLine;
                     a++;
                     currentLine = "";
@@ -197,32 +216,12 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (currentLine != "")
             {
-                //lines[a] = fillUpEmptySpace(currentLine, lineLength);
                 lines[a] = currentLine;
                 a++;
             }
 
-
             Array.Resize(ref lines, a);
             return lines;
-        }
-
-        // makes a string fit into 
-        public static string fillUpEmptySpace(string s, int l, char c = ' ')
-        {
-            l -= s.Length;
-            for (int i = 0; i < l; i++) s += c;
-            return s;
-        }
-
-        // Lazyness level: Over 9000!
-        public static bool invert(this bool b)
-        {
-            /*if (b) return false;
-            return true;*/
-            /*return (b) ? false : true;*/
-            /*return b ^= true;*/
-            return !b;
         }
 
         // converts 340 to 34.0%
@@ -231,6 +230,63 @@ namespace Super_ForeverAloneInThaDungeon
             string s = val.ToString();
             return s.Insert(s.Length - 1, ".") + '%';
         }
+
+        // ???
+        // I don't know what format yet
+        public static string ToMysteriousNumeralSystem(uint val)
+        {
+            return val.ToString();
+        }
+
+        public static string GenerateRandomName()
+        {
+            return Game.ran.Next(0, 3) == 0 ?
+                namewords[Game.ran.Next(namewords.Length)] :
+                "the " + namefwords[Game.ran.Next(namefwords.Length)] + " " + nameswords[Game.ran.Next(nameswords.Length)];
+        }
+
+        public static char[,] GenerateRandomScrollImage()
+        {
+            char[,] img = new char[,] { {' ','_','_','_','_','_','_','_','_','_','_',' ',' ',' ',' ',' ' },
+            { '(',')','_','_','_','_','_','_','_','_','_',')',' ',' ',' ',' ' },{ ' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ',' ' },
+	        { ' ',' ','\\',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','\\',' ',' ' },{ ' ',' ',' ','\\','_','_','_','_','_','_','_','_','_','_','\\',' ' },
+	        { ' ',' ',' ','(',')','_','_','_','_','_','_','_','_','_','_',')'} };
+
+            // Write random text in the scroll's image
+            // THE NUMBERS MASON
+            // WHAT DO THEY MEAN
+            byte xOff = 3;
+            for (byte y = 2; y < 4; y++)
+            {
+                int length = xOff + Game.ran.Next(2, 9);
+                for (int i = xOff; i < length; i++)
+                    img[y, i] = Constants.rlangChars[Game.ran.Next(0, Constants.rlangChars.Length)];
+
+                if (length < xOff + 5)
+                {
+                    int i = length + 1;
+                    length += Game.ran.Next(2, 5);
+                    for (; i < length; i++)
+                        img[y, i] = Constants.rlangChars[Game.ran.Next(0, Constants.rlangChars.Length)];
+                }
+                xOff++;
+            }
+
+            return img;
+        }
+
+        /*public static void AddElement(ref ushort elements, CreatureElement e)
+        {
+            elements |= (ushort)e;
+        }
+        public static void RemoveElement(ref ushort elements, CreatureElement e)
+        {
+            elements ^= (ushort)e;
+        }
+        public static bool CheckElement(ushort elements, CreatureElement e)
+        {
+            return ((elements & (ushort)e) == (ushort)e);
+        }*/
         #endregion
     }
 }

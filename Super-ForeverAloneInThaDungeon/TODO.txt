@@ -1,21 +1,19 @@
 ﻿next:
-* fix issue #1
-
-* item selection system(player types c((c)ast), player gets screenfull of scrolls and selects one)
-* Enchanting!
-* Different AI's
-* Effects that last a few moves
-* improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
-* different types of dungeons
-
-* "pages" or scrolling in inventory
-* add description size detection
+* BALANCEEEEE
+* GENERATIONNNN
+* FINIISSSH
+* LOOOSSS http://www.roguebasin.com/index.php?title=Line_of_sight
+* Create list of commands
 
 BUGS:
 * creatures can step out of lighting causing "ghosts"
+* Creatures don't get updated when inside lightning(weren't discovered in first place?)
+* Weird movement
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
-* Duplicate spells
-
+* You can't attack objects
+? Enchantments are always players
+? When you have an enchantment/effect killing a creature, OnKill isn't called. Other way of gathering XP?
+? What would happen if there's already money under the creature that's dead?
 
 IDEAS:
 x Locked doors
@@ -26,19 +24,13 @@ x NPCs
 x you must go down until you've found x, then you must go up and then YOU WIN!!!!11!14!
 x frozen
 x mental stuff
+x round room
+x enchanting
 
 x (network) co-op
 x modding
 
-DONE:
-* ADD BRAND NEW INVENTORY SYSTEM!
-* messages in inventory
-* test weapons stuff
-* Fix double-message throwable weapon bug
-* Add chance to miss to weapons
-* Test spells
-* multiple types of rooms
-* FIX STUPID BUG CREATURES DON'T MOVE CORRECTLY
-* highscores!
-* higher hit likelyness
-* hit likelyness dependent on creatures
+LATER:
+* "pages" or scrolling in inventory
+* find an effecienter way to handle chances
+* different types of dungeons

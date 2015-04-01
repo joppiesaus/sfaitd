@@ -8,31 +8,44 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryItem[] inventory = new InventoryItem[Constants.invCapacity];
 
-        public WeaponItem rWeaponItem;//= Constants.spear;
+        public WeaponItem rWeaponItem = Constants.spear;
         public WeaponItem mWeaponItem;// = Constants.dagger;
 
         // "holding" weapons
-        public Throwable rangedWeapon
+        public override Throwable RangedWeapon
         {
             get { return rWeaponItem == null ? null : (Throwable)rWeaponItem.weapon; }
         }
-        public Weapon meleeWeapon
+        public override Weapon MeleeWeapon
         {
             get { return mWeaponItem == null ? null : mWeaponItem.weapon; }
         }
 
-        public string name = Environment.UserName;
+        public string name;
         public uint xp = 0;
         public uint reqXp = 1;
         public uint level = 1;
 
         private byte hMoves = 0;
 
-        public readonly bool[,] circle = Constants.generateCircle(Constants.playerLookRadius);
+        public readonly bool[,] circle = Constants.GenerateCircle(Constants.playerLookRadius);
+
+        public void Rename(string _name)
+        {
+            this.name = _name;
+            Console.Title = "SuperForeverAloneInThaDungeon - " + _name;
+        }
+
+
+        public override string InlineName
+        {
+            get { return "you"; }
+        }
 
         public Player()
             : base()
         {
+            Rename(Environment.UserName);
             health = maxHealth = 12;
 
             tiletype = TileType.Player;
@@ -40,20 +53,23 @@ namespace Super_ForeverAloneInThaDungeon
             drawChar = '☺';
             color = ConsoleColor.Magenta;
             damage = new Point(3, 0); // x is the strength
+            walkable = true;
 
             hitLikelyness = 400;
 
-            addInventoryItem(Constants.dagger);
+            AddInventoryItem(Constants.dagger);
+            AddInventoryItem((new Scroll(SpellGenerator.GenerateMultiple())).GenerateInvItem());
+            //AddInventoryItem(Constants.swedishMatches);
         }
 
-        public bool addInventoryItem(InventoryItem item)
+        public bool AddInventoryItem(InventoryItem item)
         {
             if (nInvItems >= inventory.Length) return false;
             inventory[nInvItems++] = item;
             return true;
         }
 
-        public void removeInventoryItem(int n)
+        public void RemoveInventoryItem(int n)
         {
             // order matters here
             nInvItems--;
@@ -65,14 +81,14 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         // unused
-        public InventoryItem swapInventoryItem(int n, InventoryItem item)
+        public InventoryItem SwapInventoryItem(int n, InventoryItem item)
         {
             InventoryItem ret = inventory[n];
             inventory[n] = item;
             return ret;
         }
 
-        public InventoryItem lastInventoryItem()
+        public InventoryItem LastInventoryItem()
         {
             return inventory[nInvItems - 1];
         }
@@ -88,8 +104,42 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
+        public override void Drop(ref Tile t)
+        {
+            // Stop making InvalidCastOperation happen
+            // It's not going to happen
+        }
+
+        public override void OnKill(Creature target)
+        {
+            xp += target.GetXp();
+
+            while (xp >= reqXp)
+            {
+                levelUp();
+                Game.Message("You are now level " + level + '!');
+            }
+        }
+
+        public override int GetDamage()
+        {
+            return damage.X;
+        }
+
+        public override void AmplifyAttack(ref WorldObject target, ref int dmg, AttackMode mode)
+        {
+            if (mode == AttackMode.Melee && MeleeWeapon == null) dmg += this.damage.X;
+        }
+
+        public override void Attack(ref WorldObject target)
+        {
+            base.Attack(ref target);
+            if (target is Creature) ((Creature)target).OnPlayerAttack();
+        }
+
         public void levelUp()
         {
+
             xp -= reqXp;
             level++;
 

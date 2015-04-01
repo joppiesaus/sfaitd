@@ -12,7 +12,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public PopupWindow(string text, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR, byte addLines = 0)
         {
-            string[] lines = Constants.generateReadableString(text, width - 4);
+            string[] lines = Constants.GenerateReadableString(text, width - 4);
             this.item = new DisplayItem(new Point(), width, (short)(lines.Length + ++addLines + 3));
 
             item.CenterScreen();
@@ -55,9 +55,8 @@ namespace Super_ForeverAloneInThaDungeon
                 Console.CursorLeft = item.EndX - 1;
                 Console.Write(Constants.yWall);
                 Console.CursorTop++;
+                Console.CursorLeft = item.pos.X;
             }
-
-            Console.CursorLeft = item.pos.X;
 
             // draw additional empty lines
             for (byte i = 0; i < addLines; i++)
@@ -113,7 +112,7 @@ namespace Super_ForeverAloneInThaDungeon
     class PopupWindowYesNo : PopupWindow
     {
         public PopupWindowYesNo(string message, short width = DEFAULT_WIDTH, ConsoleColor borderColor = DEFAULT_BORDERCOLOR, ConsoleColor textColor = DEFAULT_TEXTCOLOR)
-            : base(message, width, borderColor, textColor, 2)
+            : base(message, width, borderColor, textColor, 3)
         {
             Console.CursorTop = item.EndY - 4;
             Console.CursorLeft = item.pos.X + 2;
@@ -149,6 +148,9 @@ namespace Super_ForeverAloneInThaDungeon
                     case 'N':
                         return false;
                 }
+                Console.CursorLeft--;
+                Console.Write(' ');
+                Console.CursorLeft--;
             }
         }
     }

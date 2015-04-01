@@ -12,3 +12,4 @@ C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInTha
 C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\Super-ForeverAloneInThaDungeon.csprojResolveAssemblyReference.cache
 C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\SuperForeverAloneInThaDungeon.exe
 C:\Users\SPIRARE--3\Documents\ProgrammingProjects\sfaitd\Super-ForeverAloneInThaDungeon\obj\x86\Debug\SuperForeverAloneInThaDungeon.pdb
+C:\Users\joppiesaus\Documents\Visual Studio 2010\Projects\Super-ForeverAloneInThaDungeon\Super-ForeverAloneInThaDungeon\obj\x86\Debug\Super-ForeverAloneInThaDungeon.csprojResolveAssemblyReference.cache
