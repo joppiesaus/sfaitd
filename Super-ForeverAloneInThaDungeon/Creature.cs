@@ -52,9 +52,20 @@ namespace Super_ForeverAloneInThaDungeon
         // Likelyness of getting hit in a form of a penalty
         public short? hitPenalty = null; // 1000 = max, 0 = min
 
-        public Creature()
+
+        public virtual Throwable RangedWeapon
         {
-            walkable = true;
+            get { return null; }
+        }
+        public virtual Weapon MeleeWeapon
+        {
+            get { return null; }
+        }
+
+
+        public Creature(int lvl = 0)
+        {
+            walkable = false;
             attackable = true;
         }
 
@@ -68,7 +79,19 @@ namespace Super_ForeverAloneInThaDungeon
             if (t.tiletype == TileType.Money)
             {
                 money += ((Money)t).money;
-                t = new Tile(((Pickupable)t).replaceTile);
+                t = ((Pickupable)t).replaceTile;
+            }
+        }
+
+        public override void Kick()
+        {
+            if (DoDirectDamage(1))
+            {
+                EventRegister.RegisterPlayerKillBy(this, "kicked {0} to death!");
+            }
+            else
+            {
+                Game.Message("You kicked " + this.InlineName + '.');
             }
         }
 
@@ -102,7 +125,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (t is Pickupable)
             {
-                ((Pickupable)t).replaceTile = lastTile.tiletype;
+                ((Pickupable)t).replaceTile = lastTile;
             }
             else if (t == null)
             {
@@ -134,7 +157,6 @@ namespace Super_ForeverAloneInThaDungeon
         /// When attacking, creatures can defend
         /// </summary>
         /// <remarks>This function ALSO HANDLES MESSAGES WHEN BLOCKED.</remarks>
-        /// <param name="Game.ran">Random input</param>
         /// <returns>If it defended or not</returns>
         public virtual bool TryDefend(AttackMode aMode)
         {
@@ -142,16 +164,10 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
-        /// When attacking, initiative can amplify it's attack(think of potions, weapons, etc)
+        /// When attacking, initiative can amplify it's attack(think of potions, etc). Weapons have a seperate method for that.
         /// </summary>
-        /// <param name="Game.ran">Random input</param>
-        public virtual void AmplifyAttack(ref WorldObject target, ref int damage, AttackMode aMode)
+        public virtual void AmplifyAttack(ref WorldObject target, ref int dmg, AttackMode mode)
         {
-        }
-
-        public virtual int GetDamage(AttackMode mode)
-        {
-            return Game.ran.Next(damage.X, damage.Y + 1);
         }
 
         /// <summary>
@@ -162,39 +178,77 @@ namespace Super_ForeverAloneInThaDungeon
         {
         }
 
-        public override void Attack(ref Tile target, AttackMode attackMode = AttackMode.Melee)
+        /// <summary>
+        /// Gets the damage dealt by hand by this creature.
+        /// </summary>
+        public virtual int GetDamage()
+        {
+            return Game.ran.Next(damage.X, damage.Y + 1);
+        }
+
+        // If you change this method, don't forget to change Throwable.Attack if neccesary!
+        public override void Attack(ref WorldObject target)
         {
             Creature t = (Creature)target;
 
-            int dmg = 0;
-
             if (Game.ran.Next(0, 1001) <= hitLikelyness - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
             {
-                if (t.TryDefend(attackMode))
+                if (t.TryDefend(AttackMode.Melee))
                 {
                     return;
                 }
+
+
+                int dmg = 0;
+
+                if (MeleeWeapon == null)
+                {
+                    dmg = GetDamage();
+
+                    AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                    t.DoDirectDamage(dmg);
+
+                    EventRegister.RegisterAttack(this, t, dmg);
+
+                    if (t.destroyed)
+                    {
+                        goto OnKill; // Gah, I wish I'd knew earlier about these "goto statements"!
+                    }
+                }
                 else
                 {
-                    dmg = GetDamage(attackMode);
+                    dmg = GetDamage();
+                    MeleeWeapon.DoDamage(ref dmg);
+
+                    AmplifyAttack(ref target, ref dmg, AttackMode.Melee);
+
+                    t.DoDirectDamage(dmg);
+
+                    EventRegister.RegisterAttack(this, t, dmg);
+
+                    if (t.destroyed)
+                    {
+                        goto OnKill;
+                    }
+
+                    MeleeWeapon.ApplyWeaponEffects(this, ref target, ref dmg);
                 }
-
-                WorldObject wo = (WorldObject)target;
-                AmplifyAttack(ref wo, ref dmg, attackMode);
+                return;
             }
-
-            EventRegister.RegisterAttack(this, t, dmg);
-
-            t.DoDirectDamage(dmg);
-
-            if (t.destroyed)
+            else
             {
-                EventRegister.RegisterKill(this, t);
-
-                OnKill(t);
-
-                t.Drop(ref target);
+                EventRegister.RegisterAttack(this, t, 0);
+                return;
             }
+
+        OnKill: // but what if sigarrete is not kill?
+            EventRegister.RegisterKill(this, t);
+
+            OnKill(t);
+
+            Tile tile = (Tile)target;
+            t.Drop(ref tile);
         }
 
 
@@ -338,7 +392,6 @@ namespace Super_ForeverAloneInThaDungeon
     class Snake : Creature
     {
         public Snake(int lvl = 0)
-            : base()
         {
             health = maxHealth = Game.ran.Next(6, 10) + lvl;
             money = Game.ran.Next(1, 5); 
@@ -360,14 +413,13 @@ namespace Super_ForeverAloneInThaDungeon
 
         public override ushort GetXp()
         {
-            return (ushort)Game.ran.Next(0, damage.X / 2 + maxHealth / 5);
+            return (ushort)Game.ran.Next(Game.ran.Next(0, 2), damage.X / 2 + maxHealth / 5);
         }
     }
 
     class Goblin : Creature
     {
         public Goblin(int lvl = 0)
-            : base()
         {
             money = Game.ran.Next(2, 7);
             health = maxHealth = Game.ran.Next(8, 13) + lvl;
@@ -393,22 +445,22 @@ namespace Super_ForeverAloneInThaDungeon
 
     class Grunt : Creature
     {
-        public Grunt()
+        public Grunt(int lvl = 0) :base()
         {
             money = Game.ran.Next(1, 4);
-            health = maxHealth = Game.ran.Next(3, 5);
+            health = maxHealth = Game.ran.Next(3 + lvl / 2, 5 + lvl);
             searchRange = 3;
             tiletype = TileType.Grunt;
             drawChar = Constants.chars[6];
             color = ConsoleColor.Gray;
-            damage = new Point(1, 2);
+            damage = new Point(1, 2 + lvl / 2);
             moveMode = CreatureMoveMode.Stationary;
             hitLikelyness = (ushort)Game.ran.Next(600, 800);
         }
 
         public override ushort GetXp()
         {
-            return (ushort)Game.ran.Next(Game.ran.Next(0, 2), 2);
+            return (ushort)Game.ran.Next(0, 2);
         }
 
         public override void OnPlayerDiscovery()

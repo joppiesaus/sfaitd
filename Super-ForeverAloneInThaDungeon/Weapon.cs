@@ -46,7 +46,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
     }
 
-    class Weapon
+    class Weapon : Thing
     {
         public ItemEnchantment[] enchantments = null;
 
@@ -71,16 +71,36 @@ namespace Super_ForeverAloneInThaDungeon
             enchantments[enchantments.Length - 1] = enc;
         }
 
+        /// <summary>
+        /// Call this when you need to damage the target.
+        /// </summary>
+        public void DoDamage(ref int dmg)
+        {
+            dmg += Game.ran.Next(damage.X, damage.Y + 1);
+        }
+
+        /// <summary>
+        /// Call this to apply additional effects to the target
+        /// </summary>
+        public void ApplyWeaponEffects(Thing caller, ref WorldObject target, ref int dmg)
+        {
+            for (int i = 0; i < enchantments.Length; i++)
+            {
+                enchantments[i].Apply(ref target, caller);
+            }
+        }
+
         public override string ToString()
         {
             return name;
         }
 
-        public int Attack(ref Creature c)
+        public override string InlineName
         {
-            int beginHealth = c.health;
-
-            return 0;
+            get
+            {
+                return "the " + name;
+            }
         }
     }
 
@@ -88,6 +108,45 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public ushort hitChance;
         public byte range;
+
+        public void Attack(Creature caller, ref WorldObject target)
+        {
+            Creature t = (Creature)target;
+
+            if (Game.ran.Next(0, 1001) <= hitChance - (t.hitPenalty == null ? 0 : Game.ran.Next(0, (short)t.hitPenalty + 1)))
+            {
+                if (t.TryDefend(AttackMode.Ranged))
+                {
+                    return;
+                }
+
+
+                int dmg = 0;
+
+                DoDamage(ref dmg);
+                caller.AmplifyAttack(ref target, ref dmg, AttackMode.Ranged);
+
+                t.DoDirectDamage(dmg);
+
+                EventRegister.RegisterAttack(this, t, dmg);
+
+                if (t.destroyed)
+                {
+                    EventRegister.RegisterKill(this, t);
+
+                    caller.OnKill(t);
+
+                    Tile tile = (Tile)target;
+                    t.Drop(ref tile);
+                }
+
+                ApplyWeaponEffects((Thing)caller, ref target, ref dmg);
+            }
+            else
+            {
+                EventRegister.RegisterAttack(this, t, 0);
+            }
+        }
     }
 
 
@@ -98,7 +157,7 @@ namespace Super_ForeverAloneInThaDungeon
             damage = new Point(1, 3);
             name = "Dagger";
 
-            Enchant(new ItemEnchantmentFire());
+            //Enchant(new ItemEnchantmentFire());
         }
     }
 

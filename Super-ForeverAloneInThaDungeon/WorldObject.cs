@@ -7,14 +7,18 @@ namespace Super_ForeverAloneInThaDungeon
     {
         public bool destroyed = false;
         public bool attackable = false;
+        public bool transparent = true;
 
         // Name in the form of "the Snake attacked you"
-        public virtual string InlineName
+        public override string InlineName
         {
             get { return "the " + this.tiletype; }
         }
 
-        public virtual void Attack(ref Tile target, AttackMode aMode)
+        /// <summary>
+        /// Melee-attacks the target object.
+        /// </summary>
+        public virtual void Attack(ref WorldObject target)
         {
             // TODO: Register attack?
         }
@@ -60,7 +64,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (t is Pickupable)
             {
-                ((Pickupable)t).replaceTile = TileType.Air;
+                ((Pickupable)t).replaceTile = new Tile(TileType.Air);
             }
             else if (t == null)
             {
@@ -77,6 +81,14 @@ namespace Super_ForeverAloneInThaDungeon
         /// </summary>
         public virtual void Update()
         {
+        }
+
+        /// <summary>
+        /// Kick this object. Player-only.
+        /// </summary>
+        public virtual void Kick()
+        {
+            Game.Message("You kicked " + InlineName + ", but no effect.");
         }
 
         /// <summary>

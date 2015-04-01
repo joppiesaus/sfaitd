@@ -64,6 +64,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Creature.cs" />
+    <Compile Include="CreatureSpawner.cs" />
     <Compile Include="Door.cs" />
     <Compile Include="DungeonGenerator.cs" />
     <Compile Include="EventRegister.cs" />
@@ -82,12 +83,14 @@
     <Compile Include="Point.cs" />
     <Compile Include="PopupWindow.cs" />
     <Compile Include="Room.cs" />
+    <Compile Include="RoomPlanner.cs" />
     <Compile Include="Scroll.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpellEffect.cs" />
     <Compile Include="SpellGenerator.cs" />
     <Compile Include="TemporaryEffect.cs" />
+    <Compile Include="Thing.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="Weapon.cs" />
     <Compile Include="WorldObject.cs" />
@@ -119,6 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Item.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Level.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

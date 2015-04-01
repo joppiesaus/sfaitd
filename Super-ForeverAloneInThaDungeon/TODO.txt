@@ -1,53 +1,19 @@
 ﻿next:
-* ballance stupid effects
-* add different effects to scroll too!
-
-* HOW DO I HANDLE ALL THESE DIFFERENT SPELLLSSS
-
-* test and implement doors
-* enhance the level generator, with different levels and stuff!
-* Weapon enchantments
-* Creatures should have weapons too
-* fix spears and other stuff
-* Effects(fire, strength...) that last a few moves	(update methods too)
-* method that handles interaction (like chests) between things?
-* Fix issue #1
-
-* You can't attack objects
-
-* 2easy4me
-* balance leveling
-* CREATIVITY
-
-
-* weapon enchantments
-* combine/selection/etc inventory dr
-
+* BALANCEEEEE
+* GENERATIONNNN
+* FINIISSSH
+* LOOOSSS http://www.roguebasin.com/index.php?title=Line_of_sight
 * Create list of commands
-
-* Add description size predicting to inventory
-	for the description, use an int that already calculated how long it'll be(or something like that)
-	same for the actions.
-
-* item selection system(player types c((c)ast), player gets screenfull of scrolls and selects one)
-* Enchanting!
-* Different AI's
-
-* improved LOS : http://www.roguebasin.com/index.php?title=Line_of_sight
-* different types of dungeons
-
-* A weapon you can set stuff on fire with
-
-* "pages" or scrolling in inventory
 
 BUGS:
 * creatures can step out of lighting causing "ghosts"
 * Creatures don't get updated when inside lightning(weren't discovered in first place?)
 * Weird movement
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
-* Duplicate spells
+* You can't attack objects
 ? Enchantments are always players
-
+? When you have an enchantment/effect killing a creature, OnKill isn't called. Other way of gathering XP?
+? What would happen if there's already money under the creature that's dead?
 
 IDEAS:
 x Locked doors
@@ -58,24 +24,13 @@ x NPCs
 x you must go down until you've found x, then you must go up and then YOU WIN!!!!11!14!
 x frozen
 x mental stuff
+x round room
+x enchanting
 
 x (network) co-op
 x modding
 
-DONE:
-* Rewrite the way messages are called. Also the way things get attacked. It shouldn't be 2 functions.
-* Objects should have a class called thing(or something)
-* ADD BRAND NEW INVENTORY SYSTEM!
-* messages in inventory
-* test weapons stuff
-* Fix double-message throwable weapon bug
-* Add chance to miss to weapons
-* Test spells
-* multiple types of rooms
-* FIX STUPID BUG CREATURES DON'T MOVE CORRECTLY
-* highscores!
-* higher hit likelyness
-* hit likelyness dependent on creatures
-* FIX THE STUPID STUPID SILLY STUPID MERGE AND COMPRESS BUG
-* FIX THAT SELECTION STUFF
-* fix wrong actions when merging two scrolls
+LATER:
+* "pages" or scrolling in inventory
+* find an effecienter way to handle chances
+* different types of dungeons

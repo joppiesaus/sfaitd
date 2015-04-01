@@ -20,10 +20,11 @@ namespace Super_ForeverAloneInThaDungeon
         Grunt,
         Chest,
         Up,
-        Down
+        Down,
+        Door
     }
 
-    class Tile
+    class Tile : Thing
     {
         public char drawChar;
         public bool walkable = false;
@@ -90,6 +91,14 @@ namespace Super_ForeverAloneInThaDungeon
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     Console.Write(notLightenChar);
                 }
+        }
+
+        public override string InlineName
+        {
+            get
+            {
+                return this.tiletype.ToString();
+            }
         }
 
         public override string ToString()

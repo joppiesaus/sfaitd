@@ -35,6 +35,7 @@ namespace Super_ForeverAloneInThaDungeon
                 _g(220),                  // chestChar
                 _g(148),                  // gruntChar
                 _g(254),                  // broken door char
+                _g(207),                  // pickupable item char
             };
         }
 

@@ -72,7 +72,7 @@ namespace Super_ForeverAloneInThaDungeon
         }
 
         /// <summary>
-        /// true for x, false for y
+        /// true for x(up or down), false for y(left or right)
         /// </summary>
         public bool Orientation
         {
@@ -94,16 +94,17 @@ namespace Super_ForeverAloneInThaDungeon
         {
             this.Orientation = x;
 
-            this.walkable = true;
+            this.walkable = false;
+            this.transparent = false;
             this.color = ConsoleColor.DarkYellow;
             this.notLightenChar = this.drawChar = x ? Constants.xDoor : Constants.yDoor;
-            this.tiletype = TileType.Other;
+            this.tiletype = TileType.Door;
         }
 
         /// <summary>
         /// Player-only
         /// </summary>
-        public void Kick()
+        public override void Kick()
         {
             if (Open)
             {
@@ -113,20 +114,28 @@ namespace Super_ForeverAloneInThaDungeon
             
             if (Kickable)
             {
-                // 1/4 it won't go open even if it's possible,
-                // 1/2 it opens(so it's closable)
-                // 1/4 it breaks
-                switch (Game.ran.Next(0, 4))
+                // 5/8 if
+                //     2/3 it opens(so it's closable)
+                //     1/4 it breaks
+                if (Game.ran.Next(0, 8) < 5)
                 {
-                    case 0:
-                        Game.Message("The door broke into pieces.");
+                    if (Game.ran.Next(0, 3) == 0)
+                    {
+                        Game.Message("The door broke into pieces!");
                         this.destroyed = true;
                         return;
-                    case 1:
-                    case 2:
+                    }
+                    else
+                    {
                         Game.Message("The door slammed open with great force!");
                         this.Toggle();
                         return;
+                    }
+                }
+                else
+                {
+                    Game.Message("WHAAAM");
+                    return;
                 }
             }
             else if (Cursed)
@@ -140,7 +149,7 @@ namespace Super_ForeverAloneInThaDungeon
         /// <summary>
         /// Try to open the door. Player-only.
         /// </summary>
-        public void TryOpen()
+        public bool TryOpen()
         {
             if (Locked)
             {
@@ -159,9 +168,11 @@ namespace Super_ForeverAloneInThaDungeon
                 else
                 {
                     this.Toggle();
-                    Game.Message("You opened the door.");
+                    Game.Message("You opened the door");
+                    return true;
                 }
             }
+            return false;
         }
 
         /// <summary>
@@ -170,9 +181,12 @@ namespace Super_ForeverAloneInThaDungeon
         public void Toggle()
         {
             Locked = false;
-            Open.Invert();
-            Orientation.Invert();
-            drawChar = notLightenChar = Orientation ? Constants.xWall : Constants.yWall;
+            Open ^= true; // invert open/close. Can't call toggle.
+            Orientation ^= true;
+            drawChar = notLightenChar = Orientation ? Constants.xDoor : Constants.yDoor;
+            walkable ^= true;
+            transparent = walkable;
+            needsToBeDrawn = true;
         }
 
         /// <summary>
@@ -181,7 +195,7 @@ namespace Super_ForeverAloneInThaDungeon
         protected override Tile GenerateDrop()
         {
             Tile t = new Tile(TileType.Air);
-            t.drawChar = notLightenChar = Constants.chars[7];
+            t.drawChar = t.notLightenChar = Constants.chars[7];
             t.color = ConsoleColor.DarkYellow;
             return t;
         }

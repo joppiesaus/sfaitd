@@ -28,6 +28,7 @@ namespace Super_ForeverAloneInThaDungeon
         uint currentFloor = 0;
 
         // Environment
+        LevelPlanner level = new LevelPlanner();
         Room[] rooms;
         Tile[,] tiles; // Ode to the mighty comma!
         ushort[,] scores; // For enemys searching the player
@@ -77,10 +78,14 @@ namespace Super_ForeverAloneInThaDungeon
 
             while (true)
             {
+                currentFloor++;
                 setDungeonToEmpty();
 
+                level.UpdateSystems((int)currentFloor);
+
                 // tweak this
-                rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
+                //rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
+                rooms = generateDungeons(10);
 
                 spawnPlayerInRoom(rooms[ran.Next(0, rooms.Length)], p);
 
@@ -88,7 +93,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                 if (disableFight) p.walkable = false;
 
-                currentFloor++;
+                
 
                 // Make sure the dungeon starts nice and clean
                 // MAKE EFFECIENTER???
@@ -117,6 +122,7 @@ namespace Super_ForeverAloneInThaDungeon
                         case ConsoleKey.OemPeriod: ReadCommand(); doNotCallDraw = true; break;
                         case ConsoleKey.Escape: Environment.Exit(0); break;
                         case ConsoleKey.R: return;
+                        case ConsoleKey.K: tryKick(); break;
                         case ConsoleKey.LeftArrow: toAdd.X--; break;
                         case ConsoleKey.RightArrow: toAdd.X++; break;
                         case ConsoleKey.UpArrow: toAdd.Y--; break;
@@ -135,10 +141,8 @@ namespace Super_ForeverAloneInThaDungeon
                         default:
                             if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
                             {
-                                state = State.Throwing;
-                                continue;
+                                playerAttackRanged(askDirection(), ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon, playerPos);
                             }
-                            doNotCallDraw = true;
                             break;
                     }
 
@@ -162,7 +166,8 @@ namespace Super_ForeverAloneInThaDungeon
                             // TODO: if preCopy is WorldObject && isAttackable
                             if (preCopy is Creature)
                             {
-                                p.Attack(ref tiles[toCheck.X, toCheck.Y]);
+                                WorldObject target = (WorldObject)tiles[toCheck.X, toCheck.Y];
+                                p.Attack(ref target);
                                 abort = true;
                             }
                             else if (preCopy.tiletype == TileType.Money)
@@ -173,7 +178,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 string s = money == 1 ? "" : "s";
                                 p.money += money;
                                 Message("You found " + money + " coin" + s + '!');
-                                preCopy = new Tile(((Pickupable)preCopy).replaceTile);
+                                preCopy = ((Pickupable)preCopy).replaceTile;
                             }
                             else if (preCopy is Pickupable)
                             {
@@ -181,7 +186,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 if (p.AddInventoryItem(((Pickupable)preCopy).GenerateInvItem()))
                                 {
                                     Message("You found " + p.LastInventoryItem().name);
-                                    preCopy = new Tile(((Pickupable)preCopy).replaceTile);
+                                    preCopy = ((Pickupable)preCopy).replaceTile;
                                 }
                                 else Message(Constants.invFullMsg);
                             }
@@ -227,6 +232,15 @@ namespace Super_ForeverAloneInThaDungeon
                                     }
 
                                     c.contents = items;
+                                }
+                            }
+                            else if (preCopy is Door)
+                            {
+                                Door door = (Door)preCopy;
+                                if (!door.Open)
+                                {
+                                    ((Door)preCopy).TryOpen();
+                                    abort = true;
                                 }
                             }
                             else if (preCopy.tiletype == TileType.Down) return;
@@ -299,27 +313,6 @@ namespace Super_ForeverAloneInThaDungeon
                         }
                 }
                 #endregion
-                #region Throwing state
-                else if (state == State.Throwing)
-                {
-                    Message("Which direction?");
-                    draw();
-                    Player p = (Player)tiles[playerPos.X, playerPos.Y];
-                    Throwable t = p.RangedWeapon;
-
-                    switch (Console.ReadKey().Key)
-                    {
-                        // Think backwards here: If you need to go UP in an ARRAY, what do you need to do?
-                        case ConsoleKey.UpArrow: handleThrowable(0, -1, p.RangedWeapon, ref p); break;
-                        case ConsoleKey.DownArrow: handleThrowable(0, 1, p.RangedWeapon, ref p); break;
-                        case ConsoleKey.LeftArrow: handleThrowable(-1, 0, p.RangedWeapon, ref p); break;
-                        case ConsoleKey.RightArrow: handleThrowable(1, 0, p.RangedWeapon, ref p); break;
-                    }
-
-                    draw();
-                    state = State.Default;
-                }
-                #endregion
             }
         }
 
@@ -328,12 +321,21 @@ namespace Super_ForeverAloneInThaDungeon
         /// </summary>
         void update()
         {
+            level.creatureSpawner.Update(rooms, ref tiles);
+
             for (int x = 0; x < tiles.GetLength(0); x++)
                 for (int y = 0; y < tiles.GetLength(1); y++)
                 {
                     if (tiles[x, y] is WorldObject)
                     {
                         WorldObject obj = (WorldObject)tiles[x, y];
+
+                        // Check before and after the update. It may be already destroyed!
+                        if (obj.destroyed)
+                        {
+                            obj.Drop(ref tiles[x, y]);
+                            continue;
+                        }
 
                         obj.Update();
 
@@ -361,9 +363,10 @@ namespace Super_ForeverAloneInThaDungeon
                         {
                             if (tiles[p.X, p.Y].tiletype == TileType.Player)
                             {
-                                ((Creature)tiles[x, y]).Attack(ref tiles[playerPos.X, playerPos.Y]);
+                                WorldObject target = (WorldObject)tiles[playerPos.X, playerPos.Y];
+                                ((Creature)tiles[x, y]).Attack(ref target);
                             }
-                            else if (!(tiles[p.X, p.Y] is Creature))
+                            else
                             {
                                 Tile preCopy = tiles[p.X, p.Y]; // target tile
 
@@ -400,33 +403,48 @@ namespace Super_ForeverAloneInThaDungeon
             }
         }
 
-        // TODO: Make accesable for enemys too
-        // TODO: Rewrite
-        void handleThrowable(sbyte x, sbyte y, Throwable t, ref Player p)
+
+        /// <summary>
+        /// Attemps a ranged attack in a specific direction.
+        /// </summary>
+        /// <returns>If target was found</returns>
+        bool attackRanged(Point direction, Throwable t, Point origin)
         {
-            /*Point curPoint = playerPos;
-            for (byte i = 0; i < t.range; i++) // Just saved you 24 bit of RAM!
+            Point curPoint = origin;
+            for (byte i = 0; i < t.range; i++)
             {
-                curPoint.X += x;
-                curPoint.Y += y;
+                curPoint.X += direction.X;
+                curPoint.Y += direction.Y;
 
-                if (isInScreen(curPoint)) if (tiles[curPoint.X, curPoint.Y] is Creature)
-                    {
-                        int dmg = ran.Next(t.damage.X, t.damage.Y + 1);
-
-                        //message = string.Format("{0} {1} with the Spear", Constants.getPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype);
-                        Message(string.Format("{0} {1} with the {2}", Constants.GetPDamageInWords(dmg), tiles[curPoint.X, curPoint.Y].tiletype, t.ToString()));
-
-                        Creature c = (Creature)tiles[curPoint.X, curPoint.Y];
-                        if (c.DoDirectDamage(dmg, ref tiles[curPoint.X, curPoint.Y]))
-                            onDead(ref p, c);
-
-                        processMonsters();
-                        return;
-                    }
+                if (isInScreen(curPoint) && tiles[curPoint.X, curPoint.Y] is WorldObject)
+                {
+                    WorldObject target = (WorldObject)tiles[curPoint.X, curPoint.Y];
+                    t.Attack((Creature)tiles[origin.X, origin.Y], ref target);
+                    return true;
+                }
             }
+            return false;
+        }
 
-            Message("I don't see any creature there!");*/
+        // Sorry, couldn't come up with a better method!
+        bool playerAttackRanged(Point direction, Throwable t, Point origin)
+        {
+            Point curPoint = origin;
+            for (byte i = 0; i < t.range; i++)
+            {
+                curPoint.X += direction.X;
+                curPoint.Y += direction.Y;
+
+                if (isInScreen(curPoint) && tiles[curPoint.X, curPoint.Y] is WorldObject)
+                {
+                    WorldObject target = (WorldObject)tiles[curPoint.X, curPoint.Y];
+                    t.Attack((Creature)tiles[origin.X, origin.Y], ref target);
+                    if (target is Creature) ((Creature)target).OnPlayerAttack();
+                    return true;
+                }
+            }
+            Message("Nothing to target!");
+            return false;
         }
 
         void generateScoreGrid(Point p)
@@ -550,8 +568,6 @@ namespace Super_ForeverAloneInThaDungeon
             switch (c.moveMode)
             {
                 case CreatureMoveMode.FollowPlayer:
-                    Point preferredDir = new Point(playerPos.X + (x > playerPos.X ? -1 : 1), playerPos.Y + (y > playerPos.Y ? 1 : -1));
-
                     Point[] points = new Point[] {
                         // diagonal moves
                         new Point(x - 1, y - 1),
@@ -576,11 +592,6 @@ namespace Super_ForeverAloneInThaDungeon
                             least = scores[points[i].X, points[i].Y];
                             n = i;
                         }
-                    }
-
-                    if (scores[preferredDir.X, preferredDir.Y] <= least)
-                    {
-                        return preferredDir;
                     }
 
                     if (n != 0xff)
@@ -663,6 +674,38 @@ namespace Super_ForeverAloneInThaDungeon
         string getDefaultMessage()
         {
             return playerPos.ToString();
+        }
+        #endregion
+
+        #region player thinggies
+        Point askDirection()
+        {
+            Message("Which direction?");
+            drawInfoBar();
+            Point p = Constants.GetDirectionByKey(Console.ReadKey().Key);
+            if (p.Same(0, 0))
+            {
+                Message("Never mind.");
+                drawInfoBar();
+            }
+            return p;
+        }
+
+        void tryKick()
+        {
+            Point dir = askDirection();
+            if (!dir.Same(0, 0))
+            {
+                Tile t = tiles[playerPos.X + dir.X, playerPos.Y + dir.Y];
+                if (t is WorldObject)
+                {
+                    ((WorldObject)t).Kick();
+                }
+                else
+                {
+                    Message("Nothing to kick there");
+                }
+            }
         }
         #endregion
 
