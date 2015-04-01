@@ -178,7 +178,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 string s = money == 1 ? "" : "s";
                                 p.money += money;
                                 Message("You found " + money + " coin" + s + '!');
-                                preCopy = new Tile(((Pickupable)preCopy).replaceTile);
+                                preCopy = ((Pickupable)preCopy).replaceTile;
                             }
                             else if (preCopy is Pickupable)
                             {
@@ -186,7 +186,7 @@ namespace Super_ForeverAloneInThaDungeon
                                 if (p.AddInventoryItem(((Pickupable)preCopy).GenerateInvItem()))
                                 {
                                     Message("You found " + p.LastInventoryItem().name);
-                                    preCopy = new Tile(((Pickupable)preCopy).replaceTile);
+                                    preCopy = ((Pickupable)preCopy).replaceTile;
                                 }
                                 else Message(Constants.invFullMsg);
                             }

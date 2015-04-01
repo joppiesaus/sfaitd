@@ -64,7 +64,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (t is Pickupable)
             {
-                ((Pickupable)t).replaceTile = TileType.Air;
+                ((Pickupable)t).replaceTile = new Tile(TileType.Air);
             }
             else if (t == null)
             {

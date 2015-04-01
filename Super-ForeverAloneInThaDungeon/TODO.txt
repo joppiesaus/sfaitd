@@ -6,13 +6,16 @@
 * Create list of commands
 
 BUGS:
+* Killing a creature in a doorway causes to appear a "nonetile" with an notDrawChar of air.
+? What would happen if there's already money under the creature that's dead?
+
 * creatures can step out of lighting causing "ghosts"
 * Creatures don't get updated when inside lightning(weren't discovered in first place?)
 * Weird movement
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1
 * You can't attack objects
 ? Enchantments are always players
-? When you have an enchantment/effect killing a creature, OnKill isn't called.
+? When you have an enchantment/effect killing a creature, OnKill isn't called. Other way of gathering XP?
 
 IDEAS:
 x Locked doors

@@ -79,7 +79,7 @@ namespace Super_ForeverAloneInThaDungeon
             if (t.tiletype == TileType.Money)
             {
                 money += ((Money)t).money;
-                t = new Tile(((Pickupable)t).replaceTile);
+                t = ((Pickupable)t).replaceTile;
             }
         }
 
@@ -125,7 +125,7 @@ namespace Super_ForeverAloneInThaDungeon
 
             if (t is Pickupable)
             {
-                ((Pickupable)t).replaceTile = lastTile.tiletype;
+                ((Pickupable)t).replaceTile = lastTile;
             }
             else if (t == null)
             {

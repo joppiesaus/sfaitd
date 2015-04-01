@@ -157,7 +157,7 @@ namespace Super_ForeverAloneInThaDungeon
             damage = new Point(1, 3);
             name = "Dagger";
 
-            Enchant(new ItemEnchantmentFire());
+            //Enchant(new ItemEnchantmentFire());
         }
     }
 
