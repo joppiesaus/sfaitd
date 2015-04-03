@@ -15,7 +15,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         enum State
         {
-            Default, Inventory, Throwing
+            Default, Inventory
         }
 
         const TileType noneTile = TileType.None; // use ONLY for dungeon generation(educational :p) exception purposes.
@@ -116,10 +116,10 @@ namespace Super_ForeverAloneInThaDungeon
                     ConsoleKey key = Console.ReadKey().Key;
 
                     Point toAdd = new Point();
-                    bool doNotCallDraw = false;
+                    bool doNotUpdate = false;
                     switch (key)
                     {
-                        case ConsoleKey.OemPeriod: ReadCommand(); doNotCallDraw = true; break;
+                        case ConsoleKey.OemPeriod: ReadCommand(); doNotUpdate = true; break;
                         case ConsoleKey.Escape: Environment.Exit(0); break;
                         case ConsoleKey.R: return;
                         case ConsoleKey.K: tryKick(); break;
@@ -138,12 +138,14 @@ namespace Super_ForeverAloneInThaDungeon
                                         tiles[x, y].lighten = true;
                                         tiles[x, y].needsToBeDrawn = true;
                                     } break; ////////////////////////////////
-                        default:
-                            if (key == ConsoleKey.S && ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
+                        case ConsoleKey.S:
+                            if (((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon != null)
                             {
                                 playerAttackRanged(askDirection(), ((Player)tiles[playerPos.X, playerPos.Y]).RangedWeapon, playerPos);
                             }
                             break;
+
+                        default: doNotUpdate = true; break;
                     }
 
                     // Clear what key the user entered(prevent uglyness)
@@ -264,7 +266,7 @@ namespace Super_ForeverAloneInThaDungeon
                         //}
                     }
 
-                    if (!doNotCallDraw)
+                    if (!doNotUpdate)
                     {
                         update();
                         processMonsters();

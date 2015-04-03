@@ -8,7 +8,7 @@ namespace Super_ForeverAloneInThaDungeon
 
         public InventoryItem[] inventory = new InventoryItem[Constants.invCapacity];
 
-        public WeaponItem rWeaponItem = Constants.spear;
+        public WeaponItem rWeaponItem;// = Constants.spear;
         public WeaponItem mWeaponItem;// = Constants.dagger;
 
         // "holding" weapons

@@ -5,8 +5,14 @@ namespace Super_ForeverAloneInThaDungeon
     partial class Game
     {
         // Maybe another command system in the future?
-        void ReadCommand()
+        /// <summary>
+        /// Reads a command from the user
+        /// </summary>
+        /// <returns>If there should be not an update</returns>
+        bool ReadCommand()
         {
+            bool toReturn = true;
+
             PopupWindowEnterText pWnd = new PopupWindowEnterText("Enter command", 70);
             string cmdText = pWnd.Act();
 
@@ -41,13 +47,13 @@ namespace Super_ForeverAloneInThaDungeon
                 case "DRAW":
                     Game.Message("Redrawed succesfully");
                     redrawNoMatterWhatState();
-                    return;
+                    return true;
                 
                 case "HIGHSCORES":
                     if (!Highscores.HasLoaded) Highscores.Load();
                     Highscores.Display();
                     redrawNoMatterWhatState();
-                    return;
+                    return true;
 
                 case "UNYIELD":
                     if (args.Length > 0)
@@ -86,6 +92,7 @@ namespace Super_ForeverAloneInThaDungeon
                     break;
 
                 case "CLOSE":
+                    cmd_wipeItemNoMatterWhatState(clearItem);
                     Point dir = askDirection();
                     if (!dir.Same(0, 0))
                     {
@@ -104,7 +111,8 @@ namespace Super_ForeverAloneInThaDungeon
                             }
                         }
                     }
-                    break;
+                    cmd_drawProcessNoMatterWhatState();
+                    return false;
 
                 case "ME":
                     if (args.Length > 0)
@@ -198,6 +206,8 @@ namespace Super_ForeverAloneInThaDungeon
                     drawInfoBar();
                     break;
             }
+
+            return toReturn;
         }
 
         void redrawNoMatterWhatState()
@@ -209,6 +219,32 @@ namespace Super_ForeverAloneInThaDungeon
                     break;
                 case State.Inventory:
                     drawInventory();
+                    break;
+            }
+        }
+
+        void cmd_wipeItemNoMatterWhatState(DisplayItem item)
+        {
+            switch (state)
+            {
+                default:
+                    wipeDisplayItem(item);
+                    break;
+                case State.Inventory:
+                    inv_wipePopup(item);
+                    break;
+            }
+        }
+
+        void cmd_drawProcessNoMatterWhatState()
+        {
+            switch (state)
+            {
+                default:
+                    draw();
+                    break;
+                case State.Inventory:
+                    drawInfoBar();
                     break;
             }
         }
