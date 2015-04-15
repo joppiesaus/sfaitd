@@ -11,17 +11,17 @@ namespace Super_ForeverAloneInThaDungeon
         /// <returns>Array of dungeons</returns>
         Room[] generateDungeons(ushort nRooms)
         {
-            Room[] dungeons = new Room[nRooms];
+            rooms = new Room[nRooms];
 
-            // Start with one dungeon where the player spawns.
-            dungeons[0] = new Room(
+            // Start with one dungeon in the middle
+            rooms[0] = new Room(
                 new Point(
                     tiles.GetLength(0) / 2 + ran.Next(-10, 11),
                     tiles.GetLength(1) / 2 + ran.Next(-10, 11)
                 )
             );
-            dungeons[0].AppendName();
-            dungeons[0].Generate(ref tiles);
+            rooms[0].AppendName();
+            rooms[0].Generate(ref tiles);
 
             for (ushort currentRoom = 1; currentRoom < nRooms;)
             {
@@ -32,7 +32,7 @@ namespace Super_ForeverAloneInThaDungeon
                 while (true) // If not possible... heheheheheheheh
                 {
                     // 1: Pick any wall of any room
-                    cc = dungeons[ran.Next(0, currentRoom)].GetRandomCorridorBuildPoint();
+                    cc = rooms[ran.Next(0, currentRoom)].GetRandomCorridorBuildPoint();
 
                     // 2: Check if possible, if not, try again
                     cc.length = (byte)ran.Next(6, 16);
@@ -57,9 +57,11 @@ namespace Super_ForeverAloneInThaDungeon
 
                     Point pathToRoomIncrement = getIncrementByDirection(pathToRoom.direction);
                     Point ccIncrement = getIncrementByDirection(cc.direction);
+
+                    byte pathToRoomOffset = (byte)ran.Next(1, cc.length + 1);
                     pathToRoom.origin = new Point(
-                        cc.origin.X + ran.Next(1, cc.length + 1) * ccIncrement.X,
-                        cc.origin.Y + ran.Next(1, cc.length + 1) * ccIncrement.Y
+                        cc.origin.X + pathToRoomOffset * ccIncrement.X,
+                        cc.origin.Y + pathToRoomOffset * ccIncrement.Y
                     );
 
                     if (!canBuildCorridorHere(pathToRoom)) { continue; }
@@ -71,10 +73,14 @@ namespace Super_ForeverAloneInThaDungeon
                     {
                         room.Generate(ref tiles);
                         constructCorridor(pathToRoom, pathToRoomIncrement);
+                        if (ran.Next(0, 2) == 0) // 1/2 chance that there'll be no corridor after the pathToRoom
+                        {
+                            cc.length = pathToRoomOffset;
+                        }
                         constructCorridor(cc, ccIncrement);
 
                         room.AppendName();
-                        dungeons[currentRoom++] = room;
+                        rooms[currentRoom++] = room;
                         break;
                     }
                 }
@@ -82,12 +88,12 @@ namespace Super_ForeverAloneInThaDungeon
 
             for (ushort i = 0; i < nRooms; i++)
             {
-                dungeons[i].Sprinkle(ref tiles, null, currentFloor);
+                rooms[i].Sprinkle(ref tiles, null, currentFloor);
             }
 
-            level.creatureSpawner.SprinkleSpawn(dungeons, ref tiles);
+            level.creatureSpawner.SprinkleSpawn(rooms, ref tiles);
 
-            return dungeons;
+            return rooms;
         }
 
         void makeRandomDoorAt(Point p, sbyte dir)

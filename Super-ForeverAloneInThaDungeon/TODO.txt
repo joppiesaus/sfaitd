@@ -6,6 +6,7 @@
 * Create list of commands
 
 BUGS:
+* not-drawn creatures sometimes displayed as nonetiles
 * creatures can step out of lighting causing "ghosts"
 * Creatures don't get updated when inside lightning(weren't discovered in first place?)
 * #1 Fog of war: https://github.com/joppiesaus/sfaitd/issues/1

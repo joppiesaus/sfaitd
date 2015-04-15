@@ -85,7 +85,7 @@ namespace Super_ForeverAloneInThaDungeon
 
                 // tweak this
                 //rooms = createDungeons(15, new Room(new Point(4, 19), new Point(5, 15))); // Counted from 0 *trollface*
-                rooms = generateDungeons(10);
+                rooms = generateDungeons(15);
 
                 spawnPlayerInRoom(rooms[ran.Next(0, rooms.Length)], p);
 
